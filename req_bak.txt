@@ -1,0 +1,3 @@
+-e git+https://github.com/IDEA-Research/Grounded-Segment-Anything@126abe633ffe333e16e4a0a4e946bc1003caf757#egg=groundingdino&subdirectory=GroundingDINO
+-e git+https://github.com/LLaVA-VL/LLaVA-Plus-Codebase@a9f9d6fd249f03d6c5889cea6f6ae0eb75b8e917#egg=llava
+-e git+https://github.com/IDEA-Research/Grounded-Segment-Anything@126abe633ffe333e16e4a0a4e946bc1003caf757#egg=segment_anything&subdirectory=segment_anything

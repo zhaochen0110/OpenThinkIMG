@@ -28,7 +28,7 @@ import numpy as np
 import requests
 from PIL import Image
 
-from demo.inference_on_a_image import get_grounding_output
+# from demo.inference_on_a_image import get_grounding_output
 
 from groundingdino.util.inference import load_model, predict
 import groundingdino.datasets.transforms as T
@@ -329,7 +329,7 @@ if __name__ == "__main__":
         "--model-path", type=str, default="/mnt/petrelfs/share_data/suzhaochen/groundingdino_swint_ogc.pth"
     )
     parser.add_argument(
-        "--model-config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/ref/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
+        "--model-config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
     )
     parser.add_argument(
         "--model-names",
