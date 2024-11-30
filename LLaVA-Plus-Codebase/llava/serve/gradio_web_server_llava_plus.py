@@ -934,7 +934,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int)
     parser.add_argument("--controller-url", type=str,
-                        default="http://localhost:21001")
+                        default="http://localhost:20001")
     parser.add_argument("--concurrency-count", type=int, default=8)
     parser.add_argument("--model-list-mode", type=str, default="once",
                         choices=["once", "reload"])

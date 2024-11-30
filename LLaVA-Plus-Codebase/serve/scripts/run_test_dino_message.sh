@@ -12,6 +12,5 @@ cpus=2
 quotatype="auto"
 
 OMP_NUM_THREADS=8 srun --partition=MoE --job-name="LM_LCS558K" --mpi=pmi2 --gres=gpu:${gpus}  -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
--w SH-IDCA1404-10-140-54-124 \
 python grounding_dino_test_message.py \
-# --controller-address http://10.140.54.33:20001
+--controller-address http://SH-IDCA1404-10-140-54-5:20001

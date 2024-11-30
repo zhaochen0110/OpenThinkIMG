@@ -292,16 +292,22 @@ class Conversation:
                     thought = matches[0][0]
                     action = matches[0][1]
                     value = matches[0][2]
-
-                    action_json = eval(action)
-                    # if len(action_json) > 0:
+                    
+                    try:
+                        action_json = eval(action)
+                    except:
+                        action = action.split("\n")[0]
+                        action_json = eval(action)
+                        # breakpoint()
+                        
+                    # action_json = json.loads(action)
                     if (len(action_json) > 0):
                         # tool use branch
                         res_value = f'"thoughts🤔" {matches[0][0].strip()}\n' +\
                              f'"actions🚀" {matches[0][1].strip()}\n' \
                            +  f'"value👉" {matches[0][2].strip()}'
                         res_value = make_it_small_html(res_value)
-
+            
                         # explore next
                         matches_next2 = None
                         if (i + 1 < len(ret)):

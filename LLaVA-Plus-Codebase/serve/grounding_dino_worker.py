@@ -318,11 +318,11 @@ async def model_details(request: Request):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="localhost")
+    parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=20003)
-    parser.add_argument("--worker-address", type=str, default="http://localhost:20003")
+    parser.add_argument("--worker-address", type=str, default="auto")
     parser.add_argument(
-        "--controller-address", type=str, default="http://localhost:20001"
+        "--controller-address", type=str, default="auto"
     )
 
     parser.add_argument(
@@ -343,7 +343,12 @@ if __name__ == "__main__":
     parser.add_argument("--no-register", action="store_true")
     args = parser.parse_args()
     logger.info(f"args: {args}")
-
+    # 获取 SLURM 分配的节点名
+    if args.worker_address == "auto":
+        node_name = os.getenv("SLURMD_NODENAME", "Unknown")
+        print(f"SLURM Node Name: {node_name}")
+        assert node_name != "Unknown"
+        args.worker_address = f"http://{node_name}:{args.port}"
 
     worker = ModelWorker(
         args.controller_address,

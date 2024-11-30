@@ -7,6 +7,7 @@ import json
 import time
 import threading
 import uuid
+import os
 
 from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import StreamingResponse
@@ -59,7 +60,7 @@ class ModelWorker:
                 self.model_name = model_paths[-1]
         else:
             self.model_name = model_name
-
+        
         self.device = device
         logger.info(f"Loading the model {self.model_name} on worker {worker_id} ...")
         self.tokenizer, self.model, self.image_processor, self.context_len = load_pretrained_model(
@@ -82,7 +83,7 @@ class ModelWorker:
             "worker_status": self.get_status()
         }
         r = requests.post(url, json=data)
-        assert r.status_code == 200
+        assert r.status_code == 200, f"Failed to register to controller: {r.text}"
 
     def send_heart_beat(self):
         logger.info(f"Send heart beat. Models: {[self.model_name]}. "
@@ -250,10 +251,10 @@ async def get_status(request: Request):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="localhost")
-    parser.add_argument("--port", type=int, default=21002)
+    parser.add_argument("--host", type=str, default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=40000)
     parser.add_argument("--worker-address", type=str,
-        default="http://localhost:21002")
+        default="auto")
     parser.add_argument("--controller-address", type=str,
         default="http://localhost:21001")
     parser.add_argument("--model-path", type=str, default="facebook/opt-350m")
@@ -272,6 +273,12 @@ if __name__ == "__main__":
     if args.multi_modal:
         logger.warning("Multimodal mode is automatically detected with model name, please make sure `llava` is included in the model path.")
 
+    if args.worker_address == "auto":
+        node_name = os.getenv("SLURMD_NODENAME", "Unknown")
+        print(f"SLURM Node Name: {node_name}")
+        assert node_name != "Unknown"
+        args.worker_address = f"http://{node_name}:{args.port}"
+    
     worker = ModelWorker(args.controller_address,
                          args.worker_address,
                          worker_id,
