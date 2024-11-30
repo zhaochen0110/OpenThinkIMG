@@ -9,6 +9,13 @@ unset SLURM_JOB_ID
 
 log_folder=/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/serve/logs/server_log
 
+##PORT SETTINGS
+# Controller: 20001
+# Dino: 20003
+# SAM: 20005
+# LLAVA: 40000
+# Gradio: 7860
+
 
 ## Start Controller
 gpus=0
@@ -43,6 +50,7 @@ OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_dino" --mpi=pmi2 --gres=gp
  --output=${log_file} \
 python ./grounding_dino_worker.py \
 --host "0.0.0.0" \
+--port 20003 \
 --controller-address ${controller_addr} \
 --model-config /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py \
 --model-path /mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pth &
@@ -56,34 +64,46 @@ while true; do
     sleep 1
 done
 
-## Start sam worker
+
 
 
 ## Start Model worker
-
 model_path=/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/llava_plus_v0_7b
 gpus=1
 cpus=16
 quotatype="auto"
+log_file=${log_folder}/llava_plus_worker.log
 OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_llava_plus_worker" --mpi=pmi2 --gres=gpu:${gpus}  -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
- --output=${log_folder}/llava_plus_worker.log \
+ --output=${log_file} \
  python -m llava.serve.model_worker \
- --host 0.0.0.0 \
+ --host "0.0.0.0" \
  --controller-address ${controller_addr} \
  --port 40000 \
  --worker-address auto \
  --model-path ${model_path} &
 
+ ## Start sam worker
+ gpus=1
+ cpus=16
+ quotatype="auto"
+ log_file=${log_folder}/sam.log
+ OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_sam" --mpi=pmi2 --gres=gpu:${gpus}  -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
+ --output=${log_file} \
+ python ./grounded_sam_worker.py \
+ --controller-address ${controller_addr} \
+ --port 20005 &
+
 
 ## Start a gradio worker
-gpus=0
-cpus=2
-quotatype="auto"
-OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_gradio" --mpi=pmi2 --gres=gpu:${gpus}  -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
- --output=${log_folder}/gradio.log \
- python -m llava.serve.gradio_web_server_llava_plus \
- --controller ${controller_addr} \
- --model-list-mode reload &
+# gpus=0
+# cpus=2
+# quotatype="auto"
+# log_file=${log_folder}/gradio.log
+# OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_gradio" --mpi=pmi2 --gres=gpu:${gpus}  -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
+#  --output=${log_file} \
+#  python -m llava.serve.gradio_web_server_llava_plus \
+#  --controller-url ${controller_addr} \
+#  --model-list-mode reload &
 
 
 

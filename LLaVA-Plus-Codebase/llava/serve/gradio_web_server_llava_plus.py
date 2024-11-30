@@ -547,6 +547,7 @@ def http_bot(state, model_selector, temperature, top_p, max_new_tokens, with_deb
             
 
         # import ipdb; ipdb.set_trace()
+        # breakpoint()
         tool_worker_addr = get_worker_addr(controller_url, api_name)
         print("tool_worker_addr: ", tool_worker_addr)
         tool_response = requests.post(

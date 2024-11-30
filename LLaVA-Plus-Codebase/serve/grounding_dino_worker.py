@@ -326,7 +326,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--model-path", type=str, default="/mnt/petrelfs/share_data/suzhaochen/groundingdino_swint_ogc.pth"
+        "--model-path", type=str, default="/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pt"
     )
     parser.add_argument(
         "--model-config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
