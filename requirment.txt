@@ -106,9 +106,6 @@ threadpoolctl==3.5.0
 timm==0.6.13
 tokenizers==0.13.3
 tomli==2.1.0
-torch==2.0.1+cu118
-torchaudio==2.0.2+cu118
-torchvision==0.15.2+cu118
 tqdm==4.67.0
 transformers==4.31.0
 triton==2.0.0

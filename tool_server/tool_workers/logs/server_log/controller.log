@@ -1,0 +1,102 @@
+2024-12-03 17:10:02 | INFO | controller | args: Namespace(host='0.0.0.0', port=20001, dispatch_method='shortest_queue')
+2024-12-03 17:10:02 | INFO | controller | Init controller
+2024-12-03 17:10:02 | ERROR | stderr | INFO:     Started server process [81858]
+2024-12-03 17:10:02 | ERROR | stderr | INFO:     Waiting for application startup.
+2024-12-03 17:10:02 | ERROR | stderr | INFO:     Application startup complete.
+2024-12-03 17:10:02 | ERROR | stderr | INFO:     Uvicorn running on http://0.0.0.0:20001 (Press CTRL+C to quit)
+2024-12-03 17:10:04 | INFO | stdout | INFO:     10.140.37.163:41300 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:05 | INFO | stdout | INFO:     10.140.37.163:41320 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:06 | INFO | stdout | INFO:     10.140.37.163:41346 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:07 | INFO | stdout | INFO:     10.140.37.163:41366 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:08 | INFO | stdout | INFO:     10.140.37.163:41398 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:09 | INFO | stdout | INFO:     10.140.37.163:41420 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:10 | INFO | stdout | INFO:     10.140.37.163:41455 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:11 | INFO | stdout | INFO:     10.140.37.163:41474 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:12 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-124:20007
+2024-12-03 17:10:12 | INFO | controller | Register done: http://SH-IDCA1404-10-140-54-124:20007, {'model_names': ['sam'], 'speed': 1, 'queue_length': 0}
+2024-12-03 17:10:12 | INFO | stdout | INFO:     10.140.54.124:53606 - "POST /register_worker HTTP/1.1" 200 OK
+2024-12-03 17:10:12 | INFO | stdout | INFO:     10.140.37.163:41508 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:13 | INFO | stdout | INFO:     10.140.37.163:41530 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:14 | INFO | stdout | INFO:     10.140.37.163:41556 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:15 | INFO | stdout | INFO:     10.140.37.163:41576 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:16 | INFO | stdout | INFO:     10.140.37.163:41602 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:17 | INFO | stdout | INFO:     10.140.37.163:41622 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:18 | INFO | stdout | INFO:     10.140.37.163:41648 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:19 | INFO | stdout | INFO:     10.140.37.163:41668 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:20 | INFO | stdout | INFO:     10.140.37.163:41696 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:21 | INFO | stdout | INFO:     10.140.37.163:41698 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:22 | INFO | stdout | INFO:     10.140.37.163:41724 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:23 | INFO | stdout | INFO:     10.140.37.163:41746 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:24 | INFO | stdout | INFO:     10.140.37.163:41778 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:25 | INFO | stdout | INFO:     10.140.37.163:41798 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:26 | INFO | stdout | INFO:     10.140.37.163:41830 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:28 | INFO | stdout | INFO:     10.140.37.163:41850 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:29 | INFO | stdout | INFO:     10.140.37.163:41878 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:30 | INFO | stdout | INFO:     10.140.37.163:41898 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:31 | INFO | stdout | INFO:     10.140.37.163:41932 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:32 | INFO | stdout | INFO:     10.140.37.163:41952 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:33 | INFO | stdout | INFO:     10.140.37.163:41978 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:34 | INFO | stdout | INFO:     10.140.37.163:41998 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:35 | INFO | stdout | INFO:     10.140.37.163:42026 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:35 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-79:20003
+2024-12-03 17:10:35 | INFO | controller | Register done: http://SH-IDCA1404-10-140-54-79:20003, {'model_names': ['grounding_dino'], 'speed': 1, 'queue_length': 0}
+2024-12-03 17:10:35 | INFO | stdout | INFO:     10.140.54.79:47814 - "POST /register_worker HTTP/1.1" 200 OK
+2024-12-03 17:10:36 | INFO | controller | names: ['http://SH-IDCA1404-10-140-54-79:20003'], queue_lens: [0.0], ret: http://SH-IDCA1404-10-140-54-79:20003
+2024-12-03 17:10:36 | INFO | stdout | INFO:     10.140.37.163:42052 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:36 | INFO | controller | names: ['http://SH-IDCA1404-10-140-54-124:20007'], queue_lens: [0.0], ret: http://SH-IDCA1404-10-140-54-124:20007
+2024-12-03 17:10:36 | INFO | stdout | INFO:     10.140.37.163:42054 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:45 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-124:20007
+2024-12-03 17:10:45 | INFO | controller | Register done: http://SH-IDCA1404-10-140-54-124:20007, {'model_names': ['sam'], 'speed': 1, 'queue_length': 0}
+2024-12-03 17:10:45 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-79:20003
+2024-12-03 17:10:45 | INFO | controller | Register done: http://SH-IDCA1404-10-140-54-79:20003, {'model_names': ['grounding_dino'], 'speed': 1, 'queue_length': 0}
+2024-12-03 17:10:45 | INFO | stdout | INFO:     10.140.54.5:45016 - "POST /refresh_all_workers HTTP/1.1" 200 OK
+2024-12-03 17:10:45 | INFO | stdout | INFO:     10.140.54.5:45022 - "POST /list_models HTTP/1.1" 200 OK
+2024-12-03 17:10:45 | INFO | controller | names: ['http://SH-IDCA1404-10-140-54-79:20003'], queue_lens: [0.0], ret: http://SH-IDCA1404-10-140-54-79:20003
+2024-12-03 17:10:45 | INFO | stdout | INFO:     10.140.54.5:45025 - "POST /get_worker_address HTTP/1.1" 200 OK
+2024-12-03 17:10:45 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-5:20005
+2024-12-03 17:10:45 | INFO | controller | Register done: http://SH-IDCA1404-10-140-54-5:20005, {'model_names': ['grounding_dino+sam', 'grounded_sam'], 'speed': 1, 'queue_length': 0}
+2024-12-03 17:10:45 | INFO | stdout | INFO:     10.140.54.5:45026 - "POST /register_worker HTTP/1.1" 200 OK
+2024-12-03 17:10:48 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-124:20007
+2024-12-03 17:10:48 | INFO | controller | Register done: http://SH-IDCA1404-10-140-54-124:20007, {'model_names': ['sam'], 'speed': 1, 'queue_length': 0}
+2024-12-03 17:10:48 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-79:20003
+2024-12-03 17:10:48 | INFO | controller | Register done: http://SH-IDCA1404-10-140-54-79:20003, {'model_names': ['grounding_dino'], 'speed': 1, 'queue_length': 0}
+2024-12-03 17:10:48 | INFO | controller | Register a new worker: http://SH-IDCA1404-10-140-54-5:20005
+2024-12-03 17:10:48 | ERROR | controller | Get status fails: http://SH-IDCA1404-10-140-54-5:20005, HTTPConnectionPool(host='sh-idca1404-10-140-54-5', port=20005): Max retries exceeded with url: /worker_get_status (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fa139364280>: Failed to establish a new connection: [Errno 111] Connection refused'))
+2024-12-03 17:10:48 | INFO | controller | Remove stale worker: http://SH-IDCA1404-10-140-54-5:20005
+2024-12-03 17:10:48 | INFO | stdout | INFO:     10.140.54.5:45028 - "POST /refresh_all_workers HTTP/1.1" 200 OK
+2024-12-03 17:10:48 | INFO | stdout | INFO:     10.140.54.5:45036 - "POST /list_models HTTP/1.1" 200 OK
+2024-12-03 17:10:48 | INFO | controller | names: ['http://SH-IDCA1404-10-140-54-124:20007'], queue_lens: [0.0], ret: http://SH-IDCA1404-10-140-54-124:20007
+2024-12-03 17:10:48 | INFO | stdout | INFO:     10.140.54.5:45038 - "POST /get_worker_address HTTP/1.1" 200 OK
+slurmstepd: error: *** STEP 3828150.0 ON SH-IDCA1404-10-140-54-5 CANCELLED AT 2024-12-03T17:10:51 ***
+2024-12-03 17:10:51 | ERROR | stderr | INFO:     Shutting down
+2024-12-03 17:10:51 | ERROR | stderr | INFO:     Finished server process [81858]
+2024-12-03 17:10:51 | ERROR | stderr | ERROR:    Traceback (most recent call last):
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/asyncio/runners.py", line 44, in run
+2024-12-03 17:10:51 | ERROR | stderr |     return loop.run_until_complete(main)
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+2024-12-03 17:10:51 | ERROR | stderr |     self.run_forever()
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+2024-12-03 17:10:51 | ERROR | stderr |     self._run_once()
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+2024-12-03 17:10:51 | ERROR | stderr |     handle._run()
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/asyncio/events.py", line 80, in _run
+2024-12-03 17:10:51 | ERROR | stderr |     self._context.run(self._callback, *self._args)
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/site-packages/uvicorn/server.py", line 68, in serve
+2024-12-03 17:10:51 | ERROR | stderr |     with self.capture_signals():
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/contextlib.py", line 142, in __exit__
+2024-12-03 17:10:51 | ERROR | stderr |     next(self.gen)
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/site-packages/uvicorn/server.py", line 332, in capture_signals
+2024-12-03 17:10:51 | ERROR | stderr |     signal.raise_signal(captured_signal)
+2024-12-03 17:10:51 | ERROR | stderr | KeyboardInterrupt
+2024-12-03 17:10:51 | ERROR | stderr | 
+2024-12-03 17:10:51 | ERROR | stderr | During handling of the above exception, another exception occurred:
+2024-12-03 17:10:51 | ERROR | stderr | 
+2024-12-03 17:10:51 | ERROR | stderr | Traceback (most recent call last):
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/site-packages/starlette/routing.py", line 700, in lifespan
+2024-12-03 17:10:51 | ERROR | stderr |     await receive()
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/site-packages/uvicorn/lifespan/on.py", line 137, in receive
+2024-12-03 17:10:51 | ERROR | stderr |     return await self.receive_queue.get()
+2024-12-03 17:10:51 | ERROR | stderr |   File "/mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/asyncio/queues.py", line 159, in get
+2024-12-03 17:10:51 | ERROR | stderr |     await getter
+2024-12-03 17:10:51 | ERROR | stderr | asyncio.exceptions.CancelledError
+2024-12-03 17:10:51 | ERROR | stderr | 

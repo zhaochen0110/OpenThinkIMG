@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python -m llava.eval.model_vqa_loader \
+python -m llava_plus.eval.model_vqa_loader \
     --model-path liuhaotian/llava-v1.5-13b \
     --question-file ./playground/data/eval/MME/llava_mme.jsonl \
     --image-folder ./playground/data/eval/MME/MME_Benchmark_release_version \

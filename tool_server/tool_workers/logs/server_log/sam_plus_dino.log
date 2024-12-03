@@ -1,0 +1,14 @@
+/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/GroundingDINO/groundingdino/models/GroundingDINO/ms_deform_attn.py:31: UserWarning: Failed to load custom C++ ops. Running on CPU mode Only!
+  warnings.warn("Failed to load custom C++ ops. Running on CPU mode Only!")
+2024-12-03 17:10:45 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/os.py | args: Namespace(host='0.0.0.0', port=20005, worker_address='auto', controller_address='http://SH-IDCA1404-10-140-54-5:20001', model_path='/mnt/petrelfs/share_data/suzhaochen/groundingdino_swint_ogc.pth', model_config='/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py', sam_path='/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/sam_vit_h_4b8939.pth', model_names=['grounding_dino+sam', 'grounded_sam'], device='cuda', limit_model_concurrency=5, stream_interval=2, no_register=False, grounding_dino_server='grounding_dino', sam_server='sam')
+2024-12-03 17:10:45 | INFO | stdout | SLURM Node Name: SH-IDCA1404-10-140-54-5
+2024-12-03 17:10:45 | INFO | stdout | Models: ['grounding_dino', 'sam']
+2024-12-03 17:10:45 | INFO | stdout | grounding_dino_server_addr: http://SH-IDCA1404-10-140-54-79:20003
+2024-12-03 17:10:45 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/os.py | Register to controller
+2024-12-03 17:10:48 | INFO | stdout | Models: ['grounding_dino', 'sam']
+2024-12-03 17:10:48 | INFO | stdout | sam_server_addr: http://SH-IDCA1404-10-140-54-124:20007
+2024-12-03 17:10:48 | ERROR | stderr | INFO:     Started server process [83215]
+2024-12-03 17:10:48 | ERROR | stderr | INFO:     Waiting for application startup.
+2024-12-03 17:10:48 | ERROR | stderr | INFO:     Application startup complete.
+2024-12-03 17:10:48 | ERROR | stderr | INFO:     Uvicorn running on http://0.0.0.0:20005 (Press CTRL+C to quit)
+slurmstepd: error: *** STEP 3828154.0 ON SH-IDCA1404-10-140-54-5 CANCELLED AT 2024-12-03T17:10:51 ***

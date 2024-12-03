@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python -m llava.eval.model_vqa \
+python -m llava_plus.eval.model_vqa \
     --model-path liuhaotian/llava-v1.5-13b \
     --question-file ./playground/data/eval/llava-bench-in-the-wild/questions.jsonl \
     --image-folder ./playground/data/eval/llava-bench-in-the-wild/images \

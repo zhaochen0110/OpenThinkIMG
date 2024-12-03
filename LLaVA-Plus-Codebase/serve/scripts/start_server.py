@@ -161,7 +161,7 @@ class ServerManager:
         self.start_sam_worker()
         
         # 启动Model worker
-        self.start_model_worker()
+        # self.start_model_worker()
         
         # 启动SAM worker
         self.start_ground_plus_sam_worker()
@@ -195,14 +195,14 @@ class ServerManager:
         ]
         self.logger.info("Starting SAM worker...")
         self.run_srun_command(
-            "sam", 
+            "zc_sam", 
             self.config.default_calculate_gpus,
             self.config.default_calculate_cpus, 
             command, 
             str(log_file)
         )
         # 等待worker就绪
-        wait_dict = self.wait_for_job("sam")
+        wait_dict = self.wait_for_job("zc_sam")
         job_id = wait_dict["job_id"]
         self.slurm_job_ids.append(job_id)
 
@@ -210,7 +210,7 @@ class ServerManager:
         """启动LLaVA-Plus Model worker"""
         log_file = self.log_folder / "llava_plus_worker.log"
         command = [
-            "python", "-m", "llava.serve.model_worker",
+            "python", "-m", "llava_plus.serve.model_worker",
             "--host", "0.0.0.0",
             "--controller-address", self.controller_addr,
             "--port", str(self.config.model_port),
@@ -245,14 +245,14 @@ class ServerManager:
         
         self.logger.info("Starting SAM PLUS DINO worker...")
         self.run_srun_command(
-            "sam_plus_dino", 
+            "zc_sam_plus_dino", 
             self.config.default_control_gpus,
             self.config.default_control_cpus, 
             command, 
             str(log_file)
         )
         # 等待worker就绪
-        wait_dict = self.wait_for_job("sam_plus_dino")
+        wait_dict = self.wait_for_job("zc_sam_plus_dino")
         job_id = wait_dict["job_id"]
         self.slurm_job_ids.append(job_id)
 

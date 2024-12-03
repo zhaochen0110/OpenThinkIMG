@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python -m llava.eval.model_vqa_loader \
+python -m llava_plus.eval.model_vqa_loader \
     --model-path liuhaotian/llava-v1.5-13b \
     --question-file ./playground/data/eval/vizwiz/llava_test.jsonl \
     --image-folder ./playground/data/eval/vizwiz/test \

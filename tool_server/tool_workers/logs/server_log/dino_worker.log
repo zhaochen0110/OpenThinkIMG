@@ -1,0 +1,19 @@
+/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/GroundingDINO/groundingdino/models/GroundingDINO/ms_deform_attn.py:31: UserWarning: Failed to load custom C++ ops. Running on CPU mode Only!
+  warnings.warn("Failed to load custom C++ ops. Running on CPU mode Only!")
+2024-12-03 17:10:10 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/os.py | args: Namespace(host='0.0.0.0', port=20003, worker_address='auto', controller_address='http://SH-IDCA1404-10-140-54-5:20001', model_path='/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pth', model_config='/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py', model_names=['grounding_dino'], device='cuda', limit_model_concurrency=5, stream_interval=2, no_register=False)
+2024-12-03 17:10:10 | INFO | stdout | SLURM Node Name: SH-IDCA1404-10-140-54-79
+2024-12-03 17:10:10 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/os.py | Loading the model ['grounding_dino'] on worker 87d58f ...
+2024-12-03 17:10:10 | ERROR | stderr | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /opt/conda/conda-bld/pytorch_1682343995026/work/aten/src/ATen/native/TensorShape.cpp:3483.)
+2024-12-03 17:10:10 | ERROR | stderr |   return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+2024-12-03 17:10:11 | INFO | stdout | final text_encoder_type: bert-base-uncased
+2024-12-03 17:10:11 | ERROR | stderr | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/site-packages/huggingface_hub/file_download.py:797: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+2024-12-03 17:10:11 | ERROR | stderr |   warnings.warn(
+2024-12-03 17:10:35 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/os.py | Register to controller
+2024-12-03 17:10:35 | ERROR | stderr | INFO:     Started server process [4485]
+2024-12-03 17:10:35 | ERROR | stderr | INFO:     Waiting for application startup.
+2024-12-03 17:10:35 | ERROR | stderr | INFO:     Application startup complete.
+2024-12-03 17:10:35 | ERROR | stderr | INFO:     Uvicorn running on http://0.0.0.0:20003 (Press CTRL+C to quit)
+2024-12-03 17:10:45 | INFO | stdout | INFO:     10.140.54.5:34594 - "POST /worker_get_status HTTP/1.1" 200 OK
+2024-12-03 17:10:48 | INFO | stdout | INFO:     10.140.54.5:34606 - "POST /worker_get_status HTTP/1.1" 200 OK
+slurmstepd: error: *** STEP 3828151.0 ON SH-IDCA1404-10-140-54-79 CANCELLED AT 2024-12-03T17:10:51 ***
+2024-12-03 17:10:51 | ERROR | stderr | INFO:     Shutting down

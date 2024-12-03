@@ -11,7 +11,7 @@ else
     exit 1
 fi
 
-python -m llava.eval.model_vqa_qbench \
+python -m llava_plus.eval.model_vqa_qbench \
     --model-path liuhaotian/llava-v1.5-13b \
     --image-folder ./playground/data/eval/qbench/images_llvisionqa/ \
     --questions-file ./playground/data/eval/qbench/质衡-问答-$ZH_SPLIT.json \

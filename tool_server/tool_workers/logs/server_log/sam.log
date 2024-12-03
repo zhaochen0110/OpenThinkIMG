@@ -1,0 +1,12 @@
+/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/GroundingDINO/groundingdino/models/GroundingDINO/ms_deform_attn.py:31: UserWarning: Failed to load custom C++ ops. Running on CPU mode Only!
+  warnings.warn("Failed to load custom C++ ops. Running on CPU mode Only!")
+2024-12-03 17:10:12 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/os.py | args: Namespace(host='0.0.0.0', port=20007, worker_address='auto', controller_address='http://SH-IDCA1404-10-140-54-5:20001', sam_path='/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/sam_vit_h_4b8939.pth', model_names=['sam'], device='cuda', limit_model_concurrency=5, stream_interval=2, no_register=False)
+2024-12-03 17:10:12 | INFO | stdout | SLURM Node Name: SH-IDCA1404-10-140-54-124
+2024-12-03 17:10:12 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/llava_plus/lib/python3.10/os.py | Register to controller
+2024-12-03 17:10:22 | ERROR | stderr | INFO:     Started server process [8210]
+2024-12-03 17:10:22 | ERROR | stderr | INFO:     Waiting for application startup.
+2024-12-03 17:10:22 | ERROR | stderr | INFO:     Application startup complete.
+2024-12-03 17:10:22 | ERROR | stderr | INFO:     Uvicorn running on http://0.0.0.0:20007 (Press CTRL+C to quit)
+2024-12-03 17:10:45 | INFO | stdout | INFO:     10.140.54.5:55014 - "POST /worker_get_status HTTP/1.1" 200 OK
+2024-12-03 17:10:48 | INFO | stdout | INFO:     10.140.54.5:55026 - "POST /worker_get_status HTTP/1.1" 200 OK
+slurmstepd: error: *** STEP 3828152.0 ON SH-IDCA1404-10-140-54-124 CANCELLED AT 2024-12-03T17:10:51 ***

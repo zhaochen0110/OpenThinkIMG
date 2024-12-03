@@ -2,7 +2,7 @@
 
 SPLIT="mmbench_dev_20230712"
 
-python -m llava.eval.model_vqa_mmbench \
+python -m llava_plus.eval.model_vqa_mmbench \
     --model-path liuhaotian/llava-v1.5-13b \
     --question-file ./playground/data/eval/mmbench/$SPLIT.tsv \
     --answers-file ./playground/data/eval/mmbench/answers/$SPLIT/llava-v1.5-13b.jsonl \
