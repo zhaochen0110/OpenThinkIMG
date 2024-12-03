@@ -43,8 +43,7 @@ class BaseInferencer():
         self.controller_addr = controller_addr
         self.available_models = self.get_model_list()
         self.headers = {"User-Agent": "LLaVA-Plus Client"}
-    
-    
+        self.init_model_addr_dict()
     
     
     def get_model_list(self):
@@ -55,54 +54,49 @@ class BaseInferencer():
         logger.info(f"Models: {models}")
         return models
     
-    def model_specific_process_conversation(self, prompts, images):
+    def init_model_addr_dict(self):
+        self.model_addr_dict = {}
+        for model_name in self.available_models:
+            ret = requests.post(self.controller_addr + "/get_worker_address",
+                                json={"model": model_name})
+            worker_addr = ret.json()["address"]
+            if worker_addr == "":
+                logger.error(f"worker_addr for {model_name} is empty")
+                continue
+            self.model_addr_dict[model_name] = worker_addr
+    
+    def refresh_workers(self):
+        self.available_models = self.get_model_list()
+        self.init_model_addr_dict()
+    
+    def model_specific_process_conversation(self, message, images, role):
         pass
     
     
-    def model_specific_append_message_to_conversation(self, message, role):
+    def model_specific_append_message_to_conversation(self, message, images, role):
         pass
     
     
-    def get_model_response(self, conversation,image, gen_kwargs):
-        pass
-    
-    def get_tool_response(self, tool_cfg, image):
-        pass
-    
-    
-    def inference_on_one_instance(self,instance,model_name):
-        assert model_name in self.available_models       
-        prompt = instance["prompt"]
-        image = instance["image"]
+    def get_model_response(self, model_name, conversation, image, gen_kwargs):
+        assert model_name in self.available_models
+        assert isinstance(gen_kwargs, dict)
+        
         if isinstance(image, str):
             image = Image.open(image)
-            
+        assert isinstance(image, Image.Image)
         image_base64 = pil_to_base64(image)
-            
-        
-        conversation = self.model_specific_process_conversation(prompt, image)
-        original_prompt = copy.deepcopy(prompt)
-        
-        
-        ret = requests.post(self.controller_addr + "/get_worker_address",
-                        json={"model": model_name})
-        worker_addr = ret.json()["address"]
-        logger.info(f"model_name: {model_name}, worker_addr: {worker_addr}")
-        
-        if worker_addr == "":
-            logger.error(f"worker_addr is empty")
-            return None
-        
         pload = {
             "model": model_name,
             "prompt": conversation,
-            "temperature": 0.0,
+            "temperature": gen_kwargs.get("temperature", 0.0),
+            "top_p": gen_kwargs.get("top_p", 1.0),
+            "max_new_tokens": gen_kwargs.get("max_new_tokens", 2048),
             "images": image_base64,
         }
         
         logger.info(f"==== request ====\n{pload}\n==== request ====")
         try:
-            # Stream output
+            worker_addr = self.model_addr_dict[model_name]
             response = requests.post(worker_addr + "/worker_generate_stream",
                                     headers=self.headers, json=pload, stream=True, timeout=10)
             # import ipdb; ipdb.set_trace()
@@ -111,12 +105,7 @@ class BaseInferencer():
                     data = json.loads(chunk.decode())
                     if data["error_code"] == 0:
                         output = data["text"].strip()
-                        output_str = ""
-                        for item in output:
-                            if isinstance(item, str):
-                                output_str += item
-                        conversation = self.model_specific_append_message_to_conversation(output_str, "assistant")
-                        yield output_str
+                        yield output
                     else:
                         output = data["text"] + \
                             f" (error_code: {data['error_code']})"
@@ -129,7 +118,9 @@ class BaseInferencer():
             return
         logger.info(f"==== response ====")
         logger.info(output)
-        
+        return output
+    
+    def parse_tool_config(self, output):
         ### Parse Tool Config
         try:
             pattern = r'"thoughts🤔"(.*)"actions🚀"(.*)"value👉"(.*)'
@@ -150,6 +141,15 @@ class BaseInferencer():
             tool_cfg = None
             
         print("trigger tool augmentation with tool_cfg: ", tool_cfg)
+        return tool_cfg 
+    
+    
+    def get_tool_response(self, tool_cfg, image):
+        if isinstance(image, str):
+            image = Image.open(image)
+        assert isinstance(image, Image.Image)
+        image_base64 = pil_to_base64(image)
+        
         
         if tool_cfg is not None and len(tool_cfg) > 0:
             assert len(tool_cfg) == 1, "Only one tool is supported for now, but got: {}".format(tool_cfg)
@@ -163,18 +163,20 @@ class BaseInferencer():
                 "text_threshold": 0.25,
                 **tool_cfg[0]['API_params']
             }
-            if api_name in ['inpainting']:
-                api_paras['mask'] = getattr(state, 'mask_rle', None)
-            if api_name in ['openseed', 'controlnet']:
-                if api_name == 'controlnet':
-                    api_paras['mask'] = getattr(state, 'image_seg', None)
-                api_paras['mode'] = api_name
-                api_name = 'controlnet'
-            if api_name == 'seem':
-                reference_image = getattr(state, 'reference_image', None)
-                reference_mask = getattr(state, 'reference_mask', None)
-                api_paras['refimg'] = reference_image
-                api_paras['refmask'] = reference_mask
+            
+            ## DO TOOL ADJUSTMENT
+            # if api_name in ['inpainting']:
+            #     api_paras['mask'] = getattr(state, 'mask_rle', None)
+            # if api_name in ['openseed', 'controlnet']:
+            #     if api_name == 'controlnet':
+            #         api_paras['mask'] = getattr(state, 'image_seg', None)
+            #     api_paras['mode'] = api_name
+            #     api_name = 'controlnet'
+            # if api_name == 'seem':
+            #     reference_image = getattr(state, 'reference_image', None)
+            #     reference_mask = getattr(state, 'reference_mask', None)
+            #     api_paras['refimg'] = reference_image
+            #     api_paras['refmask'] = reference_mask
                 # extract ref image and mask
                 
 
@@ -189,7 +191,8 @@ class BaseInferencer():
             ).json()
             tool_response_clone = copy.deepcopy(tool_response)
             print("tool_response: ", tool_response)
-
+            
+            
             # clean up the response
             masks_rle = None
             edited_image = None
@@ -223,129 +226,121 @@ class BaseInferencer():
             if len(tool_response) == 0:
                 tool_response['message'] = f"The {api_name} has processed the image."
             # hack
-            if masks_rle is not None:
-                state.mask_rle = masks_rle[0]
-            if image_seg is not None:
-                state.image_seg = image_seg
+            # if masks_rle is not None:
+            #     state.mask_rle = masks_rle[0]
+            # if image_seg is not None:
+            #     state.image_seg = image_seg
+            return tool_response_clone
 
-            # if edited_image is not None:
-            #     edited_image
-
-            # build new response
+    
+    
+    def inference_on_one_instance(self,instance,model_name):   
+        prompt = instance["prompt"]
+        image = instance["image"]
+        gen_kwargs = instance["gen_kwargs"]
+        original_prompt = copy.deepcopy(prompt)
+        conversation = self.model_specific_process_conversation(prompt, image)
+        ## First Round Model Responding
+        lm_output = self.get_model_response(model_name, conversation, image, gen_kwargs)
+        tool_cfg = self.parse_tool_config(lm_output)
+        
+        ## While Tool Config is not None, keep triggering tool augmentation
+        while tool_cfg is not None and len(tool_cfg) > 0:
+            tool_response = self.get_tool_response(tool_cfg, image)
+            
+            ## 将图片提取出来
+            if "edited_image" in tool_response:
+                edited_image = tool_response.pop("edited_image")
+                
+            api_name = tool_cfg[0]['API_name']
             new_response = f"{api_name} model outputs: {tool_response}\n\n"
             new_round_conv = new_response + "Please summarize the model outputs and answer my first question: {}".format(original_prompt)
-            conversation = self.model_specific_append_message_to_conversation(new_round_conv, "user")
+            
+            
+            conversation = self.model_specific_append_message_to_conversation(new_round_conv,edited_image, "user")
             print(conversation)
+            lm_output = self.get_model_response(model_name, conversation, edited_image, gen_kwargs)
+            tool_cfg = self.parse_tool_config(lm_output)
             
 
-            # Make new requests
-            pload = {
-                "model": model_name,
-                "prompt": conversation,
-                "temperature": 0,
-                "images":image_base64,
-            }
-            logger.info(f"==== request ====\n{pload}")
-            
-            try:
-                # Stream output
-                response = requests.post(worker_addr + "/worker_generate_stream",
-                                        headers=self.headers, json=pload, stream=True, timeout=10)
-                # import ipdb; ipdb.set_trace()
-                for chunk in response.iter_lines(decode_unicode=False, delimiter=b"\0"):
-                    if chunk:
-                        data = json.loads(chunk.decode())
-                        if data["error_code"] == 0:
-                            output = data["text"][len(prompt2):].strip()
-                            yield output
-                        else:
-                            output = data["text"] + \
-                                f" (error_code: {data['error_code']})"
-                            yield output
-                            return
-                        time.sleep(0.03)
-            except requests.exceptions.RequestException as e:
-                yield server_error_msg
-                return
+        #     # remove the cursor
+        #     state.messages[-1][-1] = state.messages[-1][-1][:-1]
 
-            # remove the cursor
-            state.messages[-1][-1] = state.messages[-1][-1][:-1]
+        #     # add image(s)
+        #     if edited_image is not None:
+        #         edited_image_pil = Image.open(
+        #             BytesIO(base64.b64decode(edited_image))).convert("RGB")
+        #         state.messages[-1][-1] = (state.messages[-1]
+        #                                 [-1], edited_image_pil, "Crop")
+        #     if image_seg is not None:
+        #         edited_image_pil = Image.open(
+        #             BytesIO(base64.b64decode(image_seg))).convert("RGB")
+        #         state.messages[-1][-1] = (state.messages[-1]
+        #                                 [-1], edited_image_pil, "Crop")
+        #     if iou_sort_masks is not None:
+        #         assert isinstance(
+        #             iou_sort_masks, list), "iou_sort_masks should be a list, but got: {}".format(iou_sort_masks)
+        #         edited_image_pil_list = [Image.open(
+        #             BytesIO(base64.b64decode(i))).convert("RGB") for i in iou_sort_masks]
+        #         state.messages[-1][-1] = (state.messages[-1]
+        #                                 [-1], edited_image_pil_list, "Crop")
+        #     if api_name in ['grounding_dino', 'ram+grounding_dino', 'blip2+grounding_dino']:
+        #         edited_image_pil = Image.open(
+        #             BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
+        #         edited_image_pil = plot_boxes(edited_image_pil, tool_response)
+        #         state.messages[-1][-1] = (state.messages[-1]
+        #                                 [-1], edited_image_pil, "Crop")
+        #     if api_name in ['grounding_dino+sam', 'grounded_sam']:
+        #         edited_image_pil = Image.open(
+        #             BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
+        #         edited_image_pil = plot_boxes(edited_image_pil, tool_response)
+        #         edited_image_pil = plot_masks(
+        #             edited_image_pil, tool_response_clone)
+        #         state.messages[-1][-1] = (state.messages[-1]
+        #                                 [-1], edited_image_pil, "Crop")
+        #     if api_name in ['sam']:
+        #         if 'points' in tool_cfg[0]['API_params']:
+        #             edited_image_pil = Image.open(
+        #                 BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
+        #             edited_image_pil = plot_masks(
+        #                 edited_image_pil, tool_response_clone)
+        #             tool_response_clone['points'] = tool_cfg[0]['API_params']['points']
+        #             tool_response_clone['point_labels'] = tool_cfg[0]['API_params']['point_labels']
+        #             edited_image_pil = plot_points(
+        #                 edited_image_pil, tool_response_clone)
 
-            # add image(s)
-            if edited_image is not None:
-                edited_image_pil = Image.open(
-                    BytesIO(base64.b64decode(edited_image))).convert("RGB")
-                state.messages[-1][-1] = (state.messages[-1]
-                                        [-1], edited_image_pil, "Crop")
-            if image_seg is not None:
-                edited_image_pil = Image.open(
-                    BytesIO(base64.b64decode(image_seg))).convert("RGB")
-                state.messages[-1][-1] = (state.messages[-1]
-                                        [-1], edited_image_pil, "Crop")
-            if iou_sort_masks is not None:
-                assert isinstance(
-                    iou_sort_masks, list), "iou_sort_masks should be a list, but got: {}".format(iou_sort_masks)
-                edited_image_pil_list = [Image.open(
-                    BytesIO(base64.b64decode(i))).convert("RGB") for i in iou_sort_masks]
-                state.messages[-1][-1] = (state.messages[-1]
-                                        [-1], edited_image_pil_list, "Crop")
-            if api_name in ['grounding_dino', 'ram+grounding_dino', 'blip2+grounding_dino']:
-                edited_image_pil = Image.open(
-                    BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
-                edited_image_pil = plot_boxes(edited_image_pil, tool_response)
-                state.messages[-1][-1] = (state.messages[-1]
-                                        [-1], edited_image_pil, "Crop")
-            if api_name in ['grounding_dino+sam', 'grounded_sam']:
-                edited_image_pil = Image.open(
-                    BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
-                edited_image_pil = plot_boxes(edited_image_pil, tool_response)
-                edited_image_pil = plot_masks(
-                    edited_image_pil, tool_response_clone)
-                state.messages[-1][-1] = (state.messages[-1]
-                                        [-1], edited_image_pil, "Crop")
-            if api_name in ['sam']:
-                if 'points' in tool_cfg[0]['API_params']:
-                    edited_image_pil = Image.open(
-                        BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
-                    edited_image_pil = plot_masks(
-                        edited_image_pil, tool_response_clone)
-                    tool_response_clone['points'] = tool_cfg[0]['API_params']['points']
-                    tool_response_clone['point_labels'] = tool_cfg[0]['API_params']['point_labels']
-                    edited_image_pil = plot_points(
-                        edited_image_pil, tool_response_clone)
+        #             state.messages[-1][-1] = (state.messages[-1]
+        #                                     [-1], edited_image_pil, "Crop")
+        #         else:
+        #             assert 'boxes' in tool_cfg[0]['API_params'], "not find 'boxes' in {}".format(
+        #                 tool_cfg[0]['API_params'].keys())
+        #             edited_image_pil = Image.open(
+        #                 BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
+        #             edited_image_pil = plot_boxes(edited_image_pil, tool_response)
+        #             tool_response_clone['boxes'] = tool_cfg[0]['API_params']['boxes']
+        #             edited_image_pil = plot_masks(
+        #                 edited_image_pil, tool_response_clone)
+        #             state.messages[-1][-1] = (state.messages[-1]
+        #                                     [-1], edited_image_pil, "Crop")
 
-                    state.messages[-1][-1] = (state.messages[-1]
-                                            [-1], edited_image_pil, "Crop")
-                else:
-                    assert 'boxes' in tool_cfg[0]['API_params'], "not find 'boxes' in {}".format(
-                        tool_cfg[0]['API_params'].keys())
-                    edited_image_pil = Image.open(
-                        BytesIO(base64.b64decode(state.get_images()[0]))).convert("RGB")
-                    edited_image_pil = plot_boxes(edited_image_pil, tool_response)
-                    tool_response_clone['boxes'] = tool_cfg[0]['API_params']['boxes']
-                    edited_image_pil = plot_masks(
-                        edited_image_pil, tool_response_clone)
-                    state.messages[-1][-1] = (state.messages[-1]
-                                            [-1], edited_image_pil, "Crop")
+        #     yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (enable_btn,) * 6
 
-            yield (state, state.to_gradio_chatbot(with_debug_parameter=with_debug_parameter_from_state)) + (enable_btn,) * 6
+        # finish_tstamp = time.time()
+        # logger.info(f"{output}")
 
-        finish_tstamp = time.time()
-        logger.info(f"{output}")
+        # # models = get_model_list()
 
-        # models = get_model_list()
-
-        # FIXME: disabled temporarily for image generation.
-        with open(get_conv_log_filename(), "a") as fout:
-            data = {
-                "tstamp": round(finish_tstamp, 4),
-                "type": "chat",
-                "model": model_name,
-                "start": round(start_tstamp, 4),
-                "finish": round(start_tstamp, 4),
-                "state": state.dict(force_str=True),
-                "images": all_image_hash,
-                "ip": request.client.host,
-            }
-            fout.write(json.dumps(data) + "\n")
+        # # FIXME: disabled temporarily for image generation.
+        # with open(get_conv_log_filename(), "a") as fout:
+        #     data = {
+        #         "tstamp": round(finish_tstamp, 4),
+        #         "type": "chat",
+        #         "model": model_name,
+        #         "start": round(start_tstamp, 4),
+        #         "finish": round(start_tstamp, 4),
+        #         "state": state.dict(force_str=True),
+        #         "images": all_image_hash,
+        #         "ip": request.client.host,
+        #     }
+        #     fout.write(json.dumps(data) + "\n")
             
