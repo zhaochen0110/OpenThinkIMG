@@ -8,7 +8,12 @@ A universal plug-and-play tool usage multimodal framework
 ```bash
 git clone git@github.com:zhaochen0110/Tool-Factory.git
 cd Tool-Factory
-# Prepare a torch-based environment that you like.
+
+conda create -n tool-server python=3.10
+# pytorch
+conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
+
+pip install -r requirment.txt
 pip install -e .
 
 ```

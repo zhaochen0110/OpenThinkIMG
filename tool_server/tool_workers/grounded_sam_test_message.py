@@ -7,7 +7,7 @@ import cv2
 from groundingdino.util.inference import annotate
 import sys
 sys.path.append('/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/llava')
-from tool_workers.utils import annotate_xyxy
+from utils import annotate_xyxy
 import numpy as np
 
 
@@ -94,7 +94,7 @@ def main():
         "text_threshold": args.text_threshold,
     }
     tic = time.time()
-    breakpoint()
+    # breakpoint()
     response=requests.post(worker_addr+"/worker_generate",headers=headers,json=datas)
     toc = time.time()
     print(f"Time: {toc - tic:.3f}s")

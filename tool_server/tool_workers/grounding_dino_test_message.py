@@ -6,9 +6,7 @@ from io import BytesIO
 import cv2
 import sys
 
-from groundingdino.util.inference import annotate
-sys.path.append('/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/llava')
-from tool_workers.utils import annotate_xyxy
+from utils import annotate_xyxy
 import numpy as np
 
 
