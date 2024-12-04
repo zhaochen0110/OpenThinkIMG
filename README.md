@@ -1,8 +1,6 @@
 # Tool-Factory
 
 A universal plug-and-play tool usage multimodal framework
-<<<<<<< HEAD
-=======
 
 
 ### Setup
@@ -24,4 +22,3 @@ pip install -e .
 
 【金山文档 | WPS云文档】 Tool-inplement
 https://365.kdocs.cn/l/cu4UPM9NvWLa
->>>>>>> tool_server_develop
