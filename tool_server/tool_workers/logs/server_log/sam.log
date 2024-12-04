@@ -266,3 +266,5 @@
 2024-12-04 14:18:51 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['sam']. Semaphore: Semaphore(value=5, locked=False). global_counter: 1. worker_id: 918853. 
 2024-12-04 14:19:36 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['sam']. Semaphore: Semaphore(value=5, locked=False). global_counter: 1. worker_id: 918853. 
 2024-12-04 14:20:21 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['sam']. Semaphore: Semaphore(value=5, locked=False). global_counter: 1. worker_id: 918853. 
+2024-12-04 14:21:06 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['sam']. Semaphore: Semaphore(value=5, locked=False). global_counter: 1. worker_id: 918853. 
+2024-12-04 14:21:51 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['sam']. Semaphore: Semaphore(value=5, locked=False). global_counter: 1. worker_id: 918853. 
