@@ -162,4 +162,4 @@ cython_debug/
 #.idea/
 
 
-*.log
+tool_server/tool_workers/logs/*
