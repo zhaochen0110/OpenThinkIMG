@@ -91,7 +91,11 @@ Instructions:
 2. Use the following scripts to get LLaVA weights by applying our delta. It will automatically download delta weights from our Hugging Face account. In the script below, we use the delta weights of [`liuhaotian/LLaVA-7b-delta-v0`](https://huggingface.co/liuhaotian/LLaVA-7b-delta-v0) as an example. It can be adapted for other delta weights by changing the `--delta` argument (and base/target accordingly).
 
 ```bash
+<<<<<<< HEAD
 python3 -m llava.model.apply_delta \
+=======
+python3 -m llava_plus.model.apply_delta \
+>>>>>>> tool_server_develop
     --base /path/to/llama-7b \
     --target /output/path/to/LLaVA-7B-v0 \
     --delta liuhaotian/LLaVA-7b-delta-v0

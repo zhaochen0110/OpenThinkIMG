@@ -28,7 +28,11 @@ import numpy as np
 import requests
 from PIL import Image
 
+<<<<<<< HEAD
 from demo.inference_on_a_image import get_grounding_output
+=======
+# from demo.inference_on_a_image import get_grounding_output
+>>>>>>> tool_server_develop
 
 from groundingdino.util.inference import load_model, predict
 import groundingdino.datasets.transforms as T
@@ -318,6 +322,7 @@ async def model_details(request: Request):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+<<<<<<< HEAD
     parser.add_argument("--host", type=str, default="localhost")
     parser.add_argument("--port", type=int, default=20003)
     parser.add_argument("--worker-address", type=str, default="http://localhost:20003")
@@ -330,6 +335,20 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--model-config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/ref/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
+=======
+    parser.add_argument("--host", type=str, default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=20003)
+    parser.add_argument("--worker-address", type=str, default="auto")
+    parser.add_argument(
+        "--controller-address", type=str, default="auto"
+    )
+
+    parser.add_argument(
+        "--model-path", type=str, default="/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pt"
+    )
+    parser.add_argument(
+        "--model-config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
+>>>>>>> tool_server_develop
     )
     parser.add_argument(
         "--model-names",
@@ -343,7 +362,16 @@ if __name__ == "__main__":
     parser.add_argument("--no-register", action="store_true")
     args = parser.parse_args()
     logger.info(f"args: {args}")
+<<<<<<< HEAD
 
+=======
+    # 获取 SLURM 分配的节点名
+    if args.worker_address == "auto":
+        node_name = os.getenv("SLURMD_NODENAME", "Unknown")
+        print(f"SLURM Node Name: {node_name}")
+        assert node_name != "Unknown"
+        args.worker_address = f"http://{node_name}:{args.port}"
+>>>>>>> tool_server_develop
 
     worker = ModelWorker(
         args.controller_address,

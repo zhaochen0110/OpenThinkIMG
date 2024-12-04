@@ -5,7 +5,11 @@
 2. Generate ScienceQA dataset for LLaVA conversation-style format.
 
 ```Shell
+<<<<<<< HEAD
 python scripts/convert_sqa_to_llava.py \
+=======
+python scripts/convert_sqa_to_llava_plus.py \
+>>>>>>> tool_server_develop
     convert_to_llava \
     --base-dir /path/to/ScienceQA/data/scienceqa \
     --prompt-format "QCM-LEA" \
@@ -32,7 +36,11 @@ You may evaluate this with multiple GPUs, and concatenate the generated jsonl fi
 (a) Generate LLaVA responses on ScienceQA dataset
 
 ```Shell
+<<<<<<< HEAD
 python -m llava.eval.model_vqa_science \
+=======
+python -m llava_plus.eval.model_vqa_science \
+>>>>>>> tool_server_develop
     --model-path liuhaotian/llava-lcs558k-scienceqa-vicuna-13b-v1.3 \
     --question-file /path/to/ScienceQA/data/scienceqa/llava_test_QCM-LEA.json \
     --image-folder /path/to/ScienceQA/data/scienceqa/images/test \

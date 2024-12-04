@@ -11,8 +11,13 @@ echo ". /home/vscode/miniconda3/bin/activate" >> ~/.zshrc
 echo ". /home/vscode/miniconda3/bin/activate" >> ~/.bashrc
 
 # Use llava environment by default
+<<<<<<< HEAD
 echo "conda activate llava" >> ~/.zshrc
 echo "conda activate llava" >> ~/.bashrc
+=======
+echo "conda activate llava_plus" >> ~/.zshrc
+echo "conda activate llava_plus" >> ~/.bashrc
+>>>>>>> tool_server_develop
 
 # Add dotnet to PATH
 echo 'export PATH="$PATH:$HOME/.dotnet"' >> ~/.bashrc

@@ -6,7 +6,11 @@
 
 1. Clone this repository and navigate to LLaVA folder
 ```bash
+<<<<<<< HEAD
 git clone https://github.com/haotian-liu/LLaVA.git
+=======
+git clone https://github.com/haotian-liu/llava_plus.git
+>>>>>>> tool_server_develop
 cd LLaVA
 ```
 
