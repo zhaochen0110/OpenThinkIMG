@@ -286,3 +286,9 @@
 2024-12-04 14:20:44 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['grounding_dino']. Semaphore: Semaphore(value=5, locked=False). global_counter: 3. worker_id: df687c. 
 2024-12-04 14:21:29 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['grounding_dino']. Semaphore: Semaphore(value=5, locked=False). global_counter: 3. worker_id: df687c. 
 2024-12-04 14:22:14 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['grounding_dino']. Semaphore: Semaphore(value=5, locked=False). global_counter: 3. worker_id: df687c. 
+2024-12-04 14:22:59 | INFO | /mnt/petrelfs/songmingyang/anaconda3/envs/tool_server/lib/python3.10/os.py | Send heart beat. Models: ['grounding_dino']. Semaphore: Semaphore(value=5, locked=False). global_counter: 3. worker_id: df687c. 
+slurmstepd: error: *** STEP 3829669.0 ON SH-IDCA1404-10-140-54-108 CANCELLED AT 2024-12-04T14:23:05 ***
+2024-12-04 14:23:05 | ERROR | stderr | INFO:     Shutting down
+2024-12-04 14:23:05 | ERROR | stderr | INFO:     Waiting for application shutdown.
+2024-12-04 14:23:05 | ERROR | stderr | INFO:     Application shutdown complete.
+2024-12-04 14:23:05 | ERROR | stderr | INFO:     Finished server process [58483]

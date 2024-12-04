@@ -2143,3 +2143,13 @@
 2024-12-04 14:21:51 | INFO | stdout | INFO:     10.140.54.108:48224 - "POST /receive_heart_beat HTTP/1.1" 200 OK
 2024-12-04 14:22:14 | INFO | controller | Receive heart beat. http://SH-IDCA1404-10-140-54-108:20003
 2024-12-04 14:22:14 | INFO | stdout | INFO:     10.140.54.108:48242 - "POST /receive_heart_beat HTTP/1.1" 200 OK
+2024-12-04 14:22:32 | INFO | controller | Receive heart beat. http://SH-IDCA1404-10-140-54-5:20005
+2024-12-04 14:22:32 | INFO | stdout | INFO:     10.140.54.5:51864 - "POST /receive_heart_beat HTTP/1.1" 200 OK
+2024-12-04 14:22:36 | INFO | controller | Receive heart beat. http://SH-IDCA1404-10-140-54-108:20007
+2024-12-04 14:22:36 | INFO | stdout | INFO:     10.140.54.108:48252 - "POST /receive_heart_beat HTTP/1.1" 200 OK
+2024-12-04 14:22:59 | INFO | controller | Receive heart beat. http://SH-IDCA1404-10-140-54-108:20003
+2024-12-04 14:22:59 | INFO | stdout | INFO:     10.140.54.108:48262 - "POST /receive_heart_beat HTTP/1.1" 200 OK
+2024-12-04 14:23:04 | ERROR | stderr | INFO:     Shutting down
+2024-12-04 14:23:05 | ERROR | stderr | INFO:     Waiting for application shutdown.
+2024-12-04 14:23:05 | ERROR | stderr | INFO:     Application shutdown complete.
+2024-12-04 14:23:05 | ERROR | stderr | INFO:     Finished server process [75390]
