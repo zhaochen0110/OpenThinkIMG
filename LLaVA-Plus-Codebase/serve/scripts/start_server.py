@@ -25,7 +25,7 @@ class ServerConfig:
     sam_plus_dino_port: int = 20005
     sam_port: int = 20007
     
-    model_port: int = 40000
+    model_port: int = 20002
     
     # SLURM配置
     partition: str = "MoE"
@@ -161,7 +161,7 @@ class ServerManager:
         self.start_sam_worker()
         
         # 启动Model worker
-        # self.start_model_worker()
+        self.start_model_worker()
         
         # 启动SAM worker
         self.start_ground_plus_sam_worker()

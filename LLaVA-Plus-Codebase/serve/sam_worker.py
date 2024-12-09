@@ -389,6 +389,17 @@ async def model_details(request: Request):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+<<<<<<< HEAD
+    parser.add_argument("--host", type=str, default="localhost")
+    parser.add_argument("--port", type=int, default=21273)
+    parser.add_argument("--worker-address", type=str, default="http://localhost:21273")
+    parser.add_argument(
+        "--controller-address", type=str, default="http://localhost:21001"
+    )
+
+    parser.add_argument(
+        "--sam-path", type=str, default="sam_vit_h_4b8939.pth"
+=======
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=20007)
     parser.add_argument("--worker-address", type=str, default="auto")
@@ -398,6 +409,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--sam-path", type=str, default="/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/sam_vit_h_4b8939.pth"
+>>>>>>> tool_server_develop
     )
     parser.add_argument(
         "--model-names",
@@ -412,6 +424,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger.info(f"args: {args}")
 
+<<<<<<< HEAD
+
+=======
     if args.worker_address == "auto":
         node_name = os.getenv("SLURMD_NODENAME", "Unknown")
         print(f"SLURM Node Name: {node_name}")
@@ -419,6 +434,7 @@ if __name__ == "__main__":
         args.worker_address = f"http://{node_name}:{args.port}"
         
         
+>>>>>>> tool_server_develop
     worker = ModelWorker(
         args.controller_address,
         args.worker_address,

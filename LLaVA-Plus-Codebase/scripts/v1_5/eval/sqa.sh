@@ -1,6 +1,10 @@
 #!/bin/bash
 
+<<<<<<< HEAD
+python -m llava.eval.model_vqa_science \
+=======
 python -m llava_plus.eval.model_vqa_science \
+>>>>>>> tool_server_develop
     --model-path liuhaotian/llava-v1.5-13b \
     --question-file ./playground/data/eval/scienceqa/llava_test_CQM-A.json \
     --image-folder ./playground/data/eval/scienceqa/images/test \

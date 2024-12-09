@@ -4,10 +4,14 @@ import json
 import time
 from io import BytesIO
 import cv2
+<<<<<<< HEAD
+from groundingdino.util.inference import annotate, annotate_xyxy
+=======
 from groundingdino.util.inference import annotate
 import sys
 sys.path.append('/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/llava')
 from serve.utils import annotate_xyxy
+>>>>>>> tool_server_develop
 import numpy as np
 
 
@@ -94,8 +98,16 @@ def main():
         "text_threshold": args.text_threshold,
     }
     tic = time.time()
+<<<<<<< HEAD
+    response = requests.post(
+        worker_addr + "/worker_generate",
+        headers=headers,
+        json=datas,
+    )
+=======
     breakpoint()
     response=requests.post(worker_addr+"/worker_generate",headers=headers,json=datas)
+>>>>>>> tool_server_develop
     toc = time.time()
     print(f"Time: {toc - tic:.3f}s")
 
@@ -129,17 +141,28 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # worker parameters
     parser.add_argument(
+<<<<<<< HEAD
+        "--controller-address", type=str, default="http://localhost:21001"
+=======
         "--controller-address", type=str, default="http://SH-IDCA1404-10-140-54-5:20001"
+>>>>>>> tool_server_develop
     )
     parser.add_argument("--worker-address", type=str)
     parser.add_argument("--model-name", type=str, default='grounded_sam')
 
     # model parameters
     parser.add_argument(
+<<<<<<< HEAD
+        "--caption", type=str, default="dogs ."
+    )
+    parser.add_argument(
+        "--image_path", type=str, default="/home/liushilong/code/GroundingFolder/Grounded-Segment-Anything/assets/demo2.jpg"
+=======
         "--caption", type=str, default="girl ."
     )
     parser.add_argument(
         "--image_path", type=str, default="/mnt/petrelfs/songmingyang/code/tools/test_imgs/roxy.jpeg"
+>>>>>>> tool_server_develop
     )
     parser.add_argument(
         "--box_threshold", type=float, default=0.3,

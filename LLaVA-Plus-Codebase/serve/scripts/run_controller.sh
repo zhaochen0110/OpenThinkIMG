@@ -2,7 +2,11 @@
 source ~/.bashrc
 source ~/anaconda3/bin/activate llava_plus
 
+<<<<<<< HEAD
+cd /mnt/petrelfs/songmingyang/code/reasoning/ref/LLaVA-Plus-Codebase/serve
+=======
 cd /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/serve
+>>>>>>> tool_server_develop
 
 export SLURM_JOB_ID=3273170
 unset SLURM_JOB_ID     
@@ -12,7 +16,11 @@ cpus=2
 quotatype="auto"
 
 OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_controller" --mpi=pmi2 --gres=gpu:${gpus}  -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
+<<<<<<< HEAD
+ -w SH-IDCA1404-10-140-54-5 \
+=======
  -w SH-IDCA1404-10-140-54-124 \
+>>>>>>> tool_server_develop
  python controller.py --host 0.0.0.0 --port 20001 
  
  
@@ -26,6 +34,10 @@ OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_controller" --mpi=pmi2 --g
 #             "speed": 1,
 #             "queue_length": self.get_queue_length(),
 #         }
+<<<<<<< HEAD
+# }'
+=======
 # }'
 
 # curl -X POST http://10.140.54.5:20001/get_worker_address -d  '{"model":"grounding_dino"}'
+>>>>>>> tool_server_develop

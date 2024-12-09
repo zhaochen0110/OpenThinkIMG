@@ -28,7 +28,11 @@
 
 ## Install
 
+<<<<<<< HEAD
+If you are not using Linux, do *NOT* proceed, see instructions for [macOS](https://github.com/haotian-liu/LLaVA/blob/main/docs/macOS.md) and [Windows](https://github.com/haotian-liu/LLaVA/blob/main/docs/Windows.md) from LLaVA.
+=======
 If you are not using Linux, do *NOT* proceed, see instructions for [macOS](https://github.com/haotian-liu/LLaVA/blob/main/docs/macOS.md) and [Windows](https://github.com/haotian-liu/LLaVA/blob/main/docs/Windows.md) from llava_plus.
+>>>>>>> tool_server_develop
 
 1. Clone this repository and navigate to the LLaVA-Plus folder
 ```bash
@@ -74,7 +78,11 @@ To run our demo, you have four steps.
 
 #### 1. Launch a controller
 ```Shell
+<<<<<<< HEAD
+python -m llava.serve.controller --host 0.0.0.0 --port 20001
+=======
 python -m llava_plus.serve.controller --host 0.0.0.0 --port 20001
+>>>>>>> tool_server_develop
 ```
 
 #### 2. Launch a model worker
@@ -82,7 +90,11 @@ python -m llava_plus.serve.controller --host 0.0.0.0 --port 20001
 This is the actual *worker* that performs the inference on the GPU.  Each worker is responsible for a single model specified in `--model-path`.
 
 ```Shell
+<<<<<<< HEAD
+python -m llava.serve.model_worker --host 0.0.0.0 --controller http://localhost:20001 --port 40000 --worker http://localhost:40000 --model-path <huggingface or local path>
+=======
 python -m llava_plus.serve.model_worker --host 0.0.0.0 --controller http://localhost:20001 --port 40000 --worker http://localhost:40000 --model-path <huggingface or local path>
+>>>>>>> tool_server_develop
 ```
 
 Wait until the process finishes loading the model and you see "Uvicorn running on ...".  Now, refresh your Gradio web UI, and you will see the model you just launched in the model list.
@@ -93,7 +105,11 @@ If you are using an Apple device with an M1 or M2 chip, you can specify the mps 
 <summary>Multiple works</summary>
 You can launch as many workers as you want, and compare between different model checkpoints in the same Gradio interface. Please keep the `--controller` the same, and modify the `--port` and `--worker` to a different port number for each worker.
 ```Shell
+<<<<<<< HEAD
+python -m llava.serve.model_worker --host 0.0.0.0 --controller http://localhost:20001 --port <different from 40000, say 40001> --worker http://localhost:<change accordingly, i.e. 40001> --model-path <ckpt2>
+=======
 python -m llava_plus.serve.model_worker --host 0.0.0.0 --controller http://localhost:20001 --port <different from 40000, say 40001> --worker http://localhost:<change accordingly, i.e. 40001> --model-path <ckpt2>
+>>>>>>> tool_server_develop
 ```
 </details>
 
@@ -104,7 +120,11 @@ python -m llava_plus.serve.model_worker --host 0.0.0.0 --controller http://local
 If the VRAM of your GPU is less than 24GB (e.g., RTX 3090, RTX 4090, etc.), you may try running it with multiple GPUs. Our latest code base will automatically try to use multiple GPUs if you have more than one GPU. You can specify which GPUs to use with `CUDA_VISIBLE_DEVICES`. Below is an example of running with the first two GPUs.
 
 ```Shell
+<<<<<<< HEAD
+CUDA_VISIBLE_DEVICES=0,1 python -m llava.serve.model_worker --host 0.0.0.0 --controller http://localhost:20001 --port 40000 --worker http://localhost:40000 --model-path <huggingface or local path>
+=======
 CUDA_VISIBLE_DEVICES=0,1 python -m llava_plus.serve.model_worker --host 0.0.0.0 --controller http://localhost:20001 --port 40000 --worker http://localhost:40000 --model-path <huggingface or local path>
+>>>>>>> tool_server_develop
 ```
 </details>
 
@@ -116,7 +136,11 @@ We provide a detailed [guideline](docs/llava-plus/tools.md) for different projec
 
 #### 4. Launch a gradio web server.
 ```Shell
+<<<<<<< HEAD
+python -m llava.serve.gradio_web_server_llava_plus --controller http://localhost:20001 --model-list-mode reload
+=======
 python -m llava_plus.serve.gradio_web_server_llava_plus --controller http://localhost:20001 --model-list-mode reload
+>>>>>>> tool_server_develop
 ```
 You just launched the Gradio web interface. Now, you can open the web interface with the URL printed on the screen. 
 

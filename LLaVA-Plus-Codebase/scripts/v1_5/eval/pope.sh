@@ -1,6 +1,10 @@
 #!/bin/bash
 
+<<<<<<< HEAD
+python -m llava.eval.model_vqa_loader \
+=======
 python -m llava_plus.eval.model_vqa_loader \
+>>>>>>> tool_server_develop
     --model-path liuhaotian/llava-v1.5-13b \
     --question-file ./playground/data/eval/pope/llava_pope_test.jsonl \
     --image-folder ./playground/data/eval/pope/val2014 \
