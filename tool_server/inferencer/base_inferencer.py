@@ -257,7 +257,7 @@ class BaseInferencer():
             new_round_conv = new_response + "Please summarize the model outputs and answer my first question: {}".format(original_prompt)
             
             
-            conversation = self.model_specific_append_message_to_conversation(new_round_conv,edited_image, "user")
+            conversation = self.model_specific_append_message_to_conversation(new_round_conv, edited_image, "user")
             print(conversation)
             lm_output = self.get_model_response(model_name, conversation, edited_image, gen_kwargs)
             tool_cfg = self.parse_tool_config(lm_output)
