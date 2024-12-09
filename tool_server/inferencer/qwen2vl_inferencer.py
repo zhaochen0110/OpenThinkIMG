@@ -24,7 +24,7 @@ class QwenInferencer(BaseInferencer):
         return messages
     
     
-    def model_specific_append_message_to_conversation(self, messages, text_prompt, image, role):
+    def model_specific_append_message_to_conversation(self, old_messages, text_prompt, image, role):
         if image:
             new_messages = [
                 {
@@ -54,7 +54,7 @@ class QwenInferencer(BaseInferencer):
                 }
             ]
         
-        messages.extend(new_messages)
+        messages = old_messages.extend(new_messages)
 
         return messages
         

@@ -239,6 +239,7 @@ class BaseInferencer():
         image = instance["image"]
         gen_kwargs = instance["gen_kwargs"]
         original_prompt = copy.deepcopy(prompt)
+        # image here can be both img_path or base64
         conversation = self.model_specific_process_conversation(prompt, image)
         ## First Round Model Responding
         lm_output = self.get_model_response(model_name, conversation, image, gen_kwargs)
@@ -256,7 +257,7 @@ class BaseInferencer():
             new_response = f"{api_name} model outputs: {tool_response}\n\n"
             new_round_conv = new_response + "Please summarize the model outputs and answer my first question: {}".format(original_prompt)
             
-            
+            # FIXME: edited_image may be empty, this situation should be taken into account
             conversation = self.model_specific_append_message_to_conversation(new_round_conv, edited_image, "user")
             print(conversation)
             lm_output = self.get_model_response(model_name, conversation, edited_image, gen_kwargs)
