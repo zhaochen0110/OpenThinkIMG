@@ -1,5 +1,5 @@
 source ~/.bashrc
-source ~/anaconda3/bin/activate smoe
+source ~/anaconda3/bin/activate tool_worker
 # AD_NAME=songmingyang
 # encrypted_password=iWRsYqbwV4EJgJvU8QjLe00CptZc5jBVH3FMo5i6n9mVdOSoUurpyBTmst1Z
 # new_proxy_address=http://${AD_NAME}:${encrypted_password}@10.1.20.50:23128/

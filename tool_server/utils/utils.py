@@ -173,5 +173,26 @@ def pil_to_base64(image):
     return b64_encode(image)
 
 def base64_to_pil(b64_str):
+    if b64_str.startswith("data:image"):
+        b64_str = b64_str.split("base64,")[-1]
     return load_image_from_base64(b64_str)
+
+def url_pil_to_base64(image):
+    base64_str = b64_encode(image)
+    base64_str = "data:image/jpeg;base64," + base64_str
+    return base64_str
+
+def url_base64_to_pil(b64_str):
+    return base64_to_pil(b64_str)
+
+
+def load_image(image) -> Image.Image:
+    if isinstance(image, Image.Image):
+        return image
+    else:
+        assert isinstance(image, str)
+        if os.path.exists(image):
+            return Image.open(image).convert('RGB')
+        else:
+            return load_image_from_base64(image)
 

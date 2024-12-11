@@ -32,32 +32,34 @@ def main():
     if worker_addr == "":
         return
 
+    
+    headers = {"User-Agent": "LLaVA Client"}
+    url = "/mnt/petrelfs/songmingyang/code/tools/test_imgs/roxy.jpeg"
+    image = Image.open(url)
+    img_b64_str = b64_encode(image)
+    img_b64_str = "data:image/jpeg;base64," + img_b64_str
     prompt = [
                 {
                     "role": "user",
                     "content": [
                         {
                             "type": "image",
+                            "image": img_b64_str
                         },
                         {"type": "text", "text": "Describe this image."},
                     ],
                 }
             ]
-    headers = {"User-Agent": "LLaVA Client"}
-    url = "/mnt/petrelfs/songmingyang/code/tools/test_imgs/roxy.jpeg"
-    image = Image.open(url)
-    img_b64_str = b64_encode(image)
     pload = {
         "model": args.model_name,
-        "prompt": prompt,
-        "images":img_b64_str,
+        "conversation": prompt,
         "max_new_tokens": 1024,
         "temperature": 0.7,
     }
     response = requests.post(worker_addr + "/worker_generate_stream", headers=headers,
             json=pload, stream=True)
-
-    print(prompt)
+    
+    # print(prompt)
     for chunk in response.iter_lines(chunk_size=8192, decode_unicode=False, delimiter=b"\0"):
         if chunk:
             data = json.loads(chunk.decode("utf-8"))
@@ -66,7 +68,7 @@ def main():
             for item in output:
                 if isinstance(item, str):
                     output_str += item
-            print(output_str, end="\r", flush=True)
+    print(output_str, end="\r", flush=True)
     print("")
 
 
