@@ -27,9 +27,7 @@ import requests
 from PIL import Image
 import easyocr
 
-sys.path.append('Tag2Text')
-from Tag2Text.models import tag2text
-from Tag2Text import inference_ram
+
 import torchvision.transforms as TS
 
 try:
@@ -52,8 +50,8 @@ import torch
 import torch.nn.functional as F
 import uvicorn
 
-from tool_workers.constants import WORKER_HEART_BEAT_INTERVAL, ErrorCode, SERVER_ERROR_MSG
-from tool_workers.utils import build_logger, pretty_print_semaphore
+from tool_server.tool_workers.constants import WORKER_HEART_BEAT_INTERVAL, ErrorCode, SERVER_ERROR_MSG
+from tool_server.tool_workers.utils import build_logger, pretty_print_semaphore
 
 GB = 1 << 30
 
@@ -274,10 +272,10 @@ async def model_details(request: Request):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="localhost")
-    parser.add_argument("--port", type=int, default=21029)
-    parser.add_argument("--worker-address", type=str, default="http://localhost:21029")
+    parser.add_argument("--port", type=int, default=20009)
+    parser.add_argument("--worker-address", type=str, default="auto")
     parser.add_argument(
-        "--controller-address", type=str, default="http://localhost:21001"
+        "--controller-address", type=str, default="http://localhost:20001"
     )
 
     parser.add_argument(
@@ -290,12 +288,18 @@ if __name__ == "__main__":
         type=lambda s: s.split(","),
         help="Optional display comma separated names",
     )
-    parser.add_argument("--device", type=str, default="cuda")
+    parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--limit-model-concurrency", type=int, default=5)
     parser.add_argument("--stream-interval", type=int, default=2)
     parser.add_argument("--no-register", action="store_true")
     args = parser.parse_args()
     logger.info(f"args: {args}")
+    # 获取 SLURM 分配的节点名
+    if args.worker_address == "auto":
+        node_name = os.getenv("SLURMD_NODENAME", "Unknown")
+        print(f"SLURM Node Name: {node_name}")
+        assert node_name != "Unknown"
+        args.worker_address = f"http://{node_name}:{args.port}"
 
 
     worker = ModelWorker(

@@ -100,5 +100,6 @@ if __name__ == "__main__":
         load_4bit = args.load_4bit,
         host = args.host,
         port = args.port,
+        no_register = args.no_register,
     )
     worker.run()

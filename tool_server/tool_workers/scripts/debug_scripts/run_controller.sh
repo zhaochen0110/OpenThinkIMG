@@ -29,3 +29,4 @@ OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_controller" --mpi=pmi2 --g
 # }'
 
 # curl -X POST http://10.140.54.5:20001/get_worker_address -d  '{"model":"grounding_dino"}'
+# curl -X POST http://10.140.54.5:20001/refresh_models -d  '{"model":"grounding_dino"}'

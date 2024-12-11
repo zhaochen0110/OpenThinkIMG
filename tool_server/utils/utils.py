@@ -175,3 +175,13 @@ def pil_to_base64(image):
 def base64_to_pil(b64_str):
     return load_image_from_base64(b64_str)
 
+def load_image(image):
+    if isinstance(image, Image.Image):
+        return image
+    else:
+        assert isinstance(image, str)
+        if os.path.exists(image):
+            return Image.open(image).convert('RGB')
+        else:
+            return load_image_from_base64(image)
+

@@ -24,6 +24,9 @@ class ServerConfig:
     dino_port: int = 20003
     sam_plus_dino_port: int = 20005
     sam_port: int = 20007
+    ocr_port: int = 20009
+    drawline_port: int = 20011
+    crop_port: int = 20013
     
     model_port: int = 40000
     
@@ -157,16 +160,67 @@ class ServerManager:
         """启动所有worker服务"""
         # 启动DINO worker
         self.start_dino_worker()
-        
+        self.start_crop_worker()
+        self.start_drawline_worker()
+        self.start_ocr_worker()
         # 启动sam worker
-        self.start_sam_worker()
+        # self.start_sam_worker()
         
         # 启动Model worker
         # self.start_model_worker()
         
         # 启动SAM worker
-        self.start_ground_plus_sam_worker()
+        # self.start_ground_plus_sam_worker()
 
+    
+    def start_drawline_worker(self) -> None:
+        """启动DINO worker"""
+        log_file = self.log_folder / "drawline_worker.log"
+        command = [
+            "python", "./restructure_worker/drawline_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.drawline_port),
+            "--controller-address", self.controller_addr,
+        ]
+        
+        self.run_srun_command("zc_drawline", self.config.default_control_gpus, 
+                            self.config.default_control_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_drawline")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+        
+    def start_ocr_worker(self) -> None:
+        """启动OCR worker"""
+        log_file = self.log_folder / "ocr_worker.log"
+        command = [
+            "python", "./ocr_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.ocr_port),
+            "--controller-address", self.controller_addr,
+        ]
+        
+        self.run_srun_command("zc_ocr", self.config.default_control_gpus, 
+                            self.config.default_control_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_ocr")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+        
+    def start_crop_worker(self) -> None:
+        """启动DINO worker"""
+        log_file = self.log_folder / "crop_worker.log"
+        command = [
+            "python", "./restructure_worker/crop_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.crop_port),
+            "--controller-address", self.controller_addr,
+        ]
+        
+        self.run_srun_command("zc_crop", self.config.default_control_gpus, 
+                            self.config.default_control_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_crop")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+    
     def start_dino_worker(self) -> None:
         """启动DINO worker"""
         log_file = self.log_folder / "dino_worker.log"

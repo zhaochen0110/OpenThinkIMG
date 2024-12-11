@@ -1,4 +1,4 @@
-from base_inferencer import BaseInferencer
+from .base_inferencer import BaseInferencer
 
 class QwenInferencer(BaseInferencer):
     def __init__(self, controller_addr="http://localhost:20001"):
