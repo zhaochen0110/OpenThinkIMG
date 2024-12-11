@@ -200,8 +200,9 @@ class ModelWorker:
             "texts": [i[1] for i in result],
             "scores": [R(i[2]) for i in result],  # H,W
         }
-
-        return pred_dict
+        ret = {"text": pred_dict, "error_code": 0}
+        
+        return ret
 
     def generate_gate(self, params):
         try:

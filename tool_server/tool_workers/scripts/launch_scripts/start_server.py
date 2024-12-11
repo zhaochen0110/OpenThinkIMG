@@ -19,6 +19,8 @@ class ServerConfig:
     dino_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pth"
     sam_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/sam_vit_h_4b8939.pth"
     
+    qwen2vl_model: str = "/mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-filter"
+    
     # 端口配置
     controller_port: int = 20001
     dino_port: int = 20003
@@ -29,6 +31,7 @@ class ServerConfig:
     crop_port: int = 20013
     
     model_port: int = 40000
+    qwen2vl_port: int = 40001
     
     # SLURM配置
     partition: str = "MoE"
@@ -146,6 +149,7 @@ class ServerManager:
                   f"--port", str(self.config.controller_port)]
         
         self.run_srun_command("zc_controller", self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file))
+        
         wait_dict = self.wait_for_job("zc_controller")
         
         node_list = wait_dict["node_list"]
@@ -163,16 +167,26 @@ class ServerManager:
         self.start_crop_worker()
         self.start_drawline_worker()
         self.start_ocr_worker()
-        # 启动sam worker
-        # self.start_sam_worker()
-        
-        # 启动Model worker
-        # self.start_model_worker()
-        
-        # 启动SAM worker
-        # self.start_ground_plus_sam_worker()
+        self.start_qwen2vl_worker()
 
     
+    def start_qwen2vl_worker(self) -> None:
+        """启动Qwen2VL worker"""
+        log_file = self.log_folder / "qwen2vl_worker.log"
+        command = [
+            "python", "../model_workers/qwen2vl_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.qwen2vl_port),
+            "--controller-address", self.controller_addr,
+            "--model-path", self.config.qwen2vl_model,
+            "--model-name", "Qwen2-VL-7B-Instruct",
+        ]
+        self.run_srun_command("zc_qwen2vl", self.config.default_calculate_gpus, 
+                            self.config.default_calculate_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_qwen2vl")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+        
     def start_drawline_worker(self) -> None:
         """启动DINO worker"""
         log_file = self.log_folder / "drawline_worker.log"

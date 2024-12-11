@@ -78,7 +78,8 @@ class CropToolWorker(BaseToolWorker):
 
                 image = image.crop(line_coords)
                 image_base64= pil_to_base64(image)
-                ret["text"] = image_base64
+                ret["edited_image"] = image_base64
+                ret["text"] = f"Image cropped successfully."
             except ValueError as e:
                 logger.error(f"Error processing line parameters '{generate_param}': {e}")
                 ret["text"] = f"Error processing line parameters '{generate_param}': {e}"

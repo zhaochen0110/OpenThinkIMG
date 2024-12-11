@@ -18,6 +18,7 @@ from functools import partial
 
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
+from qwen_vl_utils import process_vision_info
 
 from transformers import TextIteratorStreamer, AutoProcessor, Qwen2VLForConditionalGeneration
 from threading import Thread
@@ -44,16 +45,17 @@ class Qwen2ModelWorker(BaseModelWorker):
 
     @torch.inference_mode()
     def generate_stream(self, params):
-        prompt = params["prompt"]
-        images = params.get("images", None)
-        while isinstance(images, list) and len(images) == 1:
-            images = images[0]
-        images = load_image_from_base64(images)
-        # Preprocess the inputs
-        text_prompt = self.processor.apply_chat_template(prompt, add_generation_prompt=True)
-
+        conversation = params["conversation"]
+        text = self.processor.apply_chat_template(
+            conversation, tokenize=False, add_generation_prompt=True
+        )
+        image_inputs, video_inputs = process_vision_info(conversation)
         inputs = self.processor(
-            text=[text_prompt], images=[images], padding=True, return_tensors="pt"
+            text=[text],
+            images=image_inputs,
+            videos=video_inputs,
+            padding=True,
+            return_tensors="pt",
         )
         inputs = inputs.to(self.model.device)
         streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True, timeout=15)
@@ -65,7 +67,7 @@ class Qwen2ModelWorker(BaseModelWorker):
         thread = Thread(target=self.model.generate, kwargs=kwargs)
         thread.start()
 
-        generated_text = prompt
+        generated_text = ""
         for new_text in streamer:
             generated_text += new_text
             yield json.dumps({"text": generated_text, "error_code": 0}).encode() + b"\0"
@@ -80,6 +82,7 @@ if __name__ == "__main__":
     parser.add_argument("--controller-address", type=str,
         default="http://localhost:20001")
     parser.add_argument("--model-path", type=str, default="facebook/opt-350m")
+    parser.add_argument("--model-name", type=str, default="Qwen2-VL-7B-Instruct")
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--limit-model-concurrency", type=int, default=5)
     parser.add_argument("--stream-interval", type=int, default=1)
@@ -94,6 +97,7 @@ if __name__ == "__main__":
         worker_addr=args.worker_address,
         worker_id=worker_id,
         model_path=args.model_path,
+        model_name=args.model_name,
         device=args.device,
         limit_model_concurrency=args.limit_model_concurrency,
         load_8bit = args.load_8bit, 

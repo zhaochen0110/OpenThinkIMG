@@ -92,7 +92,7 @@ def main():
 
     # visualize
     res = response.json()
-    image_base64 = res["text"]
+    image_base64 = res["edited_image"]
     image = base64_to_pil(image_base64)
     image.save("drawline_image.jpg")
 

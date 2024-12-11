@@ -198,7 +198,10 @@ class ModelWorker:
 
     def generate_stream_func(self, model, params, device):
         # get inputs
-        text_prompt = params["caption"]
+        if "param" in params:
+            text_prompt = params["param"]
+        else:
+            text_prompt = params["caption"]
         image_path = params["image"]
         box_threshold = params["box_threshold"]
         text_threshold = params["text_threshold"]
@@ -234,8 +237,9 @@ class ModelWorker:
             "phrases": phrases,
             "size": [h, w],  # H,W
         }
+        ret = {"text": pred_dict, "error_code": 0}
 
-        return pred_dict
+        return ret
 
     def nms(self, boxes, logits, phrases):
         iou_threshold = 0.8
@@ -333,7 +337,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--model-names",
-        default="grounding_dino",
+        default="grounding_dino,grounding",
         type=lambda s: s.split(","),
         help="Optional display comma separated names",
     )

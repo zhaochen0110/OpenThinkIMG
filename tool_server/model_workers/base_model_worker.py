@@ -188,21 +188,21 @@ class BaseModelWorker:
         except ValueError as e:
             print("Caught ValueError:", e)
             ret = {
-                "text": server_error_msg,
+                "text": f"Caught ValueError: {e}",
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"
         except torch.cuda.CudaError as e:
             print("Caught torch.cuda.CudaError:", e)
             ret = {
-                "text": server_error_msg,
+                "text": f"Caught CUDAError: {e}",
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"
         except Exception as e:
             print("Caught Unknown Error", e)
             ret = {
-                "text": server_error_msg,
+                "text": f"Caught Unknown Error: {e}",
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"

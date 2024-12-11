@@ -108,7 +108,8 @@ class DrawlineToolWorker(BaseToolWorker):
                 buf.seek(0)  # 重置缓冲区指针到起始位置
                 pil_image = Image.open(buf).convert("RGB")
                 image_base64= pil_to_base64(pil_image)
-                ret["text"] = image_base64
+                ret["edited_image"] = image_base64
+                ret["text"] = f"Line drawn successfully."
             except ValueError as e:
                 logger.error(f"Error processing line parameters '{generate_param}': {e}")
                 ret["text"] = f"Error processing line parameters '{generate_param}': {e}"
