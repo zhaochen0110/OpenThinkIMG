@@ -7,11 +7,7 @@ import cv2
 import sys
 
 from groundingdino.util.inference import annotate
-<<<<<<< HEAD
-sys.path.append('/mnt/petrelfs/songmingyang/code/reasoning/ref/LLaVA-Plus-Codebase/llava')
-=======
 sys.path.append('/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/llava')
->>>>>>> tool_server_develop
 from serve.utils import annotate_xyxy
 import numpy as np
 
@@ -92,13 +88,8 @@ def main():
     print(f"Time: {toc - tic:.3f}s")
 
     print("detection result:")
-<<<<<<< HEAD
-    print(response)
-    # print(response.json())
-=======
     # print(response)
     print(response.json())
->>>>>>> tool_server_develop
     # response is 'Response' with :
     # ['_content', '_content_consumed', '_next', 'status_code', 'headers', 'raw', 'url', 'encoding', 'history', 'reason', 'cookies', 'elapsed', 'request', 'connection', '__module__', '__doc__', '__attrs__', '__init__', '__enter__', '__exit__', '__getstate__', '__setstate__', '__repr__', '__bool__', '__nonzero__', '__iter__', 'ok', 'is_redirect', 'is_permanent_redirect', 'next', 'apparent_encoding', 'iter_content', 'iter_lines', 'content', 'text', 'json', 'links', 'raise_for_status', 'close', '__dict__', '__weakref__', '__hash__', '__str__', '__getattribute__', '__setattr__', '__delattr__', '__lt__', '__le__', '__eq__', '__ne__', '__gt__', '__ge__', '__new__', '__reduce_ex__', '__reduce__', '__subclasshook__', '__init_subclass__', '__format__', '__sizeof__', '__dir__', '__class__']
 
@@ -116,11 +107,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # worker parameters
     parser.add_argument(
-<<<<<<< HEAD
-        "--controller-address", type=str, default="http://10.140.54.5:20001"
-=======
         "--controller-address", type=str, default="http://127.0.0.1:20001"
->>>>>>> tool_server_develop
     )
     parser.add_argument("--worker-address", type=str)
     parser.add_argument("--model-name", type=str, default='grounding_dino')
