@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 torch
 torchvision
-=======
->>>>>>> tool_server_develop
 transformers
 addict
 yapf
