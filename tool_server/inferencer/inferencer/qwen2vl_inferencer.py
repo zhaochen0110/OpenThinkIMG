@@ -6,8 +6,6 @@ from tool_server.utils.server_utils import *
 inferencer_id = str(uuid.uuid4())[:6]
 logger = build_logger("base_inferencer", f"base_inferencer_{inferencer_id}.log")
 class QwenInferencer(BaseInferencer):
-    def __init__(self, controller_addr="http://localhost:20001"):
-        super().__init__(controller_addr)
     
     def model_specific_process_conversation(
         self,
@@ -75,7 +73,7 @@ class QwenInferencer(BaseInferencer):
         return conversation
     
     def get_model_response(self, model_name, conversation, image=None, gen_kwargs={}):
-        assert model_name in self.available_models
+        assert model_name in self.available_models, f"model_name {model_name} not in available models, {self.available_models}"
         assert isinstance(gen_kwargs, dict)
         
         pload = {

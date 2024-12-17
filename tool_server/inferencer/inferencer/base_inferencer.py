@@ -25,7 +25,7 @@ import requests
 
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
-
+from .dataset import dataset_dict
 
 import pycocotools.mask as mask_util
 import uuid
@@ -38,9 +38,13 @@ R = partial(round, ndigits=2)
 class BaseInferencer():
     def __init__(
         self,
-        controller_addr = "http://localhost:20001",
+        inference_args,
+        data_args,
     ):
-        self.controller_addr = controller_addr
+        self.inference_args = inference_args
+        self.data_args = data_args
+        
+        self.controller_addr = inference_args.controller_addr
         self.available_models = self.get_model_list()
         self.headers = {"User-Agent": "LLaVA-Plus Client"}
         self.init_model_addr_dict()
@@ -122,39 +126,47 @@ class BaseInferencer():
     def get_tool_response(self, tool_cfg, image):
 
         if tool_cfg is not None and len(tool_cfg) > 0:
-            assert len(tool_cfg) == 1, "Only one tool is supported for now, but got: {}".format(tool_cfg)
-            api_name = tool_cfg[0]["API_name"]
-            if api_name in ["line","ocr","crop","grounding","grounding_dino"]:
-                assert image is not None, "Image is required for tool: {}".format(api_name)
-                image = load_image(image)
-                image = pil_to_base64(image)
-            else:
-                image = None
-            tool_cfg[0]['API_params'].pop('image', None)
-            
-            # image is a pil obj
-            api_paras = {
-                "box_threshold": 0.3,
-                "text_threshold": 0.25,
-                **tool_cfg[0]['API_params']
-            }
-            
-            if image:
-                api_paras['image'] = image
-            
-            tool_worker_addr = self.get_worker_addr(api_name)
-            print("tool_worker_addr: ", tool_worker_addr)
-            tool_response = requests.post(
-                tool_worker_addr + "/worker_generate",
-                headers=self.headers,
-                json=api_paras,
-            ).json()
-            tool_response_clone = copy.deepcopy(tool_response)
-            print("tool_response: ", tool_response)
-            
-            return tool_response_clone
+            try:
+                assert len(tool_cfg) == 1, "Only one tool is supported for now, but got: {}".format(tool_cfg)
+                api_name = tool_cfg[0].get("API_name", tool_cfg[0].get("api_name", ""))
+                if api_name not in self.available_models:
+                    logger.error(f"API_name {api_name} not in available models, {self.available_models}")
+                    return dict(text=f"There is no tool names {api_name}.")
+                if api_name in ["line","ocr","crop","grounding","grounding_dino"]:
+                    assert image is not None, "Image is required for tool: {}".format(api_name)
+                    image = load_image(image)
+                    image = pil_to_base64(image)
+                else:
+                    image = None
+                tool_cfg[0].get("api_params",tool_cfg[0].get("API_params",{})).pop('image', None)
+                api_params = tool_cfg[0].get("api_params",tool_cfg[0].get("API_params",{}))
+                # image is a pil obj
+                api_paras = {
+                    "box_threshold": 0.3,
+                    "text_threshold": 0.25,
+                    **api_params,
+                }
+                
+                if image:
+                    api_paras['image'] = image
+                
+                tool_worker_addr = self.get_worker_addr(api_name)
+                print("tool_worker_addr: ", tool_worker_addr)
+                tool_response = requests.post(
+                    tool_worker_addr + "/worker_generate",
+                    headers=self.headers,
+                    json=api_paras,
+                ).json()
+                tool_response_clone = copy.deepcopy(tool_response)
+                print("tool_response: ", tool_response)
+                
+                return tool_response_clone
+            except:
+                logger.error(f"Tool {api_name} failed to answer the question.")
+                return dict(text=f"Tool {api_name} failed to answer the question.")
         else:
-            return None
+            logger.error(f"Tool {api_name} failed to answer the question.")
+            return dict(text=f"Tool {api_name} failed to answer the question.")
 
     
     
@@ -233,4 +245,41 @@ class BaseInferencer():
             tool_cfg = self.parse_tool_config(lm_output)
             
         return generation_logs, conversation_logs
+    
+    
+    def single_loop_inference(self):
+        assert self.data_args is not None, "data_args is required for single loop inference"
+        self.dataset = dataset_dict[self.data_args.dataset_name](self.data_args)
+        
+        for idx,item in enumerate(tqdm(self.dataset)):
+            copy_item = copy.deepcopy(item)
+            generation_logs, conversation_logs = self.inference_on_one_instance(
+                instance=copy_item, model_name=self.inference_args.model_name, max_rounds=self.inference_args.max_rounds
+            )
+            
+            value_list = [self.parse_lm_response(i)[2] for i in generation_logs if self.parse_lm_response(i)[2] is not None]
+            tool_list = [self.parse_lm_response(i)[1]  for i in generation_logs if self.parse_lm_response(i)[1] is not None]
+            response_list = generation_logs
+            res = dict(value_list=value_list, response_list=response_list, tool_list=tool_list, **item)
+            self.dataset.write_output_item(res)
+            
 
+    def parse_lm_response(self, response):
+        pattern = r'"thoughts🤔"(.*)"actions🚀"(.*)"value👉"(.*)'
+        matches = re.findall(pattern, response, re.DOTALL)
+        if len(matches) > 0:
+            try:
+                thoughts = matches[0][0].strip()
+            except:
+                thoughts = None
+            try:
+                actions = matches[0][1].strip()
+            except:
+                actions = None
+            try:
+                value = matches[0][2].strip()
+            except:
+                value = None
+        else:
+            thoughts, actions, value = None, None, None
+        return thoughts, actions, value
