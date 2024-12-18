@@ -13,19 +13,25 @@ from typing import Optional, List
 class ServerConfig:
     """服务器配置类"""
     # 基础路径配置
-    base_dir: str = "/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/serve"
+    base_dir: str = "/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers"
     llava_plus_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/llava_plus_v0_7b"
     dino_config: str = "/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
     dino_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pth"
     sam_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/sam_vit_h_4b8939.pth"
+    
+    qwen2vl_model: str = "/mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-filter"
     
     # 端口配置
     controller_port: int = 20001
     dino_port: int = 20003
     sam_plus_dino_port: int = 20005
     sam_port: int = 20007
+    ocr_port: int = 20009
+    drawline_port: int = 20011
+    crop_port: int = 20013
     
-    model_port: int = 20002
+    model_port: int = 40000
+    qwen2vl_port: int = 40001
     
     # SLURM配置
     partition: str = "MoE"
@@ -53,6 +59,7 @@ class ServerManager:
         # 初始化状态
         self.controller_addr = None
         self._clean_environment()
+        os.chdir(self.config.base_dir)
         
         self.slurm_job_ids=[]
 
@@ -142,6 +149,7 @@ class ServerManager:
                   f"--port", str(self.config.controller_port)]
         
         self.run_srun_command("zc_controller", self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file))
+        
         wait_dict = self.wait_for_job("zc_controller")
         
         node_list = wait_dict["node_list"]
@@ -156,16 +164,77 @@ class ServerManager:
         """启动所有worker服务"""
         # 启动DINO worker
         self.start_dino_worker()
-        
-        # 启动sam worker
-        self.start_sam_worker()
-        
-        # 启动Model worker
-        self.start_model_worker()
-        
-        # 启动SAM worker
-        self.start_ground_plus_sam_worker()
+        self.start_crop_worker()
+        self.start_drawline_worker()
+        self.start_ocr_worker()
+        self.start_qwen2vl_worker()
 
+    
+    def start_qwen2vl_worker(self) -> None:
+        """启动Qwen2VL worker"""
+        log_file = self.log_folder / "qwen2vl_worker.log"
+        command = [
+            "python", "../model_workers/qwen2vl_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.qwen2vl_port),
+            "--controller-address", self.controller_addr,
+            "--model-path", self.config.qwen2vl_model,
+            "--model-name", "Qwen2-VL-7B-Instruct",
+        ]
+        self.run_srun_command("zc_qwen2vl", self.config.default_calculate_gpus, 
+                            self.config.default_calculate_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_qwen2vl")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+        
+    def start_drawline_worker(self) -> None:
+        """启动DINO worker"""
+        log_file = self.log_folder / "drawline_worker.log"
+        command = [
+            "python", "./restructure_worker/drawline_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.drawline_port),
+            "--controller-address", self.controller_addr,
+        ]
+        
+        self.run_srun_command("zc_drawline", self.config.default_control_gpus, 
+                            self.config.default_control_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_drawline")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+        
+    def start_ocr_worker(self) -> None:
+        """启动OCR worker"""
+        log_file = self.log_folder / "ocr_worker.log"
+        command = [
+            "python", "./ocr_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.ocr_port),
+            "--controller-address", self.controller_addr,
+        ]
+        
+        self.run_srun_command("zc_ocr", self.config.default_control_gpus, 
+                            self.config.default_control_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_ocr")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+        
+    def start_crop_worker(self) -> None:
+        """启动DINO worker"""
+        log_file = self.log_folder / "crop_worker.log"
+        command = [
+            "python", "./restructure_worker/crop_worker.py",
+            "--host", "0.0.0.0",
+            "--port", str(self.config.crop_port),
+            "--controller-address", self.controller_addr,
+        ]
+        
+        self.run_srun_command("zc_crop", self.config.default_control_gpus, 
+                            self.config.default_control_cpus, command, str(log_file))
+        wait_dict = self.wait_for_job("zc_crop")
+        job_id = wait_dict["job_id"]
+        self.slurm_job_ids.append(job_id)
+    
     def start_dino_worker(self) -> None:
         """启动DINO worker"""
         log_file = self.log_folder / "dino_worker.log"

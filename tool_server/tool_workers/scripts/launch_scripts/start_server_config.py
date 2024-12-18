@@ -5,49 +5,20 @@ import logging
 from pathlib import Path
 import requests
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Dict
+from box import Box
+import argparse
+import yaml
 
 
-# 配置类，集中管理所有配置参数
-@dataclass
-class ServerConfig:
-    """服务器配置类"""
-    # 基础路径配置
-    base_dir: str = "/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers"
-    llava_plus_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/llava_plus_v0_7b"
-    dino_config: str = "/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
-    dino_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pth"
-    sam_model: str = "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/sam_vit_h_4b8939.pth"
-    
-    # 端口配置
-    controller_port: int = 20001
-    dino_port: int = 20003
-    sam_plus_dino_port: int = 20005
-    sam_port: int = 20007
-    
-    model_port: int = 40000
-    
-    # SLURM配置
-    partition: str = "MoE"
-    default_calculate_gpus: int = 1
-    default_calculate_cpus: int = 16
-    default_control_cpus: int = 2
-    default_control_gpus: int = 0
-    
-    
-    # 其他配置
-    retry_interval: int = 1
-    request_timeout: int = 10
 
 class ServerManager:
     """服务器管理类"""
-    def __init__(self, config: Optional[ServerConfig] = None):
+    def __init__(self, config: Optional[Dict] = None):
         # 初始化配置
-        self.config = config or ServerConfig()
+        self.config = Box(config)
         self.logger = self._setup_logger()
-        
-        # 设置路径
-        self.log_folder = Path(self.config.base_dir) / "logs/server_log"
+        self.log_folder = Path(self.config.log_folder)
         self.log_folder.mkdir(parents=True, exist_ok=True)
         
         # 初始化状态
@@ -55,6 +26,9 @@ class ServerManager:
         self._clean_environment()
         os.chdir(self.config.base_dir)
         
+        self.controller_config = self.config.controller_config
+        self.model_worker_config = self.config.model_worker_config
+        self.tool_worker_config = self.config.tool_worker_config
         self.slurm_job_ids=[]
 
     def _setup_logger(self) -> logging.Logger:
@@ -138,124 +112,76 @@ class ServerManager:
 
     def start_controller(self) -> str:
         """启动控制器"""
-        log_file = self.log_folder / "controller.log"
-        command = ["python", "controller.py", "--host", "0.0.0.0", 
-                  f"--port", str(self.config.controller_port)]
+        log_file = self.log_folder / f"{self.controller_config.worker_name}.log"
+        script_addr = self.controller_config.cmd.pop("script-addr")
+        job_name = self.controller_config.job_name
+        command = ["python", script_addr]
+        for k,v in self.controller_config.cmd.items():
+            command.extend([f"--{k}", str(v)])
         
-        self.run_srun_command("zc_controller", self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file))
-        wait_dict = self.wait_for_job("zc_controller")
+        self.run_srun_command(job_name, self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file))
+        
+        wait_dict = self.wait_for_job(job_name)
         
         node_list = wait_dict["node_list"]
         job_id = wait_dict["job_id"]
         
         self.slurm_job_ids.append(job_id)
-        self.controller_addr = f"http://{node_list}:{self.config.controller_port}"
+        self.controller_addr = f"http://{node_list}:{self.controller_config.cmd.port}"
         self.logger.info(f"Controller is running at: {self.controller_addr}")
         return self.controller_addr
 
     def start_all_workers(self) -> None:
         """启动所有worker服务"""
-        # 启动DINO worker
-        self.start_dino_worker()
         
-        # 启动sam worker
-        self.start_sam_worker()
-        
-        # 启动Model worker
-        # self.start_model_worker()
-        
-        # 启动SAM worker
-        self.start_ground_plus_sam_worker()
-
-    def start_dino_worker(self) -> None:
-        """启动DINO worker"""
-        log_file = self.log_folder / "dino_worker.log"
-        command = [
-            "python", "./grounding_dino_worker.py",
-            "--host", "0.0.0.0",
-            "--port", str(self.config.dino_port),
-            "--controller-address", self.controller_addr,
-            "--model-config", self.config.dino_config,
-            "--model-path", self.config.dino_model
-        ]
-        
-        self.run_srun_command("zc_dino", self.config.default_calculate_gpus, 
-                            self.config.default_calculate_cpus, command, str(log_file))
-        wait_dict = self.wait_for_job("zc_dino")
-        job_id = wait_dict["job_id"]
-        self.slurm_job_ids.append(job_id)
-    
-    def start_sam_worker(self) -> None:
-        """启动SAM(Segment Anything Model) worker"""
-        log_file = self.log_folder / "sam.log"
-        command = [
-            "python", "./sam_worker.py",
-            "--host", "0.0.0.0",
-            "--controller-address", self.controller_addr,
-            "--port", str(self.config.sam_port)
-        ]
-        self.logger.info("Starting SAM worker...")
-        self.run_srun_command(
-            "zc_sam", 
-            self.config.default_calculate_gpus,
-            self.config.default_calculate_cpus, 
-            command, 
-            str(log_file)
-        )
-        # 等待worker就绪
-        wait_dict = self.wait_for_job("zc_sam")
-        job_id = wait_dict["job_id"]
-        self.slurm_job_ids.append(job_id)
+        self.start_model_worker()
+        self.start_tool_worker()
 
     def start_model_worker(self) -> None:
-        """启动LLaVA-Plus Model worker"""
-        log_file = self.log_folder / "llava_plus_worker.log"
-        command = [
-            "python", "-m", "llava_plus.serve.model_worker",
-            "--host", "0.0.0.0",
-            "--controller-address", self.controller_addr,
-            "--port", str(self.config.model_port),
-            "--worker-address", "auto",
-            "--model-path", self.config.llava_plus_model
-        ]
+        for config in self.model_worker_config:
+            config = list(config.values())[0]
+            self.start_worker_by_config(config)
+    
+    def start_tool_worker(self) -> None:
+        for config in self.tool_worker_config:
+            config = list(config.values())[0]
+            self.start_worker_by_config(config)
+    
+    def start_worker_by_config(self,config) -> None:
+        """启动特定 worker"""
         
-        self.logger.info("Starting LLaVA-Plus model worker...")
-        self.run_srun_command(
-            "zc_llava_plus_worker", 
-            self.config.default_calculate_gpus,
-            self.config.default_calculate_cpus, 
-            command, 
-            str(log_file)
-        )
-        # 等待worker就绪
-        wait_dict = self.wait_for_job("zc_llava_plus_worker")
+        if "dependency_worker_name" in config:
+            self.wait_for_job(config.dependency_worker_name)
+            
+        log_file = self.log_folder / f"{config.worker_name}_worker.log"
+        script_addr = config.cmd.pop("script-addr")
+        job_name = config.job_name
+        command = [
+            "python", script_addr,
+            "--controller-address", self.controller_addr,
+        ]
+        for k,v in config.cmd.items():
+            command.extend([f"--{k}", str(v)])
+        
+        if config.calculate_type == "control":
+            gpus = self.config.default_control_gpus
+            cpus = self.config.default_control_cpus
+        elif config.calculate_type == "calculate":
+            gpus = self.config.default_calculate_gpus
+            cpus = self.config.default_calculate_cpus
+        else:
+            raise ValueError("calculate_type must be 'control' or 'calculate'")
+        
+        self.run_srun_command(job_name, gpus, cpus, command, str(log_file))
+        wait_dict = self.wait_for_job(job_name)
         job_id = wait_dict["job_id"]
         self.slurm_job_ids.append(job_id)
         
-    def start_ground_plus_sam_worker(self) -> None:
-        """启动SAM(Segment Anything Model) worker"""
-        self.wait_for_worker_addr("grounding_dino")
-        self.wait_for_worker_addr("sam")
-        log_file = self.log_folder / "sam_plus_dino.log"
-        command = [
-            "python", "./grounded_sam_worker.py",
-            "--host", "0.0.0.0",
-            "--controller-address", self.controller_addr,
-            "--port", str(self.config.sam_plus_dino_port)
-        ]
-        
-        self.logger.info("Starting SAM PLUS DINO worker...")
-        self.run_srun_command(
-            "zc_sam_plus_dino", 
-            self.config.default_control_gpus,
-            self.config.default_control_cpus, 
-            command, 
-            str(log_file)
-        )
-        # 等待worker就绪
-        wait_dict = self.wait_for_job("zc_sam_plus_dino")
-        job_id = wait_dict["job_id"]
-        self.slurm_job_ids.append(job_id)
+        if "wait_for_self" in config and config["wait_for_self"]:
+            self.wait_for_worker_addr(config.worker_name)
+    
+    
+ 
 
     def shutdown_services(self) -> None:
         """关闭所有SLURM服务
@@ -300,18 +226,19 @@ class ServerManager:
 
 
 def main():
-    """主函数"""
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("--config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers/scripts/launch_scripts/config/all_service.yaml", help="配置文件路径")
+    
+    args = argparser.parse_args()
+    config_path = Path(args.config)
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+    
     try:
         # 创建服务器管理器
-        manager = ServerManager()
-        
-        # 切换到工作目录
+        manager = ServerManager(config)
         os.chdir(manager.config.base_dir)
-        
-        # 启动控制器
         manager.start_controller()
-        
-        # 启动所有worker
         manager.start_all_workers()
         try:
             # 保持运行

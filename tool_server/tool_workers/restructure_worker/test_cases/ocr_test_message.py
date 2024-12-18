@@ -4,7 +4,6 @@ import json
 import time
 from io import BytesIO
 import cv2
-from groundingdino.util.inference import annotate
 import numpy as np
 
 
@@ -47,6 +46,9 @@ def main():
         controller_addr = args.controller_address
         ret = requests.post(controller_addr + "/refresh_all_workers")
         ret = requests.post(controller_addr + "/list_models")
+        
+        print(controller_addr)
+        print(ret)
         models = ret.json()["models"]
         models.sort()
         print(f"Models: {models}")
@@ -92,14 +94,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # worker parameters
     parser.add_argument(
-        "--controller-address", type=str, default="http://localhost:21001"
+        "--controller-address", type=str, default="http://localhost:20001"
     )
     parser.add_argument("--worker-address", type=str)
     parser.add_argument("--model-name", type=str, default='ocr')
 
     # model parameters
     parser.add_argument(
-        "--image_path", type=str, default='/home/liushilong/code/GroundingFolder/Grounded-Segment-Anything/assets/grounded_sam2.png'
+        "--image_path", type=str, default="/mnt/petrelfs/songmingyang/code/tools/test_imgs/test_ocr.jpg"
     )
     parser.add_argument(
         "--send_image", action="store_true",

@@ -10,12 +10,15 @@ import uuid
 import os
 
 from fastapi import FastAPI, Request, BackgroundTasks
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 import requests
 import torch
 import uvicorn
 from functools import partial
 
+
+from tool_server.tool_workers.constants import WORKER_HEART_BEAT_INTERVAL, ErrorCode, SERVER_ERROR_MSG
+from tool_server.tool_workers.utils import build_logger, pretty_print_semaphore
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
 
@@ -23,10 +26,10 @@ from tool_server.utils.server_utils import *
 GB = 1 << 30
 
 worker_id = str(uuid.uuid4())[:6]
-logger = build_logger("model_worker", f"base_model_worker_{worker_id}.log")
+logger = build_logger("tool_worker", f"base_tool_worker_{worker_id}.log")
 model_semaphore = None
 
-class BaseModelWorker:
+class BaseToolWorker:
     def __init__(self, 
                  controller_addr, 
                  worker_addr = "auto",
@@ -106,17 +109,27 @@ class BaseModelWorker:
             self.model_semaphore.release()
             if fn is not None:
                 fn()
+    
+    def acquire_model_semaphore(self):
+        self.global_counter += 1
+        if self.model_semaphore is None:
+            self.model_semaphore = asyncio.Semaphore(self.limit_model_concurrency)
+        return self.model_semaphore.acquire()
                 
     def setup_routes(self):
+        @self.app.post("/worker_generate")
+        async def api_generate(request: Request):
+            params = await request.json()
+            await self.acquire_model_semaphore()
+            output = self.generate_gate(params)
+            self.release_model_semaphore()
+            return JSONResponse(output)
+        
         @self.app.post("/worker_generate_stream")
         async def generate_stream(request: Request):
             self.global_counter += 1
             params = await request.json()
-
-            if self.model_semaphore is None:
-                self.model_semaphore = asyncio.Semaphore(self.limit_model_concurrency)
-            await self.model_semaphore.acquire()
-            
+            await self.acquire_model_semaphore()
             self.send_heart_beat()
             generator = self.generate_stream_gate(params)
             background_tasks = BackgroundTasks()
@@ -128,6 +141,12 @@ class BaseModelWorker:
         @self.app.post("/worker_get_status")
         async def get_status(request: Request):
             return self.get_status()
+        
+        
+        @self.app.post("/model_details")
+        async def model_details(request: Request):
+            pass
+            # return {"context_length": worker.context_len}
         
     def register_to_controller(self):
         logger.info("Register to controller")
@@ -180,6 +199,28 @@ class BaseModelWorker:
     def generate_stream(self, params):
         pass
     
+    @torch.inference_mode()
+    def generate(self, params):
+        pass
+    
+    def generate_gate(self, params):
+        try:
+
+            ret = {"text": "", "error_code": 0}
+            ret = self.generate(
+                params,
+            )
+        except torch.cuda.OutOfMemoryError as e:
+            ret = {
+                "text": f"{SERVER_ERROR_MSG}\n\n({e})",
+                "error_code": ErrorCode.CUDA_OUT_OF_MEMORY,
+            }
+        except (ValueError, RuntimeError) as e:
+            ret = {
+                "text": f"{SERVER_ERROR_MSG}\n\n({e})",
+                "error_code": ErrorCode.INTERNAL_ERROR,
+            }
+        return ret
     
     def generate_stream_gate(self, params):
         try:
@@ -188,21 +229,21 @@ class BaseModelWorker:
         except ValueError as e:
             print("Caught ValueError:", e)
             ret = {
-                "text": f"Caught ValueError: {e}",
+                "text": SERVER_ERROR_MSG,
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"
         except torch.cuda.CudaError as e:
             print("Caught torch.cuda.CudaError:", e)
             ret = {
-                "text": f"Caught CUDAError: {e}",
+                "text": SERVER_ERROR_MSG,
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"
         except Exception as e:
             print("Caught Unknown Error", e)
             ret = {
-                "text": f"Caught Unknown Error: {e}",
+                "text": SERVER_ERROR_MSG,
                 "error_code": 1,
             }
             yield json.dumps(ret).encode() + b"\0"

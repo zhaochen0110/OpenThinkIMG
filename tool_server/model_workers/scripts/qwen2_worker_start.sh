@@ -1,5 +1,6 @@
 source ~/.bashrc
-source ~/anaconda3/bin/activate smoe
+source ~/anaconda3/bin/activate tool_server
+
 # AD_NAME=songmingyang
 # encrypted_password=iWRsYqbwV4EJgJvU8QjLe00CptZc5jBVH3FMo5i6n9mVdOSoUurpyBTmst1Z
 # new_proxy_address=http://${AD_NAME}:${encrypted_password}@10.1.20.50:23128/
@@ -14,7 +15,7 @@ source ~/anaconda3/bin/activate smoe
 # export HF_ENDPOINT=https://hf-mirror.com
 # unset HF_ENDPOINT
 
-cd /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/llava_plus/serve/new_workers
+cd /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/model_workers
 
 export SLURM_JOB_ID=3273170
 unset SLURM_JOB_ID     
@@ -22,6 +23,7 @@ unset SLURM_JOB_ID
 model_path=/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/llava_plus_v0_7b
 
 model_path=/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/Qwen2-VL-7B-Instruct
+ft_path1=/mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-filter
 
 gpus=1
 cpus=16
@@ -32,4 +34,5 @@ OMP_NUM_THREADS=8 srun --partition=MoE --job-name="zc_qwen2vl" --mpi=pmi2 --gres
  --controller-address http://SH-IDCA1404-10-140-54-5:20001 \
  --port 40001 \
  --worker-address auto \
- --model-path ${model_path}
+ --model-path ${ft_path1} \
+ --model-name Qwen2-VL-7B-Instruct 
