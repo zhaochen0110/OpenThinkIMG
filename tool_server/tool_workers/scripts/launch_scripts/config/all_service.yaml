@@ -1,5 +1,5 @@
-base_dir: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers
-log_folder: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers/logs/server_log
+base_dir: /mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers
+log_folder: /mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers/logs/server_log
 partition: "MoE"
 default_calculate_gpus: 1
 default_calculate_cpus: 16
@@ -24,7 +24,7 @@ model_worker_config:
       calculate_type: calculate
       cmd:
         script-addr: ../model_workers/qwen2vl_worker.py
-        model-path: "/mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-filter"
+        model-path: "/mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-base"
         model-name: Qwen2-VL-7B-Instruct
         port: 40001
         host: "0.0.0.0"
@@ -38,7 +38,7 @@ tool_worker_config:
         script-addr: ./grounding_dino_worker.py
         port: 20003
         host: "0.0.0.0"
-        model-config: "/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
+        model-config: "/mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
         model-path: "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pth"
   - ocr:
       worker_name: ocr
