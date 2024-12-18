@@ -22,7 +22,7 @@ rm pyproject.toml
 # 尝试安装
 srun -p MoE pip install -e .
 ## 安装成功后再次import
-python -c "import groudingdino._C"
+python -c "import groundingdino._C"
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
 ImportError: libc10.so: cannot open shared object file: No such file or directory
