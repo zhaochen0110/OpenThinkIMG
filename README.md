@@ -35,7 +35,7 @@ find $(python -c "import torch; print(torch.__path__[0])") -name "libc10.so"
 export LD_LIBRARY_PATH=/mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages/torch/lib
 
 ## 再次import
-python -c "import groudingdino._C"
+python -c "import groundingdino._C"
 ```
 #### 1. Install our dependencies
 
