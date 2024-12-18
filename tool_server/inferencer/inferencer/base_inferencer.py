@@ -211,23 +211,27 @@ class BaseInferencer():
             
             
             if tool_cfg:
-                tool_response = self.get_tool_response(tool_cfg, image)
+                try:
+                    tool_response = self.get_tool_response(tool_cfg, image)
 
-                ## 将图片提取出来
-                if "edited_image" in tool_response:
-                    edited_image = tool_response.pop("edited_image")
-                    edited_image = "data:image/jpeg;base64," + edited_image
-                else:
-                    edited_image = None
-                
-                if "text" in tool_response:
-                    tool_response_text = tool_response["text"]
-                else:
-                    tool_response_text = None
+                    ## 将图片提取出来
+                    if "edited_image" in tool_response:
+                        edited_image = tool_response.pop("edited_image")
+                        edited_image = "data:image/jpeg;base64," + edited_image
+                    else:
+                        edited_image = None
                     
-                api_name = tool_cfg[0]['API_name']
-                new_response = f"{api_name} model outputs: {tool_response_text}\n\n"
-                new_round_conv = f"{new_response} Please summarize the model outputs and answer my first question: {original_prompt}"
+                    if "text" in tool_response:
+                        tool_response_text = tool_response["text"]
+                    else:
+                        tool_response_text = None
+                        
+                    api_name = tool_cfg[0].get("API_name", tool_cfg[0].get("api_name", ""))
+                    new_response = f"{api_name} model outputs: {tool_response_text}\n\n"
+                    new_round_conv = f"{new_response} Please summarize the model outputs and answer my first question: {original_prompt}"
+                except:
+                    edited_image = None
+                    new_round_conv = original_prompt
             else:
                 edited_image = None
                 new_round_conv = original_prompt
