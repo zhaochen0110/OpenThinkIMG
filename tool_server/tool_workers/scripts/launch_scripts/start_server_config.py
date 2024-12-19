@@ -11,17 +11,16 @@ import argparse
 import yaml
 
 
-
 class ServerManager:
-    """服务器管理类"""
+    """Server Manager Class"""
     def __init__(self, config: Optional[Dict] = None):
-        # 初始化配置
+        # Initialize configuration
         self.config = Box(config)
         self.logger = self._setup_logger()
         self.log_folder = Path(self.config.log_folder)
         self.log_folder.mkdir(parents=True, exist_ok=True)
         
-        # 初始化状态
+        # Initialize status
         self.controller_addr = None
         self._clean_environment()
         os.chdir(self.config.base_dir)
@@ -29,10 +28,10 @@ class ServerManager:
         self.controller_config = self.config.controller_config
         self.model_worker_config = self.config.model_worker_config
         self.tool_worker_config = self.config.tool_worker_config
-        self.slurm_job_ids=[]
+        self.slurm_job_ids = []
 
     def _setup_logger(self) -> logging.Logger:
-        """设置日志系统"""
+        """Set up logging system"""
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s'
@@ -40,13 +39,13 @@ class ServerManager:
         return logging.getLogger(__name__)
 
     def _clean_environment(self) -> None:
-        """清理环境变量"""
+        """Clean environment variables"""
         os.environ.pop('SLURM_JOB_ID', None)
         os.environ["OMP_NUM_THREADS"] = "1"
 
     def run_srun_command(self, job_name: str, gpus: int, cpus: int, 
                         command: List[str], log_file: str) -> subprocess.Popen:
-        """运行SLURM命令"""
+        """Run SLURM command"""
         srun_cmd = [
             "srun",
             f"--partition={self.config.partition}",
@@ -65,16 +64,16 @@ class ServerManager:
         return subprocess.Popen(" ".join(srun_cmd), shell=True, env=os.environ.copy())
 
     def wait_for_job(self, job_name: str) -> str:
-        """等待作业分配并获取节点信息"""
+        """Wait for job allocation and get node information"""
         self.logger.info(f"Waiting for job to start: {job_name}")
         while True:
-            # 获取作业ID
+            # Get job ID
             job_id = subprocess.getoutput(
                 f"squeue --user=$USER --name={job_name} --noheader --format='%A' | head -n 1"
             ).strip()
             
             if job_id:
-                # 获取节点列表
+                # Get node list
                 node_list = subprocess.getoutput(
                     f"squeue --job={job_id} --noheader --format='%N'"
                 ).strip()
@@ -84,7 +83,7 @@ class ServerManager:
             time.sleep(self.config.retry_interval)
 
     def wait_for_worker_addr(self, worker_name: str) -> str:
-        """等待worker地址可用"""
+        """Wait for worker address to be available"""
         self.logger.info(f"Waiting for {worker_name} worker...")
         attempt = 0
         
@@ -111,12 +110,12 @@ class ServerManager:
             time.sleep(self.config.retry_interval)
 
     def start_controller(self) -> str:
-        """启动控制器"""
+        """Start controller"""
         log_file = self.log_folder / f"{self.controller_config.worker_name}.log"
         script_addr = self.controller_config.cmd.pop("script-addr")
         job_name = self.controller_config.job_name
         command = ["python", script_addr]
-        for k,v in self.controller_config.cmd.items():
+        for k, v in self.controller_config.cmd.items():
             command.extend([f"--{k}", str(v)])
         
         self.run_srun_command(job_name, self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file))
@@ -132,8 +131,7 @@ class ServerManager:
         return self.controller_addr
 
     def start_all_workers(self) -> None:
-        """启动所有worker服务"""
-        
+        """Start all worker services"""
         self.start_model_worker()
         self.start_tool_worker()
 
@@ -147,8 +145,8 @@ class ServerManager:
             config = list(config.values())[0]
             self.start_worker_by_config(config)
     
-    def start_worker_by_config(self,config) -> None:
-        """启动特定 worker"""
+    def start_worker_by_config(self, config) -> None:
+        """Start specific worker"""
         
         if "dependency_worker_name" in config:
             self.wait_for_job(config.dependency_worker_name)
@@ -160,7 +158,7 @@ class ServerManager:
             "python", script_addr,
             "--controller-address", self.controller_addr,
         ]
-        for k,v in config.cmd.items():
+        for k, v in config.cmd.items():
             command.extend([f"--{k}", str(v)])
         
         if config.calculate_type == "control":
@@ -179,14 +177,11 @@ class ServerManager:
         
         if "wait_for_self" in config and config["wait_for_self"]:
             self.wait_for_worker_addr(config.worker_name)
-    
-    
- 
 
     def shutdown_services(self) -> None:
-        """关闭所有SLURM服务
-        
-        使用记录的job_ids列表逐个关闭服务，并进行错误处理和日志记录
+        """Shut down all SLURM services
+
+        Use the recorded job_ids list to shut down services one by one, handling errors and logging
         """
         if not hasattr(self, 'slurm_job_ids') or not self.slurm_job_ids:
             self.logger.warning("No SLURM job IDs found to shutdown")
@@ -195,10 +190,10 @@ class ServerManager:
         try:
             for job_id in self.slurm_job_ids:
                 try:
-                    # 检查作业是否仍在运行
+                    # Check if the job is still running
                     check_cmd = f"squeue --job={job_id} --noheader"
                     if subprocess.getoutput(check_cmd).strip():
-                        # 取消作业
+                        # Cancel the job
                         subprocess.run(["scancel", str(job_id)], check=True)
                         self.logger.info(f"Successfully cancelled job ID: {job_id}")
                     else:
@@ -209,7 +204,7 @@ class ServerManager:
                 except Exception as e:
                     self.logger.error(f"Unexpected error while cancelling job ID {job_id}: {e}")
                     
-            # 清空job_ids列表
+            # Clear the job_ids list
             self.slurm_job_ids.clear()
             self.logger.info("All services have been shutdown")
             
@@ -217,17 +212,14 @@ class ServerManager:
             self.logger.error(f"Critical error during shutdown: {e}")
             raise
         finally:
-            # 确保清理环境变量
+            # Ensure environment variables are cleaned up
             if 'SLURM_JOB_ID' in os.environ:
                 del os.environ['SLURM_JOB_ID']
-        
-    
-        
 
 
 def main():
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("--config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers/scripts/launch_scripts/config/all_service.yaml", help="配置文件路径")
+    argparser.add_argument("--config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers/scripts/launch_scripts/config/all_service.yaml", help="Path to configuration file")
     
     args = argparser.parse_args()
     config_path = Path(args.config)
@@ -235,23 +227,23 @@ def main():
         config = yaml.safe_load(f)
     
     try:
-        # 创建服务器管理器
+        # Create server manager
         manager = ServerManager(config)
         os.chdir(manager.config.base_dir)
         manager.start_controller()
         manager.start_all_workers()
         try:
-            # 保持运行
+            # Keep running
             while True:
                 time.sleep(1)
             
         except KeyboardInterrupt:
             logger = logging.getLogger(__name__)
-            logger.info("正在关闭服务...")
+            logger.info("Shutting down services...")
             manager.shutdown_services()
     except Exception as e:
         logger = logging.getLogger(__name__)
-        logger.error(f"发生错误: {e}")
+        logger.error(f"An error occurred: {e}")
         raise
 
 if __name__ == "__main__":
