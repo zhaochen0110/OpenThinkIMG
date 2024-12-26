@@ -21,6 +21,8 @@ cd ./tool-agent/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/Grou
 rm pyproject.toml
 # 尝试安装
 srun -p MoE pip install -e .
+# 若提示缺少MPCXXX，请自行安装MPC并在PATH和LD_LIBRARY_PATH里面指定MPC路径
+
 ## 安装成功后再次import
 python -c "import groundingdino._C"
 Traceback (most recent call last):
