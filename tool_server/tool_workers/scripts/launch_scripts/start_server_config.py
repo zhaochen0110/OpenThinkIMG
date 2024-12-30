@@ -57,8 +57,9 @@ class ServerManager:
             "--ntasks-per-node=1",
             f"-c {cpus}",
             "--kill-on-bad-exit=1",
-            "--quotatype=auto",
+            "--quotatype=reserved",
             f"--output={log_file}",
+            "-w SH-IDCA1404-10-140-54-89"
         ] + command
 
         self.logger.info(f"Starting job: {job_name}")

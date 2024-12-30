@@ -140,7 +140,7 @@ class BaseInferencer():
                     image = None
                 tool_cfg[0].get("api_params",tool_cfg[0].get("API_params",{})).pop('image', None)
                 api_params = tool_cfg[0].get("api_params",tool_cfg[0].get("API_params",{}))
-                # image is a pil obj
+                # image is a base64 img obj
                 api_paras = {
                     "box_threshold": 0.3,
                     "text_threshold": 0.25,
@@ -158,6 +158,8 @@ class BaseInferencer():
                     json=api_paras,
                 ).json()
                 tool_response_clone = copy.deepcopy(tool_response)
+                if "edited_image" in tool_response:
+                    tool_response.pop("edited_image", None)
                 print("tool_response: ", tool_response)
                 
                 return tool_response_clone
@@ -203,7 +205,7 @@ class BaseInferencer():
         tool_cfg = self.parse_tool_config(lm_output)
         
         ## While Tool Config is not None, keep triggering tool augmentation
-        while "<stop>" not in lm_output and current_round < max_rounds:
+        while lm_output is not None and "<stop>" not in lm_output and current_round < max_rounds:
             current_round += 1
             conversation = self.model_specific_append_message_to_conversation(
                 conversation=conversation, text_prompt=lm_output, image=None, role="assistant"

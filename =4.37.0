@@ -1,0 +1,28 @@
+Collecting transformers
+  Downloading transformers-4.47.1-py3-none-any.whl.metadata (44 kB)
+Requirement already satisfied: filelock in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (3.16.1)
+Requirement already satisfied: huggingface-hub<1.0,>=0.24.0 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (0.26.2)
+Requirement already satisfied: numpy>=1.17 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (1.26.4)
+Requirement already satisfied: packaging>=20.0 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (24.2)
+Requirement already satisfied: pyyaml>=5.1 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (6.0.2)
+Requirement already satisfied: regex!=2019.12.17 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (2024.11.6)
+Requirement already satisfied: requests in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (2.32.3)
+Collecting tokenizers<0.22,>=0.21 (from transformers)
+  Using cached tokenizers-0.21.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)
+Requirement already satisfied: safetensors>=0.4.1 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (0.4.5)
+Requirement already satisfied: tqdm>=4.27 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from transformers) (4.67.0)
+Requirement already satisfied: fsspec>=2023.5.0 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.24.0->transformers) (2024.10.0)
+Requirement already satisfied: typing-extensions>=3.7.4.3 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from huggingface-hub<1.0,>=0.24.0->transformers) (4.12.2)
+Requirement already satisfied: charset-normalizer<4,>=2 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from requests->transformers) (3.4.0)
+Requirement already satisfied: idna<4,>=2.5 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from requests->transformers) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from requests->transformers) (2.2.3)
+Requirement already satisfied: certifi>=2017.4.17 in /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages (from requests->transformers) (2024.8.30)
+Downloading transformers-4.47.1-py3-none-any.whl (10.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.1/10.1 MB 4.6 MB/s eta 0:00:00
+Using cached tokenizers-0.21.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+Installing collected packages: tokenizers, transformers
+  Attempting uninstall: tokenizers
+    Found existing installation: tokenizers 0.13.3
+    Uninstalling tokenizers-0.13.3:
+      Successfully uninstalled tokenizers-0.13.3
+Successfully installed tokenizers-0.21.0 transformers-4.47.1

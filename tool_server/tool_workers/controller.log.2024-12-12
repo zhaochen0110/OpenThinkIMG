@@ -1,0 +1,10 @@
+2024-12-12 21:01:28 | INFO | controller | args: Namespace(host='0.0.0.0', port=20001, dispatch_method='shortest_queue')
+2024-12-12 21:01:28 | INFO | controller | Init controller
+2024-12-12 21:01:28 | ERROR | stderr | INFO:     Started server process [34335]
+2024-12-12 21:01:28 | ERROR | stderr | INFO:     Waiting for application startup.
+2024-12-12 21:01:28 | ERROR | stderr | INFO:     Application startup complete.
+2024-12-12 21:01:28 | ERROR | stderr | INFO:     Uvicorn running on http://0.0.0.0:20001 (Press CTRL+C to quit)
+2024-12-12 21:04:03 | ERROR | stderr | INFO:     Shutting down
+2024-12-12 21:04:03 | ERROR | stderr | INFO:     Waiting for application shutdown.
+2024-12-12 21:04:03 | ERROR | stderr | INFO:     Application shutdown complete.
+2024-12-12 21:04:03 | ERROR | stderr | INFO:     Finished server process [34335]

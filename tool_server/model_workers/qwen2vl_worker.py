@@ -8,6 +8,7 @@ import time
 import threading
 import uuid
 import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import StreamingResponse

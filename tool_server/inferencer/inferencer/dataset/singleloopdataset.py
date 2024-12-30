@@ -48,7 +48,7 @@ class ChartQASingleLoopDataset(BaseSingleLoopDataset):
             if item_id in self.processed_id:
                 continue
             image_path = os.path.join(self.image_dir_path, f"{figure_id}.jpg")
-            prompt = item["query"] + 'Please ensure that your output only contains the final answer without any additional content (such as intermediate reasoning steps).'
+            prompt = item["query"]
             data_item = dict(idx=item_id, image=image_path, prompt=prompt, gen_kwargs={}, **item)
             self.meta_data.append(data_item)
     
