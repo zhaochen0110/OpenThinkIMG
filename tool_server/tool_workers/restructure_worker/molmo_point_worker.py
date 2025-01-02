@@ -4,7 +4,7 @@ A model worker executes the model.
 
 import uuid
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 import re
 import io
 import argparse

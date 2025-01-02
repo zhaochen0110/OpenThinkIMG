@@ -110,7 +110,7 @@ def main():
     print(f"molmo response: {res['text']}")
     image_base64 = res["edited_image"]
     image = base64_to_pil(image_base64)
-    image.save("molmo_pointed_image.jpg")
+    image.save("mathvista_pointed.jpg")
 
 
 if __name__ == "__main__":
@@ -124,13 +124,13 @@ if __name__ == "__main__":
 
     # model parameters
     parser.add_argument(
-        "--obj", type=str, default="Line chart, 2015, 2017"
+        "--obj", type=str, default="Point E"
     )
     parser.add_argument(
         "--send_image", action="store_true",
     )
     parser.add_argument(
-        "--image_path", type=str, default="/mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers/restructure_worker/test_cases/two_col_102588.png"
+        "--image_path", type=str, default="/mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers/restructure_worker/test_cases/mathvista_35.jpg"
     )
     args = parser.parse_args()
 
