@@ -60,10 +60,15 @@ def append_jsonl(data, filename):
         json.dump(data, f)
         f.write('\n')
         
-def load_txt_file(filepath):
+def load_txt_file_as_list(filepath):
     with open(filepath, 'r', encoding='utf-8') as f:
         data = f.readlines()
     data = [line.strip().replace("\n","") for line in data]
+    return data
+
+def load_txt_file_as_str(filepath):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        data = f.read()
     return data
 
 def write_txt_file(data, filepath):

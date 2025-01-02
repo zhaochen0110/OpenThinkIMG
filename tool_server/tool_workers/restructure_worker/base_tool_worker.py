@@ -26,7 +26,7 @@ from tool_server.utils.server_utils import *
 GB = 1 << 30
 
 worker_id = str(uuid.uuid4())[:6]
-logger = build_logger("tool_worker", f"base_tool_worker_{worker_id}.log")
+logger = build_logger("tool_worker", f"base_tool_worker_{worker_id}.log", "/mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers/logs/server_log")
 model_semaphore = None
 
 class BaseToolWorker:

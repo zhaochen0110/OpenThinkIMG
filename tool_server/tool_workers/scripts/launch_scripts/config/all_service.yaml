@@ -1,8 +1,8 @@
 base_dir: /mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers
 log_folder: /mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers/logs/server_log
 partition: "MoE"
-default_calculate_gpus: 1
-default_calculate_cpus: 16
+default_calculate_gpus: 0
+default_calculate_cpus: 2
 default_control_cpus: 2
 default_control_gpus: 0
 retry_interval: 1
@@ -24,8 +24,8 @@ model_worker_config:
       calculate_type: calculate
       cmd:
         script-addr: ../model_workers/qwen2vl_worker.py
-        model-path: "/mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-base" # /mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-filter
-        model-name: Qwen2-VL-7B-Instruct
+        model-path: "/mnt/petrelfs/share_data/quxiaoye/models/Qwen2-VL-72B-Instruct" # /mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-filter
+        model-name: Qwen2-VL-72B-Instruct
         port: 40001
         host: "0.0.0.0"
 
@@ -35,11 +35,11 @@ tool_worker_config:
       job_name: zc_grouding
       calculate_type: calculate
       cmd:
-        script-addr: ./grounding_dino_worker.py
-        port: 20003
+        script-addr: ./restructure_worker/cogcom_grounding_worker.py
+        port: 20017
         host: "0.0.0.0"
-        model-config: "/mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
-        model-path: "/mnt/petrelfs/songmingyang/songmingyang/model/tool-augment/groundingdino/groundingdino_swint_ogc.pth"
+        model_base: "/mnt/petrelfs/share_data/quxiaoye/models/vicuna-7b-v1.5"
+        model_path: "/mnt/petrelfs/share_data/quxiaoye/models/cogcom-grounding-17b"
   - ocr:
       worker_name: ocr
       job_name: zc_ocr

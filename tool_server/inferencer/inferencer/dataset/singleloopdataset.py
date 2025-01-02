@@ -3,6 +3,7 @@
 from torch.utils.data import Dataset
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
+from tool_server.inferencer.prompts.qwen72b_assistant import assistant_prompt
 
 logger = build_logger(__name__, f"{__name__}.log")
 
@@ -48,7 +49,7 @@ class ChartQASingleLoopDataset(BaseSingleLoopDataset):
             if item_id in self.processed_id:
                 continue
             image_path = os.path.join(self.image_dir_path, f"{figure_id}.jpg")
-            prompt = item["query"] + 'Please ensure that your output only contains the final answer without any additional content (such as intermediate reasoning steps).'
+            prompt = assistant_prompt + '\n' + item["query"]
             data_item = dict(idx=item_id, image=image_path, prompt=prompt, gen_kwargs={}, **item)
             self.meta_data.append(data_item)
     
