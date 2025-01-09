@@ -44,7 +44,7 @@ class ServerManager:
         os.environ["OMP_NUM_THREADS"] = "1"
 
     def run_srun_command(self, job_name: str, gpus: int, cpus: int, 
-                        command: List[str], log_file: str) -> subprocess.Popen:
+                        command: List[str], log_file: str, srun_kwargs: Dict = {}) -> subprocess.Popen:
         """Run SLURM command"""
         srun_cmd = [
             "srun",
@@ -58,9 +58,12 @@ class ServerManager:
             "--kill-on-bad-exit=1",
             "--quotatype=reserved",
             f"--output={log_file}",
-            "-w SH-IDCA1404-10-140-54-119"
-        ] + command
-
+        ]
+        
+        for k,v in srun_kwargs.items():
+            srun_cmd.extend([f"--{k}", str(v)])
+        srun_cmd.extend(command)
+        
         self.logger.info(f"Starting job: {job_name}")
         return subprocess.Popen(" ".join(srun_cmd), shell=True, env=os.environ.copy())
 
@@ -119,7 +122,8 @@ class ServerManager:
         for k, v in self.controller_config.cmd.items():
             command.extend([f"--{k}", str(v)])
         
-        self.run_srun_command(job_name, self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file))
+        
+        self.run_srun_command(job_name, self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file), srun_kwargs=self.controller_config.get("srun_kwargs", {}))
         
         wait_dict = self.wait_for_job(job_name)
         
@@ -171,7 +175,7 @@ class ServerManager:
         else:
             raise ValueError("calculate_type must be 'control' or 'calculate'")
         
-        self.run_srun_command(job_name, gpus, cpus, command, str(log_file))
+        self.run_srun_command(job_name, gpus, cpus, command, str(log_file), srun_kwargs=config.get("srun_kwargs", {}))
         wait_dict = self.wait_for_job(job_name)
         job_id = wait_dict["job_id"]
         self.slurm_job_ids.append(job_id)
@@ -220,7 +224,7 @@ class ServerManager:
 
 def main():
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("--config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers/scripts/launch_scripts/config/all_service.yaml", help="Path to configuration file")
+    argparser.add_argument("--config", type=str, default="/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers/scripts/launch_scripts/config/all_service_smy.yaml", help="Path to configuration file")
     
     args = argparser.parse_args()
     config_path = Path(args.config)
