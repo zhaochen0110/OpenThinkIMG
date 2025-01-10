@@ -59,9 +59,6 @@ class BaseInferencer():
         return models
     
     def get_worker_addr(self, model_name):
-        # ret = requests.post(self.controller_addr + "/get_worker_address",
-        #     json={"model": model_name})
-        # worker_addr = ret.json()["address"]
         return self.model_addr_dict[model_name]
         
         

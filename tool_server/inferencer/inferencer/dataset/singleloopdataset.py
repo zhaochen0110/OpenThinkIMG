@@ -68,4 +68,3 @@ class ChartQASingleLoopDataset(BaseSingleLoopDataset):
         append_jsonl(res, self.output_path)
 
             
-        

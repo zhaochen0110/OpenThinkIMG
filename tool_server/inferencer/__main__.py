@@ -9,7 +9,7 @@ import gc
 from accelerate import Accelerator
 
 from tool_server.inferencer.utils.utils import *
-from tool_server.inferencer.evaluator import MREvaluator
+from tool_server.inferencer.evaluator import TFEvaluator
 from tool_server.inferencer.utils.arguments import *
 from tool_server.inferencer.utils.log_utils import get_logger
 
@@ -47,7 +47,7 @@ def main():
             assert len(config) == 1, "If config is not a list, it should be a dictionary or NoneType"
             raise ValueError("Config should be a list of dictionaries.")
         
-        evaluator = MREvaluator(model_args, task_args, script_args)
+        evaluator = TFEvaluator(model_args, task_args, script_args)
         evaluator.evaluate()
         del evaluator
         logger.info(f"Finished evaluating on the No. {idx+1} config, toal {len(config)} configs.")
