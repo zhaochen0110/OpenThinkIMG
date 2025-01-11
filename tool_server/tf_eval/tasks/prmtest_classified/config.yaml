@@ -1,0 +1,6 @@
+task_name: "prmtest_classified"
+dataset_path: data
+dataset_type: "dir_of_jsonl"
+generation_config:
+  max_length: 2048
+

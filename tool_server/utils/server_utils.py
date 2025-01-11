@@ -54,7 +54,7 @@ def load_image_from_base64(image):
 current_file_path = os.path.abspath(__file__)
 current_folder_path = os.path.dirname(current_file_path)
 
-def build_logger(logger_name, logger_filename, logger_dir=f"{current_folder_path}/../tool_workers/logs/aotumatic_generated"):
+def build_logger(logger_name, logger_filename, logger_dir=f"{current_folder_path}/../tool_workers/logs/automatic_generated"):
     global handler
     LOGDIR = logger_dir
     formatter = logging.Formatter(

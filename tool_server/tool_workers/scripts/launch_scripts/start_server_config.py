@@ -26,8 +26,8 @@ class ServerManager:
         os.chdir(self.config.base_dir)
         
         self.controller_config = self.config.controller_config
-        self.model_worker_config = self.config.model_worker_config
-        self.tool_worker_config = self.config.tool_worker_config
+        self.model_worker_config = self.config.model_worker_config if "model_worker_config" in self.config else []
+        self.tool_worker_config = self.config.tool_worker_config if "tool_worker_config" in self.config else []
         self.slurm_job_ids = []
 
     def _setup_logger(self) -> logging.Logger:
