@@ -32,7 +32,7 @@ pip install -r requirment.txt
 pip install -e .
 
 ```
-If faced with any issues, please refer to our [documentation](docs/README.md## Installation Instructions).
+If faced with any issues, please refer to our [documentation](docs/README.md##Installation Instructions).
 
 ## Example Usages
 
