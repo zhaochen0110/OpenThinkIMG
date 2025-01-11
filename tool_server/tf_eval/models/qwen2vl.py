@@ -101,6 +101,8 @@ class Qwen2VL(tp_model):
         return res
     
     def form_input_from_dynamic_batch(self, batch: List[DynamicBatchItem]):
+        if len(batch) == 0:
+            return None
         messages = []
         for item in batch:
             messages.append(item.conversation)
@@ -120,6 +122,8 @@ class Qwen2VL(tp_model):
         return inputs
     
     def generate(self, batch,):
+        if not batch or len(batch) == 0:
+            return
         max_new_tokens = self.generation_config.get("max_new_tokens", 2048)
         
         inputs = self.form_input_from_dynamic_batch(batch)
