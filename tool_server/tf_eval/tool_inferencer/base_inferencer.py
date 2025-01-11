@@ -260,5 +260,5 @@ class BaseToolInferencer(object):
             except StopIteration:
                 break
         assert len(self.manager.get_current_batch()) == 0
-            
+        self.accelerator.wait_for_everyone()
     

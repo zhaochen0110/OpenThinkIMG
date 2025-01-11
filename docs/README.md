@@ -1,7 +1,5 @@
 # Documentations for Tool Factory
 
-
-
 ## TF-EVAL Module
 
 The `tf_eval` is the main logic for tool planning model inference. It is based on the `accelerate` framework. The main scripts are under `tool_server/tf_eval`. Before start `tf_eval`, you should make sure tool services are running.
@@ -80,7 +78,6 @@ The results of the evaluation will be staged in `base_dataset`, so you can call 
 
 The batch inference logic is implemented under `tool_server/tf_eval/tool_inferencer/base_inferencer.py`, which identifies the model batch inferencing and sequential tool calling logics. A data structure called `dynamic_batch` is used across model and inferncer to store the metadata and temporary results.
 
-The 
 
 ### 3.How to add a new model?
 
@@ -189,22 +186,23 @@ class DynamicBatchItem:
 
     b. `meta_data` is a list of objects, where the object is the same as the one you returned in `load_data_function()`
 
+    c. Remember to remove redundant items using idx.
 
 - When finish one round of batch inference, `dataset.store_results(res)` is called to store the results in the dataset sequentially.
 
 
 ## Installation Instructions
 
-## 1. How to install GroundingDINO?
+### 1. How to install GroundingDINO?
 
-##### 1). install from our code base
+##### a. install from our code base
 install from `tool-agent/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/GroundingDINO` 
 ```bash 
 cd tool-agent/LLaVA-Plus-Codebase/dependencies/Grounded-Segment-Anything/GroundingDINO
 srun -p ${YOUR_PARTITION} pip install -e . # make sure in a GPU environment
 ```
 
-##### 2). If faced with any problems, Install from source
+##### b. If faced with any problems, Install from source
 
 
 ```bash
