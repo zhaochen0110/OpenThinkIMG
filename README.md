@@ -9,8 +9,7 @@
 
 
 ## Features
-- **Single-Machine Multi-GPU Batch Inference** (Added on 2025-01-11): 
-  Batch Infernce and 
+- **Single-Machine Multi-GPU Batch Inference** (Added on 2025-01-11): We support multi-gpu batch inference based on huggingface accelerate.
   - Rename inferencer to `tf_eval`
   - split tasks and models 
   - `tool_sever.tf_eval.inferencer` and `tool_sever.model_workers` will be deprecated in the next version.
