@@ -5,7 +5,7 @@
 ![License: Apache-2.0](https://img.shields.io/badge/license-Apache%202.0-green)
 
 
-🏠 [PRMBench Homepage](#) | 📑 [Paper](#) | 📚 [Documentation](docs/README.md)
+🏠 [Tool-Factory Homepage](#) | 📑 [Paper](#) | 📚 [Documentation](docs/README.md)
 
 
 ## Features
@@ -66,14 +66,14 @@ accelerate launch  --config_file  ${accelerate_config} \
 --model_args pretrained=Qwen/Qwen2-VL-7B-Instruct \
 --task_name charxiv \
 --verbosity INFO \
---output_path ./scripts/logs/prmtest_classified/reasoneval_7b.jsonl \
+--output_path ./tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl.jsonl \
 --batch_size 2 \
 --max_rounds 3 \
 --stop_token <stop> \
 --controller_addr http://localhost:20001
 ```
 
-**Evaluation of ReaonEval-7B on PRMBench Using a Config File**
+**Evaluation of Qwen2VL on CharXiv Using a Config File**
 We strongly recommend that using a config file to evaluate tool planning models.
 
 
