@@ -12,6 +12,8 @@ controller_config:
   worker_name: controller
   job_name: zc_controller
   calculate_type: control
+  srun_kwargs:
+    w: SH-IDCA1404-10-140-54-119
   cmd:
     script-addr: controller.py
     port: 20001
@@ -22,6 +24,9 @@ model_worker_config:
       worker_name: qwenvl
       job_name: zc_qwenvl
       calculate_type: calculate
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-119
+      cuda_visible_devices: "4,5,6,7"
       cmd:
         script-addr: ../model_workers/qwen2vl_worker.py
         model-path: "/mnt/petrelfs/share_data/quxiaoye/models/Qwen2-VL-72B-Instruct" # /mnt/petrelfs/share_data/mmtool/weights/qwen-cogcom-filter
@@ -30,38 +35,54 @@ model_worker_config:
         host: "0.0.0.0"
 
 tool_worker_config:
-  - grouding:
-      worker_name: grouding
-      job_name: zc_grouding
+  # - grouding:
+  #     worker_name: grouding
+  #     job_name: zc_grouding
+  #     calculate_type: calculate
+  #     cuda_visible_devices: "0"
+  #     cmd:
+  #       script-addr: ./restructure_worker/cogcom_grounding_worker.py
+  #       port: 20017
+  #       host: "0.0.0.0"
+  #       model_base: "/mnt/petrelfs/share_data/quxiaoye/models/vicuna-7b-v1.5"
+  #       model_path: "/mnt/petrelfs/share_data/quxiaoye/models/cogcom-grounding-17b"
+  - point:
+      worker_name: point
+      job_name: zc_point
       calculate_type: calculate
+      conda_env: "molmo-sam"
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-119
+      cuda_visible_devices: "1"
       cmd:
-        script-addr: ./restructure_worker/cogcom_grounding_worker.py
-        port: 20017
+        script-addr: ./restructure_worker/molmo_point_worker.py
+        port: 20027
         host: "0.0.0.0"
-        model_base: "/mnt/petrelfs/share_data/quxiaoye/models/vicuna-7b-v1.5"
-        model_path: "/mnt/petrelfs/share_data/quxiaoye/models/cogcom-grounding-17b"
-  - ocr:
-      worker_name: ocr
-      job_name: zc_ocr
-      calculate_type: control
-      cmd:
-        script-addr: ./ocr_worker.py
-        port: 20009
-        host: "0.0.0.0"
-  - line:
-      worker_name: line
-      job_name: zc_line
-      calculate_type: control
-      cmd:
-        script-addr: ./restructure_worker/drawline_worker.py
-        port: 20011
-        host: "0.0.0.0"
-  - crop:
-      worker_name: crop
-      job_name: zc_crop
-      calculate_type: control
-      cmd:
-        script-addr: "./restructure_worker/crop_worker.py"
-        port: 20013
-        host: "0.0.0.0"
+        model_path: "/mnt/petrelfs/share_data/mmtool/Molmo-7B-D-0924"
+  # - ocr:
+  #     worker_name: ocr
+  #     job_name: zc_ocr
+  #     calculate_type: control
+  #     srun_kwargs:
+  #       w: SH-IDCA1404-10-140-54-119
+  #     cmd:
+  #       script-addr: ./ocr_worker.py
+  #       port: 20009
+  #       host: "0.0.0.0"
+  # - line:
+  #     worker_name: line
+  #     job_name: zc_line
+  #     calculate_type: control
+  #     cmd:
+  #       script-addr: ./restructure_worker/drawline_worker.py
+  #       port: 20011
+  #       host: "0.0.0.0"
+  # - crop:
+  #     worker_name: crop
+  #     job_name: zc_crop
+  #     calculate_type: control
+  #     cmd:
+  #       script-addr: "./restructure_worker/crop_worker.py"
+  #       port: 20013
+  #       host: "0.0.0.0"
   
