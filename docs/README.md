@@ -232,7 +232,19 @@ export LD_LIBRARY_PATH=/mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/
 python -c "import groundingdino._C"
 ```
 
-## Tool Service Documentations
+## Tool Hub
 
-Comming soon.
+### 1. Tool Manager
+From 2025-01-14, we use a single tool manager to manage all tools, including offline tools (which means the tool is computational cheap and no need to use gpus) and online tools (which means the tool is computational expensive and need to use gpus). The tool manager is implemented in `tool_workers/tool_manager/base_manager.py`, which is responsible for tool registration and tool calling. 
 
+Moreover, We surpport users to add their own tools to the tool hub. You can choose to add your own tools to the tool hub by following the instructions below.
+
+### 2. How To Add a New Tool
+
+1. If your tool is simple and no need to use gpus, you can add your tool to the offline tools, which means the tool will be called by the tool manager as a function. 
+    - Implement your tool as `tool_server/tool_workers/offline_workers/your_tool_worker.py`. It's recommended to reference other tool implementation to implement your own `generate` function in your script.
+    - register your tool in `tool_server/tool_workers/offline_workers/__init__.py`, the key should be the same with the `tool_name` that you want the tool planning model call, and the value should be the file name of your tool implementation. 
+
+2. If your tool is computational expensive and need to use gpus, you can add your tool to the online tools.
+    - Implement your tool as `tool_server/tool_workers/online_workers/your_tool_worker.py`. It's recommended to reference other tool implementation to implement your own `generate` function in your script.
+    - Wrap the base class `BaseToolWorker` in `tool_server/tool_workers/online_workers/base_tool_worker.py`. The template provided some basic functions that you can use to implement your own tool worker.

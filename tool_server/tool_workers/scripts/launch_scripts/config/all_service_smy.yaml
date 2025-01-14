@@ -13,7 +13,7 @@ controller_config:
   job_name: zc_controller
   calculate_type: control
   cmd:
-    script-addr: controller.py
+    script-addr: ./online_workers/controller.py
     port: 20001
     host: "0.0.0.0"
 
@@ -35,7 +35,7 @@ tool_worker_config:
       worker_name: grouding
       job_name: zc_grouding
       cmd:
-        script-addr: ./grounding_dino_worker.py
+        script-addr: ./online_workers/grounding_dino_worker.py
         port: 20003
         host: "0.0.0.0"
         model-config: "/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/LLaVA-Plus-Codebase/dependencies/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
@@ -46,23 +46,23 @@ tool_worker_config:
       job_name: zc_ocr
       calculate_type: control
       cmd:
-        script-addr: ./ocr_worker.py
+        script-addr: ./online_workers/ocr_worker.py
         port: 20009
         host: "0.0.0.0"
-  - line:
-      worker_name: line
-      job_name: zc_line
-      calculate_type: control
-      cmd:
-        script-addr: ./restructure_worker/drawline_worker.py
-        port: 20011
-        host: "0.0.0.0"
-  - crop:
-      worker_name: crop
-      job_name: zc_crop
-      calculate_type: control
-      cmd:
-        script-addr: "./restructure_worker/crop_worker.py"
-        port: 20013
-        host: "0.0.0.0"
+  # - line:
+  #     worker_name: line
+  #     job_name: zc_line
+  #     calculate_type: control
+  #     cmd:
+  #       script-addr: ./online_workers/drawline_worker.py
+  #       port: 20011
+  #       host: "0.0.0.0"
+  # - crop:
+  #     worker_name: crop
+  #     job_name: zc_crop
+  #     calculate_type: control
+  #     cmd:
+  #       script-addr: "./online_workers/crop_worker.py"
+  #       port: 20013
+  #       host: "0.0.0.0"
   
