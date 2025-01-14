@@ -9,7 +9,9 @@
 
 
 ## Features
-- **Tool Manager and Plug-In Tool Hub** (Added on 2025-01-14): We implemented a tool manager to manage all tools, changing some small tools into offline implementations, which increases the flexibility of the tool factory. Moreover, we provide a plug-in tool hub to support users to add their own tools.
+- **Tool Manager and Plug-In Tool Hub** (Added on 2025-01-14): 
+  - We implemented a tool manager to manage all tools, changing some small tools into offline implementations, which increases the flexibility of the tool factory. 
+  - Moreover, we provide a plug-in tool hub to support users to add their own tools.
 
 - **Single-Machine Multi-GPU Batch Inference** (Added on 2025-01-11): We support multi-gpu batch inference based on huggingface accelerate.
   - Rename inferencer to `tf_eval`
