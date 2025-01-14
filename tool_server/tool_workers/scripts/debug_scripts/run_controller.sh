@@ -15,7 +15,7 @@ OMP_NUM_THREADS=8 srun --partition=MoE \
  -n1 --ntasks-per-node=1 -c ${cpus} \
  --kill-on-bad-exit=1 \
  --quotatype=${quotatype}  \
- -w SH-IDCA1404-10-140-54-89 \
+ -w SH-IDCA1404-10-140-54-119 \
  python controller.py --host 0.0.0.0 --port 20001 
  
  

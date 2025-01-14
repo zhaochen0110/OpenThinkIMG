@@ -44,7 +44,8 @@ class ServerManager:
         os.environ["OMP_NUM_THREADS"] = "1"
 
     def run_srun_command(self, job_name: str, gpus: int, cpus: int, 
-                        command: List[str], log_file: str, srun_kwargs: Dict = {}) -> subprocess.Popen:
+                        command: List[str], log_file: str, srun_kwargs: Dict = {}, 
+                        conda_env: str = None, cuda_visible_devices: str = None) -> subprocess.Popen:
         """Run SLURM command"""
         srun_cmd = [
             "srun",
@@ -60,11 +61,17 @@ class ServerManager:
             f"--output={log_file}",
         ]
         
+        if conda_env:
+            srun_cmd.insert(0, f"source ~/anaconda3/bin/activate {conda_env} &&")
+            
+        if cuda_visible_devices:
+            os.environ["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
+        
         for k,v in srun_kwargs.items():
-            srun_cmd.extend([f"--{k}", str(v)])
+            srun_cmd.extend([f"-{k}", str(v)])
         srun_cmd.extend(command)
         
-        self.logger.info(f"Starting job: {job_name}")
+        self.logger.info(f"Starting job: {job_name} with conda environment {conda_env if conda_env else 'original env'}")
         return subprocess.Popen(" ".join(srun_cmd), shell=True, env=os.environ.copy())
 
     def wait_for_job(self, job_name: str) -> str:
@@ -123,7 +130,7 @@ class ServerManager:
             command.extend([f"--{k}", str(v)])
         
         
-        self.run_srun_command(job_name, self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file), srun_kwargs=self.controller_config.get("srun_kwargs", {}))
+        self.run_srun_command(job_name, self.config.default_control_gpus, self.config.default_control_cpus, command, str(log_file), srun_kwargs=self.controller_config.get("srun_kwargs", {}), conda_env=self.controller_config.get("conda_env", None), cuda_visible_devices=self.controller_config.get("cuda_visible_devices", None))
         
         wait_dict = self.wait_for_job(job_name)
         
@@ -175,7 +182,7 @@ class ServerManager:
         else:
             raise ValueError("calculate_type must be 'control' or 'calculate'")
         
-        self.run_srun_command(job_name, gpus, cpus, command, str(log_file), srun_kwargs=config.get("srun_kwargs", {}))
+        self.run_srun_command(job_name, gpus, cpus, command, str(log_file), srun_kwargs=config.get("srun_kwargs", {}), conda_env=config.get("conda_env", None), cuda_visible_devices=config.get("cuda_visible_devices", None))
         wait_dict = self.wait_for_job(job_name)
         job_id = wait_dict["job_id"]
         self.slurm_job_ids.append(job_id)

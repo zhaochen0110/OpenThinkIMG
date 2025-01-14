@@ -4,7 +4,6 @@ A model worker executes the model.
 
 import uuid
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 import re
 import io
 import argparse
@@ -86,7 +85,7 @@ class MolmoToolWorker(BaseToolWorker):
                  model_base = "", 
                  model_name = "point",
                  load_8bit = False, 
-                 load_4bit = True, 
+                 load_4bit = False, 
                  device = "auto",
                  limit_model_concurrency = 1,
                  host = "0.0.0.0",
@@ -116,25 +115,20 @@ class MolmoToolWorker(BaseToolWorker):
     def init_model(self):
         logger.info(f"Initializing model {self.model_name}...")
 
-        quantization_config = BitsAndBytesConfig(
-                load_in_8bit=self.load_8bit, load_in_4bit=self.load_4bit
-        )
-
         # load the processor
         self.processor = AutoProcessor.from_pretrained(
             self.model_path,
             trust_remote_code=True,
-            device_map=self.device,
-            torch_dtype=torch.bfloat16,
+            torch_dtype='auto',
+            device_map='auto'
         )
 
         # load the model
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_path,
             trust_remote_code=True,
-            quantization_config=quantization_config,
-            device_map=self.device,
-            torch_dtype=torch.bfloat16,
+            torch_dtype='auto',
+            device_map='auto'
         )
 
         
@@ -175,12 +169,14 @@ class MolmoToolWorker(BaseToolWorker):
                             if all_points.size > 0:
                                 input_labels = np.ones(len(all_points))
                                 image = create_image_with_points(image, all_points, input_labels)
+                                ret['edited_image'] = pil_to_base64(image)
                             else:
                                 ret["text"] = "No region found in image."
+                                ret['edited_image'] = None
                         else:
                             ret["text"] = "No region found in image."
-
-                ret['edited_image'] = pil_to_base64(image)
+                            ret['edited_image'] = None
+                
         except Exception as e:
             logger.error(f"Error when using cogcom to ground: {e}")
             ret["text"] = f"Error when using cogcom to ground: {e}"
@@ -196,7 +192,7 @@ if __name__ == "__main__":
     parser.add_argument("--worker-address", type=str,
         default="auto")
     parser.add_argument("--controller-address", type=str,
-        default="http://SH-IDCA1404-10-140-54-89:20001")
+        default="http://SH-IDCA1404-10-140-54-119:20001")
     parser.add_argument("--limit-model-concurrency", type=int, default=5)
     parser.add_argument("--stream-interval", type=int, default=1)
     parser.add_argument("--no-register", action="store_true")

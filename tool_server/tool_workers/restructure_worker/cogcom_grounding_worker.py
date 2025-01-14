@@ -4,7 +4,6 @@ A model worker executes the model.
 
 import uuid
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import re
 import io
 import argparse
@@ -169,12 +168,15 @@ class CogComGroundingToolWorker(BaseToolWorker):
                             x2 = box[2] / 1000 * width
                             y2 = box[3] / 1000 * height
                             draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
+                            
+                        ret['edited_image'] = pil_to_base64(image)
                     else:
                         ret["text"] = "No region found in image."
+                        ret['edited_image'] = None
                 else:
                     ret["text"] = "No region found in image."
+                    ret['edited_image'] = None
 
-                ret['edited_image'] = pil_to_base64(image)
         except Exception as e:
             logger.error(f"Error when using cogcom to ground: {e}")
             ret["text"] = f"Error when using cogcom to ground: {e}"
