@@ -10,6 +10,7 @@ from box import Box
 import argparse
 import yaml
 
+from tool_server.utils.utils import load_json_file, write_json_file
 
 class ServerManager:
     """Server Manager Class"""
@@ -140,6 +141,16 @@ class ServerManager:
         self.slurm_job_ids.append(job_id)
         self.controller_addr = f"http://{node_list}:{self.controller_config.cmd.port}"
         self.logger.info(f"Controller is running at: {self.controller_addr}")
+        controller_addr_dict = {"controller_addr": self.controller_addr}
+        if "controller_addr_location" in self.controller_config:
+            self.controller_addr_location = self.controller_config.controller_addr_location
+            write_json_file(controller_addr_dict, self.controller_config.controller_addr_location)
+            self.logger.info(f"Controller address saved to: {self.controller_addr_location}")
+        else:
+            current_file_path = os.path.dirname(os.path.abspath(__file__))
+            self.controller_addr_location = f"{current_file_path}/../../online_workers/controller_addr/controller_addr.json"
+            write_json_file(controller_addr_dict, self.controller_addr_location)
+            self.logger.info(f"Controller address saved to: {self.controller_addr_location}")
         return self.controller_addr
 
     def start_all_workers(self) -> None:
@@ -198,6 +209,12 @@ class ServerManager:
         if not hasattr(self, 'slurm_job_ids') or not self.slurm_job_ids:
             self.logger.warning("No SLURM job IDs found to shutdown")
             return
+        try:
+            os.remove(self.controller_addr_location)
+            self.logger.info("Controller address file removed")
+        except:
+            self.logger.warning("Controller address file not found, skipping removal")
+            pass
             
         try:
             for job_id in self.slurm_job_ids:

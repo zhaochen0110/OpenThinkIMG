@@ -10,6 +10,7 @@ from ..models.abstract_model import tp_model
 from .dynamic_batch_manager import DynamicBatchManager
 from ..utils.utils import *
 from ..utils.log_utils import get_logger
+from ...tool_workers.tool_manager.base_manager import ToolManager
 
 logger = get_logger(__name__)
 class BaseToolInferencer(object):
@@ -18,7 +19,7 @@ class BaseToolInferencer(object):
         tp_model: tp_model = None,
         # dataset: Dataset = None,
         batch_size: int = 1,
-        controller_addr: str = None,
+        # controller_addr: str = None,
         max_rounds: int = 3,
         stop_token: str = "<stop>",
     ):
@@ -38,39 +39,40 @@ class BaseToolInferencer(object):
             stop_token=self.stop_token,
             generate_conversation_fn = self.tp_model.generate_conversation_fn,
         )
-
-        self.headers = {"User-Agent": "LLaVA-Plus Client"}
+        self.tool_manager = ToolManager()
+        self.available_models = self.tool_manager.available_tools
+        # self.headers = {"User-Agent": "LLaVA-Plus Client"}
         
-        self.controller_addr = controller_addr
-        self.init_workers()
+        # self.controller_addr = controller_addr
+        # self.init_workers()
         
     ## Init Tool Workers
-    def init_workers(self):
-        self.init_model_list()
-        self.init_model_addr_dict()
+    # def init_workers(self):
+    #     self.init_model_list()
+    #     self.init_model_addr_dict()
     
-    def init_model_list(self):
-        ret = requests.post(self.controller_addr + "/refresh_all_workers")
-        assert ret.status_code == 200
-        ret = requests.post(self.controller_addr + "/list_models")
-        models = ret.json()["models"]
-        logger.info(f"Models: {models}")
-        self.available_models = models
+    # def init_model_list(self):
+    #     ret = requests.post(self.controller_addr + "/refresh_all_workers")
+    #     assert ret.status_code == 200
+    #     ret = requests.post(self.controller_addr + "/list_models")
+    #     models = ret.json()["models"]
+    #     logger.info(f"Models: {models}")
+    #     self.available_models = models
         
-    def init_model_addr_dict(self):
-        self.model_addr_dict = {}
-        for model_name in self.available_models:
-            ret = requests.post(self.controller_addr + "/get_worker_address",
-                                json={"model": model_name})
-            worker_addr = ret.json()["address"]
-            if worker_addr == "":
-                logger.error(f"worker_addr for {model_name} is empty")
-                continue
-            self.model_addr_dict[model_name] = worker_addr
+    # def init_model_addr_dict(self):
+    #     self.model_addr_dict = {}
+    #     for model_name in self.available_models:
+    #         ret = requests.post(self.controller_addr + "/get_worker_address",
+    #                             json={"model": model_name})
+    #         worker_addr = ret.json()["address"]
+    #         if worker_addr == "":
+    #             logger.error(f"worker_addr for {model_name} is empty")
+    #             continue
+    #         self.model_addr_dict[model_name] = worker_addr
 
     
-    def get_worker_addr(self, model_name):
-        return self.model_addr_dict[model_name]
+    # def get_worker_addr(self, model_name):
+    #     return self.model_addr_dict[model_name]
         
     
 
@@ -136,7 +138,7 @@ class BaseToolInferencer(object):
                     api_name = tool_cfg[0].get("API_name", tool_cfg[0].get("api_name", ""))
                     if api_name not in self.available_models:
                         logger.error(f"API_name {api_name} not in available models, {self.available_models}")
-                        item.tool_response.append(dict(text=f"There is no tool names {api_name}."))
+                        item.tool_response.append(dict(text=f"There is no tool names {api_name}.",error_code=1))
                         continue
                     
                     if api_name in ["line","ocr","crop","grounding","grounding_dino"]:
@@ -158,14 +160,14 @@ class BaseToolInferencer(object):
                     
                     if image:
                         api_paras['image'] = image
-                    
-                    tool_worker_addr = self.get_worker_addr(api_name)
-                    print("tool_worker_addr: ", tool_worker_addr)
-                    tool_response = requests.post(
-                        tool_worker_addr + "/worker_generate",
-                        headers=self.headers,
-                        json=api_paras,
-                    ).json()
+                    tool_response = self.tool_manager.call_tool(api_name,api_paras)
+                    # tool_worker_addr = self.get_worker_addr(api_name)
+                    # print("tool_worker_addr: ", tool_worker_addr)
+                    # tool_response = requests.post(
+                    #     tool_worker_addr + "/worker_generate",
+                    #     headers=self.headers,
+                    #     json=api_paras,
+                    # ).json()
                     tool_response_clone = copy.deepcopy(tool_response)
                     if "edited_image" in tool_response:
                         tool_response.pop("edited_image", None)
@@ -175,7 +177,7 @@ class BaseToolInferencer(object):
                     # return tool_response_clone
                 except:
                     logger.info(f"Tool {api_name} failed to answer the question.")
-                    item.tool_response.append(dict(text=f"Tool {api_name} failed to answer the question."))
+                    item.tool_response.append(dict(text=f"Tool {api_name} failed to answer the question.",error_code=1))
                     continue
                     # return dict(text=f"Tool {api_name} failed to answer the question.")
             else:
