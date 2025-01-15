@@ -35,7 +35,6 @@ You can organize your config as a list of dict or a single dict. It's recommend 
     verbosity: INFO
     # final result output path
     output_path: ./tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl.jsonl
-    controller_addr: http://10.140.54.30:20001
 ```
 After setting down the config, please run TF EVAL as:
 

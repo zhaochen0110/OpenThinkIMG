@@ -72,8 +72,7 @@ accelerate launch  --config_file  ${accelerate_config} \
 --output_path ./tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl.jsonl \
 --batch_size 2 \
 --max_rounds 3 \
---stop_token <stop> \
---controller_addr http://localhost:20001
+--stop_token <stop> 
 ```
 
 **Evaluation of Qwen2VL on CharXiv Using a Config File**
@@ -104,7 +103,6 @@ Config file example:
   script_args:
     verbosity: INFO
     output_path: ./tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl.jsonl
-    controller_addr: http://localhost:20001 # Should be the same with your controller address
 ```
 
 For detailed information and config setting please refer to our [documentation](docs/README.md).
