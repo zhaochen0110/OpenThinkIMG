@@ -28,8 +28,11 @@ class BaseToolInferencer(object):
         
         self.generate_conversation_fn = self.tp_model.generate_conversation_fn
         self.append_conversation_fn = self.tp_model.append_conversation_fn
-        self.tp_model = self.tp_model.to(self.accelerator.device)
-        self.tp_model = self.tp_model.to(torch.bfloat16)
+        
+        if self.accelerator.device.type == "cuda":
+            self.tp_model = self.tp_model.to(self.accelerator.device)
+            self.tp_model = self.tp_model.to(torch.bfloat16)
+
         self.batch_size = batch_size
         self.max_rounds = max_rounds
         self.stop_token = stop_token

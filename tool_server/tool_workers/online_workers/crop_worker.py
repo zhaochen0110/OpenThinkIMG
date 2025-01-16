@@ -9,7 +9,6 @@ import io
 import argparse
 
 from PIL import Image
-from tool_server.utils import build_logger, pretty_print_semaphore
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
 import matplotlib.pyplot as plt
