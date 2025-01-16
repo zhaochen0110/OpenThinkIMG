@@ -11,7 +11,7 @@
 ## Features
 - **Support closed-source models** (Added on 2025-01-15): 
   - We implemented a tool manager to support a series of closed-source models, such as, Gemini and Chatgpt.
-  - We also support evaluation with [CoCo_eval](https://cocodataset.org/#home)的评测
+  - We also support evaluation with [CoCo_eval](https://cocodataset.org/#home).
     
 - **Tool Manager and Plug-In Tool Hub** (Added on 2025-01-14): 
   - We implemented a tool manager to manage all tools, changing some small tools into offline implementations, which increases the flexibility of the tool factory. 
