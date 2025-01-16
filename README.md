@@ -9,6 +9,9 @@
 
 
 ## Features
+- **Generating Closed Charts Programmatically** (Added on 2025-01-16): 
+  - We now hard-code all task instructions in models/template.py, and place the different input formats for each model in their respective files (e.g., gemini.py).
+    
 - **Support closed-source models** (Added on 2025-01-15): 
   - We implemented a tool manager to support a series of closed-source models, such as, Gemini and Chatgpt.
   - We also support evaluation with [CoCo_eval](https://cocodataset.org/#home).
