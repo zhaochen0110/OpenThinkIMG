@@ -110,18 +110,17 @@ class Qwen2VL(tp_model):
             self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
             for msg in messages
         ]
-        image_inputs, video_inputs = process_vision_info(messages)
+        image_inputs, _ = process_vision_info(messages)
         inputs = self.processor(
             text=texts,
             images=image_inputs,
-            videos=video_inputs,
             padding=True,
             return_tensors="pt",
         )
         inputs = inputs.to(self.model.device)
         return inputs
     
-    def generate(self, batch,):
+    def generate(self, batch):
         if not batch or len(batch) == 0:
             return
         max_new_tokens = self.generation_config.get("max_new_tokens", 2048)

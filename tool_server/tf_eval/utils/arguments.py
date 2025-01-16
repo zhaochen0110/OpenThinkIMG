@@ -31,7 +31,7 @@ class ModelArguments:
 
 @dataclass
 class TaskArguments:
-    task_name: Optional[List[str]] = field(default_factory=lambda: ["reasoneval"])
+    task_name: Optional[str] = field(default="charxiv")
     resume_from_ckpt: Optional[Dict[str, str]] = field(default=None,)
     def __post_init__(self):
         # 如果传入的是一个字典，将其包装成 Box；否则默认生成空 Box
@@ -80,6 +80,7 @@ def parse_str_into_list(args_str: str) -> List:
     """
     Parse a string of comma-separated values into a list.
     """
+    # import pdb; pdb.set_trace()
     return args_str.split(",")
 
 def parse_args():
@@ -108,6 +109,7 @@ def parse_args():
     else:
         config = None
         
+    # import pdb; pdb.set_trace() 
     script_args.config = config
     task_args.task_name = parse_str_into_list(task_args.task_name)
     if isinstance(model_args.model_args, str):
