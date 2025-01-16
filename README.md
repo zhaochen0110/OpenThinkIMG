@@ -9,6 +9,13 @@
 
 
 ## Features
+- **Generating Closed Charts Programmatically** (Added on 2025-01-16): 
+  - We now hard-code all task instructions in models/template.py, and place the different input formats for each model in their respective files (e.g., gemini.py).
+    
+- **Support closed-source models** (Added on 2025-01-15): 
+  - We implemented a tool manager to support a series of closed-source models, such as, Gemini and Chatgpt.
+  - We also support evaluation with [CoCo_eval](https://cocodataset.org/#home).
+    
 - **Tool Manager and Plug-In Tool Hub** (Added on 2025-01-14): 
   - We implemented a tool manager to manage all tools, changing some small tools into offline implementations, which increases the flexibility of the tool factory. 
   - Moreover, we provide a plug-in tool hub to support users to add their own tools.
@@ -72,8 +79,7 @@ accelerate launch  --config_file  ${accelerate_config} \
 --output_path ./tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl.jsonl \
 --batch_size 2 \
 --max_rounds 3 \
---stop_token <stop> \
---controller_addr http://localhost:20001
+--stop_token <stop> 
 ```
 
 **Evaluation of Qwen2VL on CharXiv Using a Config File**
@@ -104,7 +110,6 @@ Config file example:
   script_args:
     verbosity: INFO
     output_path: ./tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl.jsonl
-    controller_addr: http://localhost:20001 # Should be the same with your controller address
 ```
 
 For detailed information and config setting please refer to our [documentation](docs/README.md).
