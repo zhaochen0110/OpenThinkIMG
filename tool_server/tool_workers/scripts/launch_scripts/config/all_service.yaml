@@ -15,7 +15,7 @@ controller_config:
   srun_kwargs:
     w: SH-IDCA1404-10-140-54-119
   cmd:
-    script-addr: controller.py
+    script-addr: ./online_workers/controller.py
     port: 20001
     host: "0.0.0.0"
 
@@ -41,7 +41,7 @@ tool_worker_config:
   #     calculate_type: calculate
   #     cuda_visible_devices: "0"
   #     cmd:
-  #       script-addr: ./restructure_worker/cogcom_grounding_worker.py
+  #       script-addr: ./online_workers/cogcom_grounding_worker.py
   #       port: 20017
   #       host: "0.0.0.0"
   #       model_base: "/mnt/petrelfs/share_data/quxiaoye/models/vicuna-7b-v1.5"
@@ -55,7 +55,7 @@ tool_worker_config:
         w: SH-IDCA1404-10-140-54-119
       cuda_visible_devices: "1"
       cmd:
-        script-addr: ./restructure_worker/molmo_point_worker.py
+        script-addr: ./online_workers/molmo_point_worker.py
         port: 20027
         host: "0.0.0.0"
         model_path: "/mnt/petrelfs/share_data/mmtool/Molmo-7B-D-0924"
@@ -74,7 +74,7 @@ tool_worker_config:
   #     job_name: zc_line
   #     calculate_type: control
   #     cmd:
-  #       script-addr: ./restructure_worker/drawline_worker.py
+  #       script-addr: ./online_workers/drawline_worker.py
   #       port: 20011
   #       host: "0.0.0.0"
   # - crop:
@@ -82,7 +82,7 @@ tool_worker_config:
   #     job_name: zc_crop
   #     calculate_type: control
   #     cmd:
-  #       script-addr: "./restructure_worker/crop_worker.py"
+  #       script-addr: "./online_workers/crop_worker.py"
   #       port: 20013
   #       host: "0.0.0.0"
   

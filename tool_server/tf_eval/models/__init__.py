@@ -9,6 +9,8 @@ logger.add(sys.stdout, level="WARNING")
 
 AVAILABLE_MODELS = {
     "qwen2vl": "Qwen2VL",
+    "gemini": "GeminiModels",
+    "openai": "OpenaiModels"
 }
 
 

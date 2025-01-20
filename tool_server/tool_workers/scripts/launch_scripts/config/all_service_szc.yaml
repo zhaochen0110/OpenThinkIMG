@@ -1,0 +1,62 @@
+base_dir: /mnt/petrelfs/share_data/suzhaochen/new_tool/Tool-Factory/tool_server/tool_workers
+log_folder: /mnt/petrelfs/share_data/suzhaochen/new_tool/Tool-Factory/tool_server/tool_workers/logs/server_log
+partition: "MoE"
+default_calculate_gpus: 0
+default_calculate_cpus: 2
+default_control_cpus: 2
+default_control_gpus: 0
+retry_interval: 1
+request_timeout: 10
+
+controller_config:
+  worker_name: controller
+  job_name: zc_controller
+  calculate_type: control
+  cmd:
+    script-addr: ./online_workers/controller.py
+    port: 20001
+    host: "0.0.0.0"
+
+
+tool_worker_config:
+  - point:
+      worker_name: point
+      job_name: zc_point
+      calculate_type: calculate
+      conda_env: "molmo"
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-67
+      cuda_visible_devices: "1"
+      cmd:
+        script-addr: ./online_workers/molmo_point_worker.py
+        port: 20027
+        host: "0.0.0.0"
+        model_path: "/mnt/petrelfs/share_data/mmtool/Molmo-7B-D-0924"
+  - drawliney:
+      worker_name: drawliney
+      job_name: zc_drawliney
+      calculate_type: control
+      cmd:
+        script-addr: ./online_workers/DrawHorizontalLineByY_worker.py
+        port: 20032
+        host: "0.0.0.0"
+  - drawlinex:
+      worker_name: drawlinex
+      job_name: zc_drawlinex
+      calculate_type: control
+      cmd:
+        script-addr: ./online_workers/DrawVerticalLineByX_worker.py
+        port: 20089
+        host: "0.0.0.0"
+
+  - ocr:
+      worker_name: ocr
+      job_name: zc_ocr
+      calculate_type: control
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-67
+      cuda_visible_devices: "2"
+      cmd:
+        script-addr: ./online_workers/ocr_worker.py
+        port: 20009
+        host: "0.0.0.0"
