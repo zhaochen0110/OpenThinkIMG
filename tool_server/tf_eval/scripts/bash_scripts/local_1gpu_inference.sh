@@ -20,7 +20,7 @@ unset HF_ENDPOINT
 
 code_base=/mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server
 cd $code_base
-job_id=3962886
+job_id=4034913
 export SLURM_JOB_ID=${job_id}
 
 

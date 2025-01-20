@@ -41,7 +41,6 @@ class TFEvaluator():
         self.inferencer = BaseToolInferencer(
             tp_model=self.model,
             batch_size=self.model_args.batch_size,
-            controller_addr = self.script_args.controller_addr,
             max_rounds = max_rounds,
             stop_token = stop_token,
         )
