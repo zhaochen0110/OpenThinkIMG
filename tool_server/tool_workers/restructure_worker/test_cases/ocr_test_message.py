@@ -44,7 +44,7 @@ def main():
         worker_addr = args.worker_address
     else:
         controller_addr = args.controller_address
-        ret = requests.post(controller_addr + "/refresh_all_workers")
+        # ret = requests.post(controller_addr + "/refresh_all_workers")
         ret = requests.post(controller_addr + "/list_models")
         
         print(controller_addr)
@@ -94,14 +94,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # worker parameters
     parser.add_argument(
-        "--controller-address", type=str, default="http://localhost:20001"
+        "--controller-address", type=str, default="http://10.140.54.119:20001"
     )
     parser.add_argument("--worker-address", type=str)
     parser.add_argument("--model-name", type=str, default='ocr')
 
     # model parameters
     parser.add_argument(
-        "--image_path", type=str, default="/mnt/petrelfs/songmingyang/code/tools/test_imgs/test_ocr.jpg"
+        "--image_path", type=str, default="/mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers/restructure_worker/test_cases/two_col_102588.png"
     )
     parser.add_argument(
         "--send_image", action="store_true",
