@@ -1,6 +1,6 @@
 
 
-cd /mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers
+cd /mnt/petrelfs/haoyunzhuo/mmtool/Tool-Factory/tool_server/tool_workers/online_workers
 
 # export SLURM_JOB_ID=3273170
 # unset SLURM_JOB_ID     
