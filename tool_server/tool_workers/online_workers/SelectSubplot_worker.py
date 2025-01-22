@@ -254,7 +254,7 @@ class SelectSubplotToolWorker(BaseToolWorker):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=20038)
+    parser.add_argument("--port", type=int, default=20039)
     parser.add_argument("--worker-address", type=str,
         default="auto")
     parser.add_argument("--controller-address", type=str,
