@@ -1,0 +1,37 @@
+compute_environment: LOCAL_MACHINE
+# deepspeed_config:
+#   deepspeed_config_file: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tf_eval/scripts/configs/accelerate_config/zero3_inference.json
+deepspeed_config:
+  fp16:
+    enabled: false
+  bf16:
+    enabled: true
+  zero_optimization:
+    stage: 3
+    offload_param:
+      device: none
+    overlap_comm: true
+    contiguous_gradients: false,
+    reduce_scatter: true
+  activation_checkpointing:
+    partition_activations: false
+  aio:
+    block_size: 1048576
+    queue_depth: 8
+    overlap_events: true
+    single_submit: false
+    thread_count: 2
+  wall_clock_breakdown: false
+distributed_type: DEEPSPEED
+downcast_bf16: 'no'
+machine_rank: 0
+main_training_function: main
+main_process_port: 29501
+num_machines: 1
+num_processes: 4
+rdzv_backend: static
+same_network: true
+tpu_env: []
+tpu_use_cluster: false
+tpu_use_sudo: false
+use_cpu: false
