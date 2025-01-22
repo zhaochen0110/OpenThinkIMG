@@ -9,6 +9,9 @@
 
 
 ## Features
+- **Vllm inference accelerating** (Added on 2025-01-22): 
+  - We now support VLLM inference acceleration, which means you can run tool planning models on VLLM.
+
 - **Generating Closed Charts Programmatically** (Added on 2025-01-16): 
   - We now hard-code all task instructions in models/template.py, and place the different input formats for each model in their respective files (e.g., gemini.py).
     

@@ -88,8 +88,8 @@ def build_logger(logger_name, logger_filename=None, logger_dir=f"{current_folder
     if handler is None:
         os.makedirs(LOGDIR, exist_ok=True)
         filename = os.path.join(LOGDIR, logger_filename)
-        handler = logging.handlers.TimedRotatingFileHandler(
-            filename, when='D', utc=True, encoding='UTF-8')
+        handler = logging.FileHandler(filename, mode='w')
+        handler.setLevel(logging.INFO)
         handler.setFormatter(formatter)
 
         for name, item in logging.root.manager.loggerDict.items():

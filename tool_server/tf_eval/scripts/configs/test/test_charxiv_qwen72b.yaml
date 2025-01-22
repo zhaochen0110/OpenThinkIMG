@@ -1,0 +1,16 @@
+model_args:
+  model: vllm_models
+  model_args: pretrained=/mnt/petrelfs/share_data/quxiaoye/models/Qwen2-VL-72B-Instruct,tensor_parallel=4
+  batch_size: 2
+  max_rounds: 3
+  stop_token: <stop>
+task_args:
+  task_name: charxiv
+  resume_from_ckpt:
+    charxiv: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tf_eval/scripts/logs/ckpt/charxiv/qwen2vl72b.jsonl
+  save_to_ckpt:
+    charxiv: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tf_eval/scripts/logs/ckpt/charxiv/qwen2vl72b.jsonl
+script_args:
+  verbosity: INFO
+  output_path: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl72b.jsonl
+  # controller_addr: http://10.140.54.30:20001

@@ -5,7 +5,6 @@ import requests
 from PIL import Image
 from io import BytesIO
 from transformers import AutoTokenizer
-from peft import PeftModel
 from copy import deepcopy
 from torch.utils.data import DataLoader,Dataset
 from dataclasses import dataclass
@@ -15,7 +14,7 @@ from tqdm import tqdm
 import os
 import torch.distributed as dist
 
-from ...utils.utils import gather_dict_lists, append_jsonl, process_jsonl
+from ...utils.utils import gather_dict_lists, append_jsonl, process_jsonl, is_vllm_environment
 from ...utils.log_utils import get_logger
 
 logger = get_logger(__name__)
@@ -72,7 +71,7 @@ class BaseEvalDataset(Dataset):
         else:
             self.padding_side = "right"
             
-        if dist.is_available() and dist.is_initialized():
+        if dist.is_available() and dist.is_initialized() and not is_vllm_environment():
             dist.barrier()
             
     
@@ -126,7 +125,7 @@ class BaseEvalDataset(Dataset):
         
         
     def collect_results_from_multi_process(self):
-        if dist.is_available() and dist.is_initialized():
+        if dist.is_available() and dist.is_initialized() and not is_vllm_environment():
             dist.barrier()
             self.results = gather_dict_lists(self.results)
             results_dict = {}

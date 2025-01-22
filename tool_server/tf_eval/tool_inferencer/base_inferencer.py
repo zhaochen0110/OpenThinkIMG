@@ -11,6 +11,7 @@ from .dynamic_batch_manager import DynamicBatchManager
 from ..utils.utils import *
 from ..utils.log_utils import get_logger
 from ...tool_workers.tool_manager.base_manager import ToolManager
+import torch.distributed as dist
 
 logger = get_logger(__name__)
 class BaseToolInferencer(object):
@@ -29,7 +30,7 @@ class BaseToolInferencer(object):
         self.generate_conversation_fn = self.tp_model.generate_conversation_fn
         self.append_conversation_fn = self.tp_model.append_conversation_fn
         
-        if self.accelerator.device.type == "cuda":
+        if dist.is_initialized() and self.accelerator.device.type == "cuda" and not is_vllm_environment():
             self.tp_model = self.tp_model.to(self.accelerator.device)
             self.tp_model = self.tp_model.to(torch.bfloat16)
 
@@ -44,38 +45,7 @@ class BaseToolInferencer(object):
         )
         self.tool_manager = ToolManager()
         self.available_models = self.tool_manager.available_tools
-        # self.headers = {"User-Agent": "LLaVA-Plus Client"}
         
-        # self.controller_addr = controller_addr
-        # self.init_workers()
-        
-    ## Init Tool Workers
-    # def init_workers(self):
-    #     self.init_model_list()
-    #     self.init_model_addr_dict()
-    
-    # def init_model_list(self):
-    #     ret = requests.post(self.controller_addr + "/refresh_all_workers")
-    #     assert ret.status_code == 200
-    #     ret = requests.post(self.controller_addr + "/list_models")
-    #     models = ret.json()["models"]
-    #     logger.info(f"Models: {models}")
-    #     self.available_models = models
-        
-    # def init_model_addr_dict(self):
-    #     self.model_addr_dict = {}
-    #     for model_name in self.available_models:
-    #         ret = requests.post(self.controller_addr + "/get_worker_address",
-    #                             json={"model": model_name})
-    #         worker_addr = ret.json()["address"]
-    #         if worker_addr == "":
-    #             logger.error(f"worker_addr for {model_name} is empty")
-    #             continue
-    #         self.model_addr_dict[model_name] = worker_addr
-
-    
-    # def get_worker_addr(self, model_name):
-    #     return self.model_addr_dict[model_name]
         
     
 
@@ -218,6 +188,7 @@ class BaseToolInferencer(object):
     
     ## Batch Inference
     def batch_inference(self,dataset):
+        
         self.dataset = dataset
         self.dataloader = DataLoader(
             dataset, 
@@ -225,7 +196,8 @@ class BaseToolInferencer(object):
             num_workers=2, 
             collate_fn=lambda x: x[0]
         )
-        self.dataloader = self.accelerator.prepare(self.dataloader)
+        if dist.is_initialized() and not is_vllm_environment():
+            self.dataloader = self.accelerator.prepare(self.dataloader)
         self.dataloader_iter = iter(self.dataloader)
         self.tp_model.eval()
 
@@ -234,15 +206,17 @@ class BaseToolInferencer(object):
             self.accelerator.wait_for_everyone()
             return
         
-        # Generate the first batch
-        # import debugpy
-        # debugpy.listen(address = ('0.0.0.0', 7119))
-        # debugpy.wait_for_client() 
-        # breakpoint() #在下一句代码处暂停
+        
+        
         self.manager.append_item_to_full(self.dataloader_iter, progress_bar=progress_bar)
         current_batch = self.manager.get_current_batch()
         self.tp_model.generate(current_batch)
         self.manager.update_item_status()
+        # import debugpy
+        # debugpy.listen(address = ('0.0.0.0', 7119))
+        # debugpy.wait_for_client() 
+        # breakpoint() # 在下一句代码处暂停
+        # dist.barrier()
         while len(current_batch) > 0:
             try:
                 # Inspect and yield output
