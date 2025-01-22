@@ -182,14 +182,14 @@ class SAM2ToolWorker(BaseToolWorker):
             logger.error("Missing 'param' or 'image' in the input parameters.")
             return {"text": "Missing 'param' or 'image' in the input parameters.", "edited_image": None}
         
+        ret = {"text": "", "error_code": 0}
+        
         try:
             image = base64_to_pil(image)  
 
             img = image.convert("RGB")
             width, height = img.size
             self.predictor.set_image(img)
-
-            ret = {"text": "", "error_code": 0}
 
             points = extract_points(generate_param, width, height)
 

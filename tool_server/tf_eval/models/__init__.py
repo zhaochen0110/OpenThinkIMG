@@ -11,7 +11,9 @@ AVAILABLE_MODELS = {
     "qwen2vl": "Qwen2VL",
     "gemini": "GeminiModels",
     "openai": "OpenaiModels",
-    "llava_plus": "LLaVA_Plus"
+    "llava_plus": "LLaVA_Plus",
+    "lmdeploy_models": "LMDeployModels",
+    "vllm_models": "VllmModels",
 }
 
 
