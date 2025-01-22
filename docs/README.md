@@ -69,9 +69,9 @@ But notice that when testing api modes (e.g. gemini and openai series models), t
 
 
 ### 2. How to run a tool planning model through VLLM?
-We provide a vllm model implementation under `tool_server/tf_eval/models/vllm_models.py`, which means you can run model through VLLM by simply substituting the `model` in the config file with `vllm_models` and provide your model ckpt by providing `pretrained=xxx` to model_args. If you want to use tensor parallel, you can set your tensor parallel size by providing `tensor_parallel=x` to model_args.
+We offer a VLLM model implementation in `tool_server/tf_eval/models/vllm_models.py`. This allows you to seamlessly run the model using VLLM by simply replacing the model entry in the configuration file with vllm_models and specifying your model checkpoint using the `pretrained=xxx` parameter in model_args. To enable tensor parallelism, you can configure the tensor parallel size by adding `tensor_parallel=x` to model_args.
 
-An possible example is:
+A possible example is:
 
 
 ```yaml
