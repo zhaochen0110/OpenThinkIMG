@@ -251,7 +251,7 @@ class BaseToolInferencer(object):
                     idx = res["meta_data"]["idx"]
                     self.dataset.store_results(dict(idx=idx,results=res))
                 
-                # Parse tool config and generate too response
+                # Parse tool config and generate tool response
                 self.batch_parse_tool_config()
                 self.batch_get_tool_response()
                 self.batch_tool_response_to_next_round_input()
