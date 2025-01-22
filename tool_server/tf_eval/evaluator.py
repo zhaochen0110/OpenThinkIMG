@@ -52,7 +52,8 @@ class TFEvaluator():
             task_dict = get_task_functions(task_name)
             load_data_function, evaluate_function, task_config = task_dict["load_data_function"], task_dict["evaluate_function"], task_dict["task_config"]
             self.model.set_generation_config(task_config.generation_config)
-
+            # Generate the first batch
+            
             dataset = BaseEvalDataset(
                 load_data_function=load_data_function,
                 getitem_function=self.model.getitem_fn,

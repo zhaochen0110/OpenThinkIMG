@@ -19,7 +19,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 def main():
-
+    Accelerator()
     args_dict = parse_args()
     model_args, task_args, script_args = args_dict["model_args"], args_dict["task_args"], args_dict["script_args"]
     
