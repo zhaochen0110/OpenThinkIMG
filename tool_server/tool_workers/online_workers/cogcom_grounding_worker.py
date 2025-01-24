@@ -10,7 +10,6 @@ import argparse
 import torch
 
 from PIL import Image, ImageDraw
-from tool_server.utils import build_logger, pretty_print_semaphore
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
 import matplotlib.pyplot as plt

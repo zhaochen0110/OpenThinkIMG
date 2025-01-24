@@ -134,13 +134,15 @@ class Qwen2VL(tp_model):
         output_texts = self.processor.batch_decode(
             generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
-        
+        breakpoint()
+
         for item, output_text in zip(batch, output_texts):
             item.model_response.append(output_text)
             self.append_conversation_fn(
                 item.conversation, output_text, None, "assistant"
             )
-    
+            breakpoint()
+
     
             
         

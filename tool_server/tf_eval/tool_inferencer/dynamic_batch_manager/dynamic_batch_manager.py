@@ -88,13 +88,13 @@ class DynamicBatchManager():
     def update_item_status(self):
         for item in self.dynamic_batch:
             if item.status == "pending":
-                if item.current_round == item.max_rounds:
+                if item.current_round == item.max_rounds or "Terminate" in item.model_response[-1]:
                     item.status = "finished"
                 else:
                     item.current_round += 1
                     item.status = "processing"
             elif item.status == "processing":
-                if item.current_round == item.max_rounds:
+                if item.current_round == item.max_rounds or "Terminate" in item.model_response[-1]:
                     item.status = "finished"
                 else:
                     item.current_round += 1

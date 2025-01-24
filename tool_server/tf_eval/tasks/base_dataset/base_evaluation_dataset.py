@@ -92,7 +92,7 @@ class BaseEvalDataset(Dataset):
     
     def evaluate(self):
         self.collect_results_from_multi_process()
-        res = self.evaluate_function(results=self.results,meta_data=self.full_data)
+        res = self.evaluate_function(results=self.results, meta_data=self.full_data)
         res["task_name"] = self.task_name
         res["model_name"] = self.model_name
         return res
