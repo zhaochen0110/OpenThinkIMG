@@ -38,7 +38,7 @@ def main():
                 model_args = ModelArguments(**config_item["model_args"])
                 task_args = TaskArguments(**config_item["task_args"])
                 script_args = ScriptArguments(**config_item["script_args"])
-                
+             
                 task_args.task_name = parse_str_into_list(task_args.task_name)
                 if isinstance(model_args.model_args, str):
                     model_args.model_args = parse_str_into_dict(model_args.model_args)

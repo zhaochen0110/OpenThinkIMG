@@ -10,11 +10,9 @@ import argparse
 import torch
 import numpy as np
 from PIL import Image
-from tool_server.utils import build_logger, pretty_print_semaphore
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
 import matplotlib.pyplot as plt
-
 from tool_server.tool_workers.online_workers.base_tool_worker import BaseToolWorker
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -108,7 +106,7 @@ class SAM2ToolWorker(BaseToolWorker):
                  worker_addr = "auto",
                  worker_id = worker_id, 
                  no_register = False,
-                 model_name = "SAM2",
+                 model_name = "SegmentRegionAroundPoint",
                  model_path = "", 
                  model_base = "", 
                  load_8bit = False, 
@@ -182,14 +180,14 @@ class SAM2ToolWorker(BaseToolWorker):
             logger.error("Missing 'param' or 'image' in the input parameters.")
             return {"text": "Missing 'param' or 'image' in the input parameters.", "edited_image": None}
         
+        ret = {"text": "", "error_code": 0}
+        
         try:
             image = base64_to_pil(image)  
 
             img = image.convert("RGB")
             width, height = img.size
             self.predictor.set_image(img)
-
-            ret = {"text": "", "error_code": 0}
 
             points = extract_points(generate_param, width, height)
 

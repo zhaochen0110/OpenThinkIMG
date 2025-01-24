@@ -19,13 +19,14 @@ class BaseToolInferencer(object):
         tp_model: tp_model = None,
         # dataset: Dataset = None,
         batch_size: int = 1,
+        model_mode: str = "llava_plus",
         # controller_addr: str = None,
         max_rounds: int = 3,
         stop_token: str = "<stop>",
     ):
         self.accelerator = Accelerator()
         self.tp_model = tp_model
-        
+        self.model_mode = model_mode 
         self.generate_conversation_fn = self.tp_model.generate_conversation_fn
         self.append_conversation_fn = self.tp_model.append_conversation_fn
         
@@ -44,40 +45,6 @@ class BaseToolInferencer(object):
         )
         self.tool_manager = ToolManager()
         self.available_models = self.tool_manager.available_tools
-        # self.headers = {"User-Agent": "LLaVA-Plus Client"}
-        
-        # self.controller_addr = controller_addr
-        # self.init_workers()
-        
-    ## Init Tool Workers
-    # def init_workers(self):
-    #     self.init_model_list()
-    #     self.init_model_addr_dict()
-    
-    # def init_model_list(self):
-    #     ret = requests.post(self.controller_addr + "/refresh_all_workers")
-    #     assert ret.status_code == 200
-    #     ret = requests.post(self.controller_addr + "/list_models")
-    #     models = ret.json()["models"]
-    #     logger.info(f"Models: {models}")
-    #     self.available_models = models
-        
-    # def init_model_addr_dict(self):
-    #     self.model_addr_dict = {}
-    #     for model_name in self.available_models:
-    #         ret = requests.post(self.controller_addr + "/get_worker_address",
-    #                             json={"model": model_name})
-    #         worker_addr = ret.json()["address"]
-    #         if worker_addr == "":
-    #             logger.error(f"worker_addr for {model_name} is empty")
-    #             continue
-    #         self.model_addr_dict[model_name] = worker_addr
-
-    
-    # def get_worker_addr(self, model_name):
-    #     return self.model_addr_dict[model_name]
-        
-    
 
     ## Tool Response
     def batch_tool_response_to_next_round_input(self):
@@ -87,7 +54,7 @@ class BaseToolInferencer(object):
         for idx,item in enumerate(current_batch):
             if item.model_response is None or item.status != "processing":
                 continue
-            
+            # breakpoint() 
             tool_cfg = item.tool_cfg[item.current_round-1]
             tool_response = item.tool_response[item.current_round-1]
             assert len(item.tool_cfg) == item.current_round 
@@ -98,7 +65,11 @@ class BaseToolInferencer(object):
                 try:
                     if "edited_image" in tool_response:
                         edited_image = tool_response.pop("edited_image")
-                        edited_image = base64_to_pil(edited_image)
+
+                        if self.model_mode == "llava_plus": 
+                            edited_image = base64_to_pil(edited_image)
+                        if self.model_mode == "general": 
+                            edited_image = edited_image
                     else:
                         edited_image = None
                     
@@ -106,10 +77,16 @@ class BaseToolInferencer(object):
                         tool_response_text = tool_response["text"]
                     else:
                         tool_response_text = None
-                        
+                    # breakpoint() 
                     api_name = tool_cfg[0].get("API_name", tool_cfg[0].get("api_name", ""))
-                    new_response = f"{api_name} model outputs: {tool_response_text}\n\n"
-                    new_round_prompt = f"{new_response} Please summarize the model outputs and answer my first question: {original_prompt}"
+
+                    if self.model_mode == "llava_plus": 
+                        new_response = f"{api_name} model outputs: {tool_response_text}\n\n"
+                        new_round_prompt = f"{new_response} Please summarize the model outputs and answer my first question: {original_prompt}"
+                    
+                    if self.model_mode == "general":
+                        new_response = f"OBSERVATION:\n{api_name} model outputs: {tool_response_text}\n"
+                        new_round_prompt = f"{new_response}Please summarize the model outputs and answer my first question: {original_prompt}"                        
                 except:
                     edited_image = None
                     new_round_prompt = original_prompt
@@ -121,6 +98,7 @@ class BaseToolInferencer(object):
             item.conversation = self.append_conversation_fn(
                 conversation=item.conversation, text=new_round_prompt, image=edited_image, role="user"
             )
+            # breakpoint()
 
     
     def batch_get_tool_response(self):
@@ -131,28 +109,34 @@ class BaseToolInferencer(object):
             
             tool_cfg = item.tool_cfg[item.current_round-1]
             assert len(item.tool_cfg) == item.current_round
-            
+
             image = item.meta_data.get("image", None)
             
             if tool_cfg is not None and len(tool_cfg) > 0:
                 assert item.status == "processing"
                 try:
                     assert len(tool_cfg) == 1, "Only one tool is supported for now, but got: {}".format(tool_cfg)
+
                     api_name = tool_cfg[0].get("API_name", tool_cfg[0].get("api_name", ""))
                     if api_name not in self.available_models:
-                        logger.error(f"API_name {api_name} not in available models, {self.available_models}")
-                        item.tool_response.append(dict(text=f"There is no tool names {api_name}.",error_code=1))
-                        continue
-                    
-                    if api_name in ["line","ocr","crop","grounding","grounding_dino"]:
+                        if api_name == "Terminate":
+                            logger.info(f"API_name is {api_name}. Finish!")
+                            continue
+                        else:
+                            logger.error(f"API_name {api_name} not in available models, {self.available_models}")
+                            item.tool_response.append(dict(text=f"There is no tool names {api_name}.",error_code=1))
+                            continue
+
+                    # if input contains image
+                    if api_name in ['crop', 'drawline', "grounding", "DrawHorizontalLineByY", "Point", "DrawVerticalLineByX", "SegmentRegionAroundPoint", "ZoomInSubfigure", "OCR"]:
                         assert image is not None, "Image is required for tool: {}".format(api_name)
                         image = load_image(image)
                         image = pil_to_base64(image)
                         
                     else:
                         image = None
-                        
-                    tool_cfg[0].get("api_params",tool_cfg[0].get("API_params",{})).pop('image', None)
+
+                    tool_cfg[0].get("api_params", tool_cfg[0].get("API_params",{})).pop('image', None)
                     api_params = tool_cfg[0].get("api_params",tool_cfg[0].get("API_params",{}))
                     
                     api_paras = {
@@ -163,23 +147,20 @@ class BaseToolInferencer(object):
                     
                     if image:
                         api_paras['image'] = image
-                    tool_response = self.tool_manager.call_tool(api_name,api_paras)
-                    # tool_worker_addr = self.get_worker_addr(api_name)
-                    # print("tool_worker_addr: ", tool_worker_addr)
-                    # tool_response = requests.post(
-                    #     tool_worker_addr + "/worker_generate",
-                    #     headers=self.headers,
-                    #     json=api_paras,
-                    # ).json()
+
+                    tool_response = self.tool_manager.call_tool(api_name, api_paras)
                     tool_response_clone = copy.deepcopy(tool_response)
+
+
                     if "edited_image" in tool_response:
                         tool_response.pop("edited_image", None)
                     logger.info(f"tool_response: {tool_response}")
-                    item.tool_response.append(tool_response_clone) 
+                    item.tool_response.append(tool_response_clone)
+                    # breakpoint() 
                     continue
                     # return tool_response_clone
                 except:
-                    logger.info(f"Tool {api_name} failed to answer the question.")
+                    logger.info(f"Tool {api_name} failed to answer the question, tool_cfg is {tool_cfg}")
                     item.tool_response.append(dict(text=f"Tool {api_name} failed to answer the question.",error_code=1))
                     continue
                     # return dict(text=f"Tool {api_name} failed to answer the question.")
@@ -198,19 +179,47 @@ class BaseToolInferencer(object):
             if model_response is None or item.status != "processing":
                 continue
             try:
-                pattern = r'"thoughts🤔"(.*)"actions🚀"(.*)"value👉"(.*)'
-                matches = re.findall(pattern, model_response, re.DOTALL)
-                if len(matches) > 0:
-                    try:
-                        tool_cfg = json.loads(matches[0][1].strip())
-                    except Exception as e:
-                        tool_cfg = json.loads(
-                            matches[0][1].strip().replace("\'", "\""))
-                    logger.info(f"tool_cfg: {tool_cfg}")
-                else:
-                    tool_cfg = None
+
+                if self.model_mode == "general":
+                    pattern = r'\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}'
+                    match = re.search(pattern, model_response)
+                    if match:
+                        # Remove the outermost brackets and return the content inside
+                        content = match.group(0)
+                    else:
+                        content = model_response
+                    content = json.loads(content)
+
+                    if len(content['actions']) >= 1:
+                        action = content['actions'][0]
+                        assert 'name' in action and 'arguments' in action, "missing 'name' or 'arguments' in the parsed action."
+                        if action['name'] == "OCR":
+                            tool_cfg = [{'API_name': action['name'],
+                                        'API_params': {'param': action['arguments']['image']}}]                            
+                        elif action['name'] == "Terminate":
+                            tool_cfg = [{'API_name': action['name'],
+                                        'API_params': {'param': action['arguments']['ans']}}]   
+                        else:                                
+                            tool_cfg = [{'API_name': action['name'],
+                                    'API_params': {'param': action['arguments']['param']}}]
+                    else:
+                        tool_cfg = None
+                    
+                if self.model_mode == "llava_plus":
+                    pattern = r'"thoughts🤔"(.*)"actions🚀"(.*)"value👉"(.*)'
+                    matches = re.findall(pattern, model_response, re.DOTALL)
+                    if len(matches) > 0:
+                        try:
+                            # [{'API_name': 'grounding', 'API_params': {'param': 'all lines'}}]
+                            tool_cfg = json.loads(matches[0][1].strip())
+                        except Exception as e:
+                            tool_cfg = json.loads(
+                                matches[0][1].strip().replace("\'", "\""))
+                        logger.info(f"tool_cfg: {tool_cfg}")
+                    else:
+                        tool_cfg = None
             except Exception as e:
-                logger.info(f"Failed to parse tool config: {e}")
+                logger.info(f"Failed to parse tool config: {e}. action list is {action}")
                 tool_cfg = None
             item.tool_cfg.append(tool_cfg)
 
@@ -234,14 +243,11 @@ class BaseToolInferencer(object):
             self.accelerator.wait_for_everyone()
             return
         
-        # Generate the first batch
-        # import debugpy
-        # debugpy.listen(address = ('0.0.0.0', 7119))
-        # debugpy.wait_for_client() 
-        # breakpoint() #在下一句代码处暂停
+
         self.manager.append_item_to_full(self.dataloader_iter, progress_bar=progress_bar)
         current_batch = self.manager.get_current_batch()
         self.tp_model.generate(current_batch)
+        # pending; processing and finishing
         self.manager.update_item_status()
         while len(current_batch) > 0:
             try:
@@ -253,6 +259,7 @@ class BaseToolInferencer(object):
                 
                 # Parse tool config and generate too response
                 self.batch_parse_tool_config()
+                
                 self.batch_get_tool_response()
                 self.batch_tool_response_to_next_round_input()
                 

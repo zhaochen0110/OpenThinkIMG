@@ -54,7 +54,6 @@ class tp_model(abc.ABC):
         pass
     
     def to(self, *args, **kwargs):
-        import pdb; pdb.set_trace()
         self.model = self.model.to(*args, **kwargs)
         return self
     
