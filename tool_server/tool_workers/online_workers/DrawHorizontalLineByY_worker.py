@@ -96,8 +96,6 @@ class DrawHorizontalLineToolWorker(BaseToolWorker):
             port,
             model_semaphore
             )
-
-        
     def init_model(self):
         logger.info(f"No need to initialize model {self.model_name}.")
         self.model = None

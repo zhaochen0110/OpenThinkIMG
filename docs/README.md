@@ -68,7 +68,33 @@ use_cpu: false
 But notice that when testing api modes (e.g. gemini and openai series models), the batch size must be set at 1 and do not use multi-process parallel.
 
 
-### 2.Introduction to basic framework of TF Eval
+### 2. How to run a tool planning model through VLLM?
+We offer a VLLM model implementation in `tool_server/tf_eval/models/vllm_models.py`. This allows you to seamlessly run the model using VLLM by simply replacing the model entry in the configuration file with vllm_models and specifying your model checkpoint using the `pretrained=xxx` parameter in model_args. To enable tensor parallelism, you can configure the tensor parallel size by adding `tensor_parallel=x` to model_args.
+
+A possible example is:
+
+
+```yaml
+model_args:
+  model: vllm_models
+  model_args: pretrained=/mnt/petrelfs/share_data/quxiaoye/models/Qwen2-VL-72B-Instruct,tensor_parallel=4
+  batch_size: 2
+  max_rounds: 3
+  stop_token: <stop>
+task_args:
+  task_name: charxiv
+  resume_from_ckpt:
+    charxiv: ./tool_server/tf_eval/scripts/logs/ckpt/charxiv/qwen2vl72b.jsonl
+  save_to_ckpt:
+    charxiv: ./tool_server/tf_eval/scripts/logs/ckpt/charxiv/qwen2vl72b.jsonl
+script_args:
+  verbosity: INFO
+  output_path: ./tool_server/tf_eval/scripts/logs/results/charxiv/qwen2vl72b.jsonl
+  
+```
+
+
+### 3.Introduction to basic framework of TF Eval
 
 Our `TFEval` framework is consisted with two important concepts: `task` and `model`. You can add custom tasks or models to customize your own evaluation framework.
 The tasks and models are connected throuth a pytorch dataset, whose basic implementation can be found at `tool_server/tf_eval/tasks/base_dataset`. The **data loading logic**(`load_data_function()`) and **evaluation logic**(`evaluate_function()`) is implemeted by `task` and the **get data instance logic**(`getitem_fn(self,meta_data,index)`) is implemented by `model`.
@@ -78,7 +104,7 @@ The results of the evaluation will be staged in `base_dataset`, so you can call 
 The batch inference logic is implemented under `tool_server/tf_eval/tool_inferencer/base_inferencer.py`, which identifies the model batch inferencing and sequential tool calling logics. A data structure called `dynamic_batch` is used across model and inferncer to store the metadata and temporary results.
 
 
-### 3.How to add a new model?
+### 4.How to add a new model?
 
 1. Implement your model inference script under `tool_server/tf_eval/models`
 
@@ -145,7 +171,7 @@ class GeminiModels(tp_model):
 ```
 
 
-### 4.How to add a new task?
+### 5.How to add a new task?
 
 1. Implement your task under `tool_server/tf_eval/tasks/your-task-name`
 2. Implement your `tool_server/tf_eval/tasks/your-task-name/config.yaml` and `tool_server/tf_eval/tasks/your-task-name/task.py`

@@ -222,7 +222,10 @@ def remove_pil_objects(data):
         return [remove_pil_objects(item) for item in data if not isinstance(item, Image.Image)]
     elif isinstance(data, dict):
         # 如果是字典，对键值递归调用
-        return {key: remove_pil_objects(value) for key, value in data.items() if not isinstance(value, Image.Image)}
+        return {key: remove_pil_objects(value) for key, value in data.items() if not isinstance(value, Image.Image) and not key == "image" and not key == "image_url"}
     else:
         # 如果是其他类型，直接返回
         return data
+
+def is_vllm_environment():
+    return "VLLM_WORKER_MULTIPROC_METHOD" in os.environ

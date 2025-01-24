@@ -19,6 +19,7 @@ def get_logger(name, log_dir=f"{current_folder_path}/../scripts/logs/auto_genera
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
     # 创建文件处理器
+    os.makedirs(log_dir, exist_ok=True)
     file_handler = logging.FileHandler(f"{log_dir}/{name}.log")
     file_handler.setLevel(level)
 

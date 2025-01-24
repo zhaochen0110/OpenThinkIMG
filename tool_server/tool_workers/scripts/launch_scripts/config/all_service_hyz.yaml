@@ -59,6 +59,50 @@ tool_worker_config:
         port: 20027
         host: "0.0.0.0"
         model_path: "/mnt/petrelfs/share_data/mmtool/Molmo-7B-D-0924"
+  - SAM2:
+      worker_name: SAM2
+      job_name: tool-SAM2
+      calculate_type: calculate
+      conda_env: "molmo-sam"
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-119
+      cuda_visible_devices: "2"
+      cmd:
+        script-addr: ./online_workers/SAMAroundPoint_worker.py
+        port: 20036
+        host: "0.0.0.0"
+        sam2_checkpoint: /mnt/petrelfs/share_data/mmtool/sam2/sam2_hiera_large.pt
+        sam2_model_cfg: sam2_hiera_l.yaml
+  - DrawHorizontalLineByY:
+      worker_name: DrawHorizontalLineByY
+      job_name: tool-DrawHorizontalLine
+      calculate_type: control
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-119
+      cmd:
+        script-addr: ./online_workers/DrawHorizontalLineByY_worker.py
+        port: 20037
+        host: "0.0.0.0"
+  - DrawVerticalLineByX:
+      worker_name: DrawVerticalLineByX
+      job_name: tool-DrawVerticalLine
+      calculate_type: control
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-119
+      cmd:
+        script-addr: ./online_workers/DrawVerticalLineByX_worker.py
+        port: 20038
+        host: "0.0.0.0"
+  - SelectSubplot:
+      worker_name: SelectSubplot
+      job_name: tool-SelectSubplot
+      calculate_type: control
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-119
+      cmd:
+        script-addr: ./online_workers/SelectSubplot_worker.py
+        port: 20039
+        host: "0.0.0.0"
   # - ocr:
   #     worker_name: ocr
   #     job_name: zc_ocr
