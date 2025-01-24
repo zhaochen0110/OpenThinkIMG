@@ -9,7 +9,7 @@ from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
 import matplotlib.pyplot as plt
 
-logger = build_logger("drawline_worker")
+logger = build_logger("crop_worker")
 
 def generate(params):
     generate_param = params["param"]
