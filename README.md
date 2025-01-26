@@ -56,7 +56,7 @@ We released some example scripts/configs to demonstrate how to use our toolkit. 
 Before you run our inferencer module, it's **necessary** to start all services first. The services include all tool implementation.
 ```bash
 ## First, modify the config to adapt to your own environment
-## tool_server/tool_workers/scripts/launch_scripts/config/all_service.yaml
+## tool_server/tool_workers/scripts/launch_scripts/config/all_service_szc.yaml
 
 ## Start all services
 cd tool_server/tool_workers/scripts/launch_scripts
