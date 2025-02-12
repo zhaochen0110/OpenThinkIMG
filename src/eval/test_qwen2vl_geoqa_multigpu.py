@@ -113,7 +113,7 @@ def multi_gpu_inference(prompts, gpu_ids, model_path, batch_size):
     """ let each gpu (along with a model) answer a chunk of questions """
     set_start_method("spawn", force=True)
     manager = Manager()
-    gpu_id_2_result = manager.dict()
+    gpu_id2result = manager.dict()
 
     gpu_ids = [int(gpu_id.strip()) for gpu_id in gpu_ids.split(',')]
     num_gpus = len(gpu_ids)
@@ -124,7 +124,7 @@ def multi_gpu_inference(prompts, gpu_ids, model_path, batch_size):
         start_idx = i * chunk_size
         end_idx = (i + 1) * chunk_size if i != num_gpus - 1 else len(prompts)
         chunk = prompts[start_idx: end_idx]
-        process = Process(target=infer_on_single_gpu, args=(model_path, gpu_id, chunk, batch_size, gpu_id_2_result))
+        process = Process(target=infer_on_single_gpu, args=(model_path, gpu_id, chunk, batch_size, gpu_id2result))
         process.start()
         processes.append(process)
 
@@ -134,7 +134,7 @@ def multi_gpu_inference(prompts, gpu_ids, model_path, batch_size):
 
     all_predicts = []
     for gpu_id in gpu_ids:
-        all_predicts.extend(gpu_id_2_result[gpu_id])
+        all_predicts.extend(gpu_id2result[gpu_id])
 
     return all_predicts
 
