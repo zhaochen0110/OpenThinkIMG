@@ -190,6 +190,8 @@ unzip images.zip
 
 # change the model path in the script
 python test_qwen2vl_geoqa.py 
+# or modify R1-V/src/scripts/test_grpo_geoqa.sh
+bash src/scripts/test_grpo_geoqa.sh
 
 # tested scores: 
 # Qwen2VL-7B-Instruct: 30.63%
