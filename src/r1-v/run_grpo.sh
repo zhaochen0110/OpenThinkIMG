@@ -1,4 +1,4 @@
-cd src/open-r1-multimodal
+cd src/r1-v
 
 export DEBUG_MODE="true"
 export LOG_PATH="./debug_log_2b.txt"
