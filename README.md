@@ -72,6 +72,9 @@
 ## Setup
 
 ```bash
+conda create -n r1-v python=3.11 
+conda activate r1-v
+
 bash setup.sh
 ```
 
@@ -99,7 +102,7 @@ bash setup.sh
 ### GRPO
 
 ```bash
-cd src/open-r1-multimodal
+cd src/r1-v
 
 export DEBUG_MODE="true" # Enable Debug if you want to see the rollout of model during RL
 export LOG_PATH="./debug_log_2b.txt"
@@ -143,7 +146,7 @@ torchrun --nproc_per_node="8" \
 We also provide SFT code, please follow the script and edit the config to customize the sft task.
 
 ```bash
-accelerate launch --config_file src/open-r1-multimodal/configs/zero2.yaml src/open-r1-multimodal/src/open_r1/sft.py --config src/open-r1-multimodal/configs/qwen2vl_sft_config.yaml 
+accelerate launch --config_file src/r1-v/configs/zero2.yaml src/r1-v/src/open_r1/sft.py --config src/r1-v/configs/qwen2vl_sft_config.yaml 
 ```
 
 ## Evaluation
