@@ -11,8 +11,9 @@ pip install tensorboardx
 pip install qwen_vl_utils torchvision
 pip install flash-attn --no-build-isolation
 
-pip install git+https://github.com/huggingface/transformers.git # correct deepspeed support
-
 # vLLM support
 pip install vllm==0.7.2
+
+# fix transformers version
+pip install git+https://github.com/huggingface/transformers.git@1fae54c7216e144b426e753400abdc1299d4fc74 
 
