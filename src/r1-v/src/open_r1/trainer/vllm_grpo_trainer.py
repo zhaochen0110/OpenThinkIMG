@@ -413,6 +413,11 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                         # This is particularly useful here because we generate completions from the same prompts.
                         enable_prefix_caching=True,
                         enforce_eager=True,
+                        # Ensure that training and inference use the same processor for images.
+                        mm_processor_kwargs={
+                            "max_pixels": max_pixels,
+                            "min_pixels": min_pixels,
+                        },
                         max_model_len=args.max_completion_length,
                     )
                 self.sampling_params = SamplingParams(
@@ -805,9 +810,10 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
 
         return loss
 
-        
     def log(self, logs: dict[str, float], start_time: Optional[float] = None) -> None:
-        metrics = {key: sum(val) / len(val) for key, val in self._metrics.items()}  # average the metrics
+        metrics = {
+            key: sum(val) / len(val) for key, val in self._metrics.items()
+        }  # average the metrics
 
         # This method can be called both in training and evaluation. When called in evaluation, the keys in `logs`
         # start with "eval_". We need to add the prefix "eval_" to the keys in `metrics` to match the format.
