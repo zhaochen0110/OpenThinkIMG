@@ -414,10 +414,14 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                         enable_prefix_caching=True,
                         enforce_eager=True,
                         # Ensure that training and inference use the same processor for images.
-                        mm_processor_kwargs={
-                            "max_pixels": max_pixels,
-                            "min_pixels": min_pixels,
-                        },
+                        mm_processor_kwargs=(
+                            {
+                                "max_pixels": max_pixels,
+                                "min_pixels": min_pixels,
+                            }
+                            if "Qwen2-VL" in model_id or "Qwen2.5-VL" in model_id
+                            else None
+                        ),
                         max_model_len=args.max_completion_length,
                     )
                 self.sampling_params = SamplingParams(
