@@ -196,8 +196,8 @@ cd Geo170K
 unzip images.zip
 
 
-# change the model path in the script
-python test_qwen2vl_geoqa.py 
+# Evaluation Script
+python test_qwen2vl_geoqa.py
 
 # tested scores: 
 # Qwen2VL-7B-Instruct: 30.63%
@@ -205,6 +205,11 @@ python test_qwen2vl_geoqa.py
 
 # Qwen2.5VL-3B-Instruct: 35.41%
 # Qwen2.5VL-3B-Instruct-GRPO-1epochs: 47.48%
+```
+
+To enable faster inference with multiple GPUs, you could also use the script in `R1-V/src/scripts/test_grpo_geoqa_multigpu.sh`
+```
+bash src/scripts/test_grpo_geoqa_multigpu.sh
 ```
 
 
