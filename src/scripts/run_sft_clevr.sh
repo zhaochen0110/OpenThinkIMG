@@ -1,1 +1,1 @@
-ACCELERATE_LOG_LEVEL=info accelerate launch --config_file src/open-r1-multimodal/configs/zero2.yaml src/open-r1-multimodal/src/open_r1/sft.py --config src/open-r1-multimodal/configs/qwen2vl_sft_config.yaml 
+ACCELERATE_LOG_LEVEL=info accelerate launch --config_file src/r1-v/configs/zero2.yaml src/r1-v/src/open_r1/sft.py --config src/r1-v/configs/qwen2vl_sft_config.yaml 
