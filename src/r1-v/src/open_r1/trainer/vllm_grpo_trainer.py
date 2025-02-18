@@ -432,7 +432,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             self._last_loaded_step = (
                 0  # tag to avoid useless loading during grad accumulation
             )
-
+            
             # When using vLLM, the main process is responsible for loading the model weights. This can cause process
             # desynchronization and seems to lead to DeepSpeed hanging during initialization. To prevent this, we
             # synchronize all processes after vLLM has been fully initialized.
@@ -463,7 +463,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         # Instead, we set them to the columns expected by the `training_step` method, hence the override.
         if self._signature_columns is None:
             self._signature_columns = ["prompt"]
-
+    
     # We need a custom sampler that samples the same prompt multiple times
     def _get_train_sampler(self):
         return RepeatRandomSampler(self.train_dataset, self.num_generations)
@@ -538,7 +538,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 with unwrap_model_for_generation(
                     self.model,
                     self.accelerator,
-                    gather_deepspeed3_params=False,  # TODO: fix this, self.args.ds3_gather_for_generation,
+                    gather_deepspeed3_params = False,  # TODO: fix this, self.args.ds3_gather_for_generation,
                 ) as unwrapped_model:
                     if is_compiled_module(unwrapped_model):
                         state_dict = unwrapped_model._orig_mod.state_dict()

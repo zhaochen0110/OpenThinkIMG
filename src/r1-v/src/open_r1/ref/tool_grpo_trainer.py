@@ -44,6 +44,7 @@ from trl.data_utils import apply_chat_template, is_conversational, maybe_apply_c
 from trl.models import create_reference_model, prepare_deepspeed, unwrap_model_for_generation
 from trl.trainer.grpo_config import GRPOConfig
 from trl.trainer.utils import generate_model_card, get_comet_experiment_url
+from .tool_generation import generate_with_tool_calls
 
 import copy
 
@@ -368,8 +369,22 @@ class Qwen2VLGRPOTrainer(Trainer):
 
             all_completions = []
             # SU: where we add the tool-rl
+            # add param: max_rounds
             for i in range(num_generations):  # -1 because we already have one generation
-                breakpoint()
+                initial_prompt = prompts[0][0]['content'][1]['text']
+
+                completion = generate_with_tool_calls(
+                    unwrapped_model,
+                    prompt_inputs, 
+                    generation_config=temp_generation_config,
+                    processor=self.processing_class,
+                    tokenizer=self.processing_class.tokenizer, 
+                    max_rounds=2,
+                    model_mode="general",
+                    question=initial_prompt,
+                    initial_image=images[0],
+                    initial_prompts=initial_prompt
+                )                 
                 completion = unwrapped_model.generate(**prompt_inputs, generation_config=temp_generation_config)
                 all_completions.append(completion)
             
