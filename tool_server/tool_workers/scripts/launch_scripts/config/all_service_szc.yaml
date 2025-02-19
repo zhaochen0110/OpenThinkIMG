@@ -19,29 +19,60 @@ controller_config:
 
 
 tool_worker_config:
-  - point:
-      worker_name: point
+  - grouding:
+      worker_name: grounding
+      job_name: zc_grounding
+      calculate_type: calculate
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-96
+      cuda_visible_devices: "2"
+      cmd:
+        script-addr: ./online_workers/cogcom_grounding_worker.py
+        port: 20017
+        host: "0.0.0.0"
+        model_base: "/mnt/petrelfs/share_data/quxiaoye/models/vicuna-7b-v1.5"
+        model_path: "/mnt/petrelfs/share_data/quxiaoye/models/cogcom-grounding-17b"
+
+  - Point:
+      worker_name: Point
       job_name: zc_point
       calculate_type: calculate
       conda_env: "molmo"
       srun_kwargs:
-        w: SH-IDCA1404-10-140-54-67
-      cuda_visible_devices: "1"
+        w: SH-IDCA1404-10-140-54-96
+      cuda_visible_devices: "7"
       cmd:
         script-addr: ./online_workers/molmo_point_worker.py
         port: 20027
         host: "0.0.0.0"
         model_path: "/mnt/petrelfs/share_data/mmtool/Molmo-7B-D-0924"
-  - drawliney:
-      worker_name: drawliney
+
+  - SegmentRegionAroundPoint:
+      worker_name: SegmentRegionAroundPoint
+      job_name: zc_sam2
+      calculate_type: calculate
+      conda_env: "sam2"
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-119
+      cuda_visible_devices: "2"
+      cmd:
+        script-addr: ./online_workers/SAMAroundPoint_worker.py
+        port: 20036
+        host: "0.0.0.0"
+        sam2_checkpoint: /mnt/petrelfs/share_data/mmtool/sam2/sam2_hiera_large.pt
+        sam2_model_cfg: sam2_hiera_l.yaml
+
+  - DrawHorizontalLineByY:
+      worker_name: DrawHorizontalLineByY
       job_name: zc_drawliney
       calculate_type: control
       cmd:
         script-addr: ./online_workers/DrawHorizontalLineByY_worker.py
         port: 20032
         host: "0.0.0.0"
-  - drawlinex:
-      worker_name: drawlinex
+
+  - DrawVerticalLineByX:
+      worker_name: DrawVerticalLineByX
       job_name: zc_drawlinex
       calculate_type: control
       cmd:
@@ -49,14 +80,25 @@ tool_worker_config:
         port: 20089
         host: "0.0.0.0"
 
-  - ocr:
-      worker_name: ocr
-      job_name: zc_ocr
+  - ZoomInSubfigure:
+      worker_name: ZoomInSubfigure
+      job_name: zc_SelectSubplot
       calculate_type: control
       srun_kwargs:
-        w: SH-IDCA1404-10-140-54-67
-      cuda_visible_devices: "2"
+        w: SH-IDCA1404-10-140-54-119
+      cmd:
+        script-addr: ./online_workers/SelectSubplot_worker.py
+        port: 20039
+        host: "0.0.0.0"
+
+  - OCR:
+      worker_name: OCR
+      job_name: zc_ocr
+      calculate_type: control
       cmd:
         script-addr: ./online_workers/ocr_worker.py
         port: 20009
         host: "0.0.0.0"
+
+
+  

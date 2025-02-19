@@ -1,0 +1,9 @@
+compute_environment: LOCAL_MACHINE
+distributed_type: "NO"  # 
+mixed_precision: "fp16"   # or fp16
+num_processes: 1        # 1 process
+machine_rank: 0         # 
+main_training_function: main
+dynamo_backend: "no"    # no Dynamo
+num_machines: 1         # 
+use_cpu: false          # use GPU

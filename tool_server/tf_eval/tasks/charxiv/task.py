@@ -27,8 +27,7 @@ def load_data_function():
         text = item["query"]
         data_item = dict(idx=item_id, image_path=image_path, text=text, **item)
         meta_data.append(data_item)
-
-    
+    meta_data = meta_data[:100]
     ## Show statistics
     logger.info(f"Total data number: {len(meta_data)}")
     return meta_data

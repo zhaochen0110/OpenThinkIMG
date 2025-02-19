@@ -164,3 +164,7 @@ cython_debug/
 
 tool_server/tool_workers/logs/*
 LLaVA-Plus-Codebase/
+
+
+*logs
+*__pycache__
