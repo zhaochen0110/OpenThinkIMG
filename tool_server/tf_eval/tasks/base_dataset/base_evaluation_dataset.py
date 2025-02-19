@@ -127,14 +127,14 @@ class BaseEvalDataset(Dataset):
     def collect_results_from_multi_process(self):
         if dist.is_available() and dist.is_initialized() and not is_vllm_environment():
             dist.barrier()
-            self.results = gather_dict_lists(self.results)
-            results_dict = {}
-            renewed_results = []
-            for item in self.results:
-                if item["idx"] not in results_dict:
-                    results_dict[item["idx"]] = 1
-                    renewed_results.append(item)
-            self.results = renewed_results
+        self.results = gather_dict_lists(self.results)
+        results_dict = {}
+        renewed_results = []
+        for item in self.results:
+            if item["idx"] not in results_dict:
+                results_dict[item["idx"]] = 1
+                renewed_results.append(item)
+        self.results = renewed_results
     
     def set_gen_kwargs(self, config):
         if isinstance(config, dict):
