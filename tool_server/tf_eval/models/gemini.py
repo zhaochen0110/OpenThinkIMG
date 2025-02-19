@@ -11,15 +11,7 @@ from ..tool_inferencer.dynamic_batch_manager import DynamicBatchItem
 from .template_instruct import *
 from ..utils.log_utils import get_logger
 import google.generativeai as genai
-
-generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 40,
-  "max_output_tokens": 2048,
-  "response_mime_type": "text/plain",
-}
-
+import time
 
 inferencer_id = str(uuid.uuid4())[:6]
 logger = get_logger(__name__)
@@ -30,16 +22,27 @@ class GeminiModels(tp_model):
     def __init__(
       self,  
       model_name: str = None,
-      max_retry: int = None
+      max_retry: int = None,
+      temperature: float = None
     ):
         self.model_name = model_name
         self.max_retry = max_retry
+        self.temperature = temperature
 
-        self.model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash-exp",
-            generation_config=generation_config,
-            )
+        # self.model = genai.GenerativeModel(
+        #     model_name="gemini-2.0-flash-exp",
+        #     generation_config=generation_config,
+        #     )
 
+        # self.model = OpenAI(
+        #     api_key=os.environ["GEMINI_API_KEY"],  # Google Gemini API key
+        #     base_url="https://generativelanguage.googleapis.com/v1beta/"  # Gemini base URL
+        # )
+
+        self.model = OpenAI(
+            api_key="AIzaSyCL9u4UtpEQKrnFqBKs62UX7wBOGvrqHec",  # Google Gemini API key
+            base_url="https://generativelanguage.googleapis.com/v1beta/"  # Gemini base URL
+        )
 
     def to(self, *args, **kwargs):
         pass
@@ -55,12 +58,12 @@ class GeminiModels(tp_model):
         role = "user",
     ):  
         # import pdb; pdb.set_trace()
-        text = fs_cota + "\n" + "Question: " + text
+        text = online_fs_cota + "\n" + "Question: " + text
         
         image = pil_to_base64(image)
         messages=[
             {
-                "role": "user",
+                "role": role,
                 "content": [
                     {
                         "type": "text",
@@ -86,41 +89,50 @@ class GeminiModels(tp_model):
         image, 
         role
     ):
+        # Prepare text content
+        new_content = [
+            {
+                "type": "text",
+                "text": text,
+            }
+        ]
+
+        # Add image(s) if provided
         if image:
-            new_messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": text,
-                        },
-                        {
+            if isinstance(image, list):  # Handle multiple images
+                for img in image:
+                    if isinstance(img, str):
+                        new_content.append({
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{image}"
-                            },
-                        },
-                    ],
-                }
-            ]
-        else:
-            new_messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": text,
-                        }
-                    ],
-                }
-            ]
-        
+                                "url": f"data:image/jpeg;base64,{img}"
+                            }
+                        })
+                    else:
+                        raise ValueError("List elements must be strings")
+            elif isinstance(image, str):  # Handle a single image
+                new_content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{image}"
+                    }
+                })
+            else:
+                raise ValueError("Image must be a string or a list of strings")
+
+        # Create new message entry
+        new_messages = [
+            {
+                "role": role,
+                "content": new_content,
+            }
+        ]
+
+        # Add new messages to the conversation
         conversation.extend(new_messages)
 
         return conversation
-    
+
     def getitem_fn(self, meta_data, idx):
         item = meta_data[idx]
         image = Image.open(item["image_path"])
@@ -143,33 +155,47 @@ class GeminiModels(tp_model):
         if not batch or len(batch) == 0:
             return
         max_new_tokens = self.generation_config.get("max_new_tokens", 2048)
-        
         inputs = self.form_input_from_dynamic_batch(batch)
 
-        response = self.model.chat.completions.create(
-            model = self.model_name, 
-            messages = inputs,
-            max_tokens = max_new_tokens)
-
-        output_texts = response.choices[0].message.content.strip()
-        import pdb; pdb.set_trace()
-
-        # generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens)
-        # generated_ids_trimmed = [
-        #     out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-        # ]
+        fail_times = 1
+        fail_flag = False
+        base_sleeptime = 15
         
-        # output_texts = self.processor.batch_decode(
-        #     generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
-        # )
-        
-        for item, output_text in zip(batch, output_texts):
-            item.model_response.append(output_text)
-            self.append_conversation_fn(
-                item.conversation, output_text, None, "assistant"
-            )
-    
-    
+        # breakpoint()
+
+        while fail_times < int(self.max_retry):
+            try:
+                response = self.model.chat.completions.create(
+                    model=self.model_name,
+                    messages=inputs,
+                    max_tokens=max_new_tokens,
+                    temperature=self.temperature
+                )
+                final_response = response.choices[0].message.content.strip()
+
+                output_texts = [final_response]
+
+                for item, output_text in zip(batch, output_texts):
+                    item.model_response.append(output_text)
+                    self.append_conversation_fn(
+                        item.conversation, output_text, None, "assistant"
+                    )
+
+                # 如果成功，直接退出循环
+                fail_flag = False
+                break
+
+
+            except Exception as e:
+                logger.error(
+                    f"Error: {e}, retrying in {fail_times * base_sleeptime} seconds"
+                )
+                fail_times += 1
+                fail_flag = True
+                time.sleep(fail_times * base_sleeptime)
+
+        if fail_flag:
+            logger.error(f"Failed to generate response after {self.max_retry} attempts")
             
         
         

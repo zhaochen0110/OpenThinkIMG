@@ -26,7 +26,7 @@ from .tool_inferencer import BaseToolInferencer
 logger = get_logger(__name__)
 
 class TFEvaluator():
-    def __init__(self,model_args, task_args, script_args):
+    def __init__(self, model_args, task_args, script_args):
         self.config = script_args.config
         self.model_args = model_args
         self.task_args = task_args
@@ -41,6 +41,7 @@ class TFEvaluator():
         self.inferencer = BaseToolInferencer(
             tp_model=self.model,
             batch_size=self.model_args.batch_size,
+            model_mode=self.model_args.model_mode,
             max_rounds = max_rounds,
             stop_token = stop_token,
         )

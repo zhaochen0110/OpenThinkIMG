@@ -83,7 +83,7 @@ class MolmoToolWorker(BaseToolWorker):
                  no_register = False,
                  model_path = "/mnt/petrelfs/share_data/mmtool/Molmo-7B-D-0924", 
                  model_base = "", 
-                 model_name = "point",
+                 model_name = "Point",
                  load_8bit = False, 
                  load_4bit = False, 
                  device = "auto",

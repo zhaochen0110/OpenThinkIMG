@@ -25,6 +25,7 @@ from .utils import *
 class ModelArguments:
     model: Optional[str] = field(default="qwen2vl")
     model_args: Optional[str] = field(default="pretrained=/mnt/petrelfs/share_data/quxiaoye/models/Qwen2-VL-72B-Instruct")
+    model_mode: Optional[str] = field(default="opensource")
     batch_size: Optional[int] = field(default=1)
     stop_token: Optional[str] = field(default="<stop>")
     max_rounds: Optional[int] = field(default=3)
@@ -86,6 +87,7 @@ def parse_str_into_list(args_str: str) -> List:
 def parse_args():
     parser = transformers.HfArgumentParser(
         (ModelArguments, TaskArguments, ScriptArguments))
+    # breakpoint()
     model_args, task_args, script_args = parser.parse_args_into_dataclasses()
     
     if script_args.config:
