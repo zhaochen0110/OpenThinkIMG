@@ -5,6 +5,7 @@ import requests
 from ..offline_workers import offline_tool_workers, get_tool_generate_fn
 from tool_server.utils.utils import load_json_file
 from tool_server.utils.server_utils import build_logger
+from contextlib import contextmanager
 
 logger = build_logger("tool_manager")
 
@@ -27,13 +28,14 @@ class ToolManager(object):
         
         if os.path.exists(self.controller_addr_location):
             self.controller_addr = load_json_file(self.controller_addr_location)["controller_addr"]
-            if self.controller_addr is not None and isinstance(self.controller_addr,str):
-                ret = requests.post(self.controller_addr + "/refresh_all_workers")
-                if ret.status_code == 200:
-                    ret = requests.post(self.controller_addr + "/list_models")
-                    models = ret.json()["models"]
-                    logger.info(f"Online Tools: {models}")
-                    self.available_online_tools = models
+            with self.disable_proxy():
+                if self.controller_addr is not None and isinstance(self.controller_addr,str):
+                    ret = requests.post(self.controller_addr + "/refresh_all_workers")
+                    if ret.status_code == 200:
+                        ret = requests.post(self.controller_addr + "/list_models")
+                        models = ret.json()["models"]
+                        logger.info(f"Online Tools: {models}")
+                        self.available_online_tools = models
     
     def init_offline_tools(self,):
         self.available_offline_tools = list(offline_tool_workers.keys())
@@ -42,8 +44,9 @@ class ToolManager(object):
     def init_online_tool_addr_dict(self):
         self.online_tool_addr_dict = {}
         for model_name in self.available_online_tools:
-            ret = requests.post(self.controller_addr + "/get_worker_address",
-                                json={"model": model_name})
+            with self.disable_proxy():
+                ret = requests.post(self.controller_addr + "/get_worker_address",
+                                    json={"model": model_name})
             worker_addr = ret.json()["address"]
             if worker_addr == "":
                 logger.error(f"worker_addr for {model_name} is empty")
@@ -66,7 +69,8 @@ class ToolManager(object):
         elif tool_name in self.available_online_tools:
             try:
                 tool_worker_addr = self.online_tool_addr_dict[tool_name]
-                ret = requests.post(tool_worker_addr + "/worker_generate",headers=self.headers,json=params)
+                with self.disable_proxy():
+                    ret = requests.post(tool_worker_addr + "/worker_generate",headers=self.headers,json=params)
                 return ret.json()
             except Exception as e:
                 logger.error(f"Failed to call tool {tool_name}: {e}")
@@ -75,4 +79,29 @@ class ToolManager(object):
             return {"text": f"Tool {tool_name} not found.", "error_code": 1}
             
         
-
+    @contextmanager
+    def disable_proxy(self):
+        # 保存代理环境变量
+        old_HTTP = os.environ.get("HTTP_PROXY")
+        old_HTTPS = os.environ.get("HTTPS_PROXY")
+        old_http = os.environ.get("http_proxy")
+        old_https = os.environ.get("https_proxy")
+        
+        # 移除代理设置
+        os.environ.pop("HTTP_PROXY", None)
+        os.environ.pop("HTTPS_PROXY", None)
+        os.environ.pop("http_proxy", None)
+        os.environ.pop("https_proxy", None)
+        
+        try:
+            yield
+        finally:
+            # 恢复代理设置
+            if old_http is not None:
+                os.environ["HTTP_PROXY"] = old_http
+            if old_https is not None:
+                os.environ["HTTPS_PROXY"] = old_https
+            if old_HTTP is not None:
+                os.environ["HTTP_PROXY"] = old_HTTP
+            if old_HTTPS is not None:
+                os.environ["HTTPS_PROXY"] = old_HTTPS
