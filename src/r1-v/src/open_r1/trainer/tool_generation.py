@@ -17,10 +17,14 @@ from qwen_vl_utils import process_vision_info
 from accelerate import Accelerator
 from trl.models import unwrap_model_for_generation
 from tool_server.tool_workers.tool_manager.base_manager import ToolManager
+# from tool_server.tf_eval.tool_inferencer.dynamic_batch_manager.dynamic_batch_manager import DynamicBatchItem, DynamicBatchManager
+
 from .template_instruct import *
+from dataclasses import dataclass, field, asdict
+from typing import Dict, Sequence, Optional,List
 
 # Set the visible CUDA device (adjust as necessary)
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 class ImageToolManager:
@@ -150,7 +154,8 @@ def detect_tool_config(model_response: str, model_mode: str = "general") -> bool
 def parse_tool_config(
     model_response: str, 
     model_mode: str = "general", 
-    image_tool_manager: Optional[ImageToolManager] = None
+    image_tool_manager: Optional[ImageToolManager] = None,
+    newest_image: Optional[Image.Image] = None
 ) -> Optional[List[Dict]]:
     """
     Parse the tool configuration from the model response and handle image conversion if necessary.
@@ -185,6 +190,8 @@ def parse_tool_config(
                     img_key = image_tool_manager.process_base64_image(base64_img)
                     if img_key:
                         action['arguments']['image'] = img_key
+                elif newest_image:
+                    action['arguments']['image'] = img_key
 
                 parsed_actions.append({
                     "API_name": action["name"],
@@ -210,6 +217,23 @@ def parse_tool_config(
 ##############################################
 # 2. Process tool call results and update the conversation prompt
 ##############################################
+
+def pil_to_base64(img: Image.Image, url_format = True) -> str:
+    """
+    Convert a PIL image to a base64 encoded string.
+    
+    Args:
+        img (Image.Image): The PIL image to convert.
+        
+    Returns:
+        str: Base64 encoded string representation of the image.
+    """
+    buffered = io.BytesIO()
+    img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    if url_format:
+        img_str = f"data:image/jpeg;base64,{img_str}"
+    return img_str
 
 def base64_to_pil(b64_str: str) -> Image.Image:
     """
@@ -246,7 +270,7 @@ def handle_tool_result(
     conversations,
     model_mode: str = "general",
     original_prompt: Optional[str] = None,
-    image_tool_manager: Optional[ImageToolManager] = None
+    input_data_item: Dict = None,
 ):
     """
     Process the tool result, update the conversation history, and generate a new prompt.
@@ -270,10 +294,12 @@ def handle_tool_result(
             if "edited_image" in tool_result:
                 # Remove the edited image from the result and add it via the image manager.
                 edited_image = tool_result.pop("edited_image")
-                # Note: Assumes that image_tool_manager has an 'add_image' method.
-                image_tool_manager.add_image(edited_image)
+                # # Note: Assumes that image_tool_manager has an 'add_image' method.
+                # image_tool_manager.add_image(edited_image)
                 # Convert the base64 string to a PIL image.
                 edited_image = base64_to_pil(edited_image)
+                if input_data_item:
+                    input_data_item["images"].append(edited_image)
             else:
                 edited_image = None
 
@@ -281,7 +307,7 @@ def handle_tool_result(
             tool_response_text = tool_result.get("text", None)
             # Retrieve the API name from the result (supporting multiple key names)
             api_name = cfg.get("API_name", cfg.get("api_name", ""))
-            # breakpoint()
+
             # Construct a new prompt based on the model mode.
             if model_mode == "llava_plus": 
                 new_response = f"{api_name} model outputs: {tool_response_text}\n\n"
@@ -306,7 +332,7 @@ def handle_tool_result(
     updated_conversations = append_conversation_fn(
         conversation=conversations, 
         text=new_round_prompt, 
-        image=edited_image, 
+        image=input_data_item["images"][-1] if input_data_item else edited_image, 
         role="user"
     )
 
@@ -353,7 +379,8 @@ def append_conversation_fn(
     conversation, 
     text: str, 
     image=None, 
-    role: str = "user"
+    role: str = "user",
+    # formatting: str = "qwen"
 ):
     """
     Append a new message to the conversation history.
@@ -367,14 +394,16 @@ def append_conversation_fn(
     Returns:
         The updated conversation list.
     """
+
     if image:
+        image_base64 = pil_to_base64(image)
         new_messages = [
             {
                 "role": role,
                 "content": [
                     {
-                        "type": "image",
-                        "image": image
+                        "type": "image_url",
+                        "image_url": {"url": image_base64}
                     },
                     {
                         "type": "text",
@@ -443,6 +472,8 @@ def convert_conversation_to_prompt_inputs(
 # 4. Multi-turn generation with tool calls
 ##############################################
 
+
+
 def generate_with_tool_calls(
     model,
     prompt_inputs: dict,
@@ -507,7 +538,7 @@ def generate_with_tool_calls(
             return full_outputs 
 
         # Stop generation if a stop token is detected
-        if "<stop>" in new_text or tokenizer.eos_token in new_text:
+        if "<stop>" in new_text:
             break
         
         # If a tool configuration is detected in the output, process it.
@@ -550,6 +581,149 @@ def generate_with_tool_calls(
             )
 
     return final_outputs
+
+
+##############################################
+# 5. Multi-turn generation with tool calls Using VLLM
+##############################################
+
+def vllm_generate_with_tool_calls(
+    vllm_model,
+    prompts,
+    images,
+    sampling_params = None,
+    max_rounds: int = 3,
+    model_mode: str = "general",
+):
+    """
+    Perform multi-turn generation with support for tool calls. Dynamically inserts tool outputs into the conversation.
+    
+    Args:
+        vllm_model: The VLLM model instance used for text generation
+        all_multimodal_inputs: List of dictionaries containing prompts and multimodal data
+            Each dict should have format: {"prompt": str, "multi_modal_data": {"image": PIL.Image}}
+        sampling_params: Parameters for text generation sampling
+        use_tqdm: Whether to show progress bar during generation
+        max_rounds: Maximum number of conversation rounds/turns
+        model_mode: Mode of operation for the model ("general" or other modes)
+        
+    Returns:
+        tool_generation_outputs: List of dictionaries containing the tool generation outputs, including:
+            - conversations: List of conversation messages
+            - status: Processing status ("processing" or "finished") 
+            - model_outputs: List of model generated texts
+            - model_output_ids: List of model output token IDs
+            - tool_cfgs: Tool configurations used
+            - tool_outputs: Outputs from tool calls
+            - new_round_input: New inputs for next round
+            - images: List of images used
+            - prompt: Original input prompt
+    """
+    tool_manager = ToolManager()
+    # image_tool_manager = ImageToolManager()
+    # {"prompt": p, "multi_modal_data": {"image": i}}
+    
+    ## build data
+
+    
+    input_data = []
+    for prompt, image in zip(prompts, images):
+        if isinstance(prompt, list):
+            contents = prompt[0]["content"]
+            current_prompt = ""
+            for content in contents:
+                if content["type"] == "text" and content["text"]:
+                    current_prompt += content["text"]
+            assert current_prompt is not None
+        elif isinstance(prompt, str):
+            current_prompt = prompt
+        else:
+            raise ValueError("Prompt should be either a string or a list of messages")
+        current_image = image
+        
+        
+        if current_image:
+            if current_image.mode in ("RGBA", "LA", "P"):
+                current_image = current_image.convert("RGB") 
+                
+        current_image_base64 = pil_to_base64(current_image)
+        current_conversation = []
+        initial_user_message = {
+            "role": "user",
+            "content": [
+                {"type": "image_url", "image_url": {"url": current_image_base64}}, 
+                {"type": "text", "text": current_prompt}
+            ]
+        }
+        current_conversation.append(initial_user_message)
+        
+        data_instance = dict(
+            conversations = current_conversation,
+            status = "processing",
+            model_outputs = [],
+            model_output_ids = [],
+            tool_cfgs = [],
+            tool_outputs = [],
+            new_round_input = [],
+            images = [current_image],
+            prompt = current_prompt
+        )
+        input_data.append(data_instance)
+    
+    ## Vllm inference with tool calling
+    for _ in range(max_rounds):
+        input_conversations = [item["conversations"] for item in input_data if item["status"] == "processing"]
+        input_idxs = [idx for idx, item in enumerate(input_data) if item["status"] == "processing"]
+        outputs = vllm_model.chat(
+                    input_conversations,
+                    sampling_params = sampling_params,
+                    use_tqdm = False,
+        )
+        ## update data
+        for input_idx, output in zip(input_idxs, outputs):
+            output_text = output.outputs[0].text
+            output_ids = output.outputs[0].token_ids
+            input_data[input_idx]["model_outputs"].append(output_text)
+            input_data[input_idx]["model_output_ids"].append(output_ids)
+            
+            ## pop qualified data
+            if "Terminate" in output_text:
+                input_data[input_idx]["status"] = "finished"
+                continue
+            
+            # If a tool configuration is detected in the output, process it.
+            if detect_tool_config(output_text, model_mode=model_mode):
+                tool_cfg = parse_tool_config(
+                    output_text, 
+                    model_mode=model_mode, 
+                    image_tool_manager=None,
+                    newest_image=input_data[input_idx]["images"][-1]
+                )
+                if not tool_cfg:
+                    continue
+
+                api_name = tool_cfg[0].get("API_name")
+                api_params = tool_cfg[0].get("API_params", {})
+
+                # Call the tool using the tool manager
+                tool_result = tool_manager.call_tool(api_name, api_params)
+                # Append the tool call output to the conversation history
+                input_data[input_idx]["conversations"] = append_conversation_fn(conversation=input_data[input_idx]["conversations"], text=output_text, role="assistant")
+           
+                # Process the tool result and update the conversation
+                input_data[input_idx]["conversations"] = handle_tool_result(
+                    cfg=tool_cfg[0],
+                    tool_result=tool_result, 
+                    conversations=input_data[input_idx]["conversations"], 
+                    model_mode="general", 
+                    original_prompt=input_data[input_idx]["prompt"], 
+                    input_data_item = input_data[input_idx]
+                )
+
+    output_ids = [item["model_output_ids"][-1] for item in input_data]
+
+    return input_data
+
 
 
 ##############################################

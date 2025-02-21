@@ -62,6 +62,7 @@ from trl import GRPOTrainer
 import copy
 import torch.distributed as dist
 
+
 if is_peft_available():
     from peft import PeftConfig, get_peft_model
 
@@ -74,6 +75,7 @@ if is_wandb_available():
 import torch.nn as nn
 from torch.utils.data import Sampler
 from ..utils.debug import remote_breakpoint
+from .tool_generation import vllm_generate_with_tool_calls
 
 # What we call a reward function is a callable that takes a list of prompts and completions and returns a list of
 # rewards. When it's a string, it's a model ID, so it's loaded as a pretrained model.
@@ -271,7 +273,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 reward_func.config.pad_token_id = reward_processing_class.pad_token_id
                 reward_processing_classes[i] = reward_processing_class
         self.reward_processing_classes = reward_processing_classes
-
+        
+        
         # Data collator
         def data_collator(features):  # No data collation is needed in GRPO
             return features
@@ -458,13 +461,6 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     reward_func, evaluation_mode=True
                 )
         
-        # if self.accelerator.is_main_process:
-        #     import debugpy
-        #     debugpy.listen(address = ('0.0.0.0', 7119))
-        #     debugpy.wait_for_client()
-        #     breakpoint() #在下一句代码处暂停
-        # dist.barrier()
-        # remote_breakpoint()
         
     def _set_signature_columns_if_needed(self):
         # If `self.args.remove_unused_columns` is True, non-signature columns are removed.
@@ -563,28 +559,29 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
 
             # Generate completions using vLLM: gather all prompts and use them in a single call in the main process
             all_prompts_text = gather_object(prompts_text)
+            all_prompts = gather_object(prompts)
             all_images = gather_object(images)
             # group into pairs
             all_multimodal_inputs = [
                 {"prompt": p, "multi_modal_data": {"image": i}}
                 for p, i in zip(all_prompts_text, all_images)
             ]
-            remote_breakpoint()
+            
             if self.accelerator.is_main_process:
-                outputs = self.llm.generate(
-                    all_multimodal_inputs,
-                    sampling_params=self.sampling_params,
-                    use_tqdm=False,
+                
+                tool_generation_output = vllm_generate_with_tool_calls(
+                    self.llm,
+                    prompts = all_prompts,
+                    images = all_images,
+                    sampling_params = self.sampling_params,
+                    max_rounds = 3,
+                    model_mode = "general",
                 )
-                completion_ids = [
-                    out.token_ids
-                    for completions in outputs
-                    for out in completions.outputs
-                ]
+                completion_ids = [list(item["model_output_ids"][-1]) for item in tool_generation_output]
                 
             else:
                 completion_ids = [None] * len(all_prompts_text)
-            breakpoint()
+
             completion_ids = broadcast_object_list(completion_ids, from_process=0)
             process_slice = slice(
                 self.accelerator.process_index * len(prompts),
