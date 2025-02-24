@@ -568,7 +568,9 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 {"prompt": p, "multi_modal_data": {"image": i}}
                 for p, i in zip(all_prompts_text, all_images)
             ]
-            
+            if self.max_prompt_length is None:
+                self.max_prompt_length = 2048
+
             if self.accelerator.is_main_process:
                 
                 tool_generation_output = vllm_generate_with_tool_calls(
@@ -580,10 +582,10 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     model_mode = "general",
                 )
                 completion_ids = [list(item["model_output_ids"][-1]) for item in tool_generation_output]
-                
+                completion_ids = [completion_list[:self.max_prompt_length] for completion_list in completion_ids]
             else:
                 completion_ids = [None] * len(all_prompts_text)
-
+            
             completion_ids = broadcast_object_list(completion_ids, from_process=0)
             process_slice = slice(
                 self.accelerator.process_index * len(prompts),
