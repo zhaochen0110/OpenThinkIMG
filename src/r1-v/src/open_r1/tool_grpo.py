@@ -152,7 +152,7 @@ def main(script_args, training_args, model_args):
         return {
             "prompt": [
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": example["question"]},
+                {"role": "user", "content": example["query"]},
             ],
         }
 
@@ -173,7 +173,7 @@ def main(script_args, training_args, model_args):
                     "role": "user",
                     "content": [
                         {"type": "image"},
-                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example["question"])},
+                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example["query"])},
                     ],
                 },
             ],
@@ -187,7 +187,7 @@ def main(script_args, training_args, model_args):
     else:
         print("no image in dataset")
         dataset = dataset.map(make_conversation)
-        dataset = dataset.remove_columns("question")
+        dataset = dataset.remove_columns("query")
 
     # breakpoint()
     

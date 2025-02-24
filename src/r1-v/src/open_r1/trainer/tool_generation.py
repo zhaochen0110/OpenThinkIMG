@@ -687,20 +687,26 @@ def vllm_generate_with_tool_calls(
     for _ in range(max_rounds):
         input_conversations = [item["conversations"] for item in input_data if item["status"] == "processing"]
         input_idxs = [idx for idx, item in enumerate(input_data) if item["status"] == "processing"]
-        outputs = vllm_model.chat(
-                    input_conversations,
-                    sampling_params = sampling_params,
-                    use_tqdm = False,
-        )
+        try:
+            outputs = vllm_model.chat(
+                input_conversations,
+                sampling_params = sampling_params,
+                use_tqdm = False,
+            )
+            output_texts = [output.outputs[0].text for output in outputs]
+            output_idss = [output.outputs[0].token_ids for output in outputs]
+        except Exception as e:
+            print(f"[vllm generation] {e}")
+            output_texts = ["Model generation error"] * len(input_conversations)
+            output_idss = [(1712, 9471, 1465, 151645)] * len(input_conversations)
+            
         ## update data
-        for input_idx, output in zip(input_idxs, outputs):
-            output_text = output.outputs[0].text
-            output_ids = output.outputs[0].token_ids
+        for input_idx, output_text, output_ids in zip(input_idxs, output_texts, output_idss):
             input_data[input_idx]["model_outputs"].append(output_text)
             input_data[input_idx]["model_output_ids"].append(output_ids)
             # Append the new message (with text and optional image) to the conversation history.
             input_data[input_idx]["conversations"] = append_conversation_fn(conversation=input_data[input_idx]["conversations"], text=output_text, role="assistant")
-           
+            
             ## pop qualified data
             # if "Terminate" in output_text:
             #     input_data[input_idx]["status"] = "finished"
@@ -723,7 +729,8 @@ def vllm_generate_with_tool_calls(
                 if api_name == "Terminate":
                     input_data[input_idx]["status"] = "finished"
                     continue
-
+                
+                # print(f"Tool calling: {api_name}")
                 # Call the tool using the tool manager
                 tool_result = tool_manager.call_tool(api_name, api_params)
                 # Append the tool call output to the conversation history
