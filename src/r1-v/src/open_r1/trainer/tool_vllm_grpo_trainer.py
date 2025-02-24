@@ -75,7 +75,7 @@ if is_wandb_available():
 import torch.nn as nn
 from torch.utils.data import Sampler
 from ..utils.debug import remote_breakpoint
-from .tool_generation import vllm_generate_with_tool_calls
+from .tool_generation import vllm_generate_with_tool_calls, parse_tool_config
 
 # What we call a reward function is a callable that takes a list of prompts and completions and returns a list of
 # rewards. When it's a string, it's a model ID, so it's loaded as a pretrained model.

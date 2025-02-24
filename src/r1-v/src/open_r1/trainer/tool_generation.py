@@ -190,8 +190,9 @@ def parse_tool_config(
                     img_key = image_tool_manager.process_base64_image(base64_img)
                     if img_key:
                         action['arguments']['image'] = img_key
-                elif newest_image:
-                    action['arguments']['image'] = img_key
+                elif newest_image and 'image' in action.get('arguments', {}):
+                    newest_image_base64 = pil_to_base64(newest_image, url_format=False)
+                    action['arguments']['image'] = newest_image_base64
 
                 parsed_actions.append({
                     "API_name": action["name"],
@@ -300,6 +301,7 @@ def handle_tool_result(
                 edited_image = base64_to_pil(edited_image)
                 if input_data_item:
                     input_data_item["images"].append(edited_image)
+                    
             else:
                 edited_image = None
 
@@ -328,6 +330,12 @@ def handle_tool_result(
             edited_image = None
             new_round_prompt = original_prompt
 
+    # Pop previous images since vllm only supports one image
+    if input_data_item:
+        for conv in input_data_item["conversations"]:
+            for idx,c in enumerate(conv["content"]):
+                if c["type"] == "image" or c["type"] == "image_url":
+                    del conv["content"][idx]
     # Append the new message (with text and optional image) to the conversation history.
     updated_conversations = append_conversation_fn(
         conversation=conversations, 
@@ -627,38 +635,43 @@ def vllm_generate_with_tool_calls(
 
     
     input_data = []
+    
     for prompt, image in zip(prompts, images):
+        current_image = image
+        if current_image:
+            if current_image.mode in ("RGBA", "LA", "P"):
+                current_image = current_image.convert("RGB") 
+                    
+        current_image_base64 = pil_to_base64(current_image)
         if isinstance(prompt, list):
-            contents = prompt[0]["content"]
+            for p in prompt:
+                for c in p["content"]:
+                    if c["type"] == "image":
+                        c["type"] = "image_url"
+                        c["image_url"] = {"url": current_image_base64}
+                        c.pop("image", None)
+            initial_user_messages = prompt
+            # get prompt text
+            contents = prompt[-1]["content"]
             current_prompt = ""
             for content in contents:
                 if content["type"] == "text" and content["text"]:
                     current_prompt += content["text"]
-            assert current_prompt is not None
         elif isinstance(prompt, str):
             current_prompt = prompt
-        else:
-            raise ValueError("Prompt should be either a string or a list of messages")
-        current_image = image
-        
-        
-        if current_image:
-            if current_image.mode in ("RGBA", "LA", "P"):
-                current_image = current_image.convert("RGB") 
-                
-        current_image_base64 = pil_to_base64(current_image)
-        current_conversation = []
-        initial_user_message = {
+            initial_user_messages = [{
             "role": "user",
             "content": [
                 {"type": "image_url", "image_url": {"url": current_image_base64}}, 
                 {"type": "text", "text": current_prompt}
             ]
-        }
-        current_conversation.append(initial_user_message)
+        }]
+        else:
+            raise ValueError("Prompt should be either a string or a list of messages")
+        
         
         data_instance = dict(
-            conversations = current_conversation,
+            conversations = initial_user_messages,
             status = "processing",
             model_outputs = [],
             model_output_ids = [],
@@ -685,31 +698,36 @@ def vllm_generate_with_tool_calls(
             output_ids = output.outputs[0].token_ids
             input_data[input_idx]["model_outputs"].append(output_text)
             input_data[input_idx]["model_output_ids"].append(output_ids)
-            
+            # Append the new message (with text and optional image) to the conversation history.
+            input_data[input_idx]["conversations"] = append_conversation_fn(conversation=input_data[input_idx]["conversations"], text=output_text, role="assistant")
+           
             ## pop qualified data
-            if "Terminate" in output_text:
-                input_data[input_idx]["status"] = "finished"
-                continue
+            # if "Terminate" in output_text:
+            #     input_data[input_idx]["status"] = "finished"
+            #     continue
             
             # If a tool configuration is detected in the output, process it.
-            if detect_tool_config(output_text, model_mode=model_mode):
-                tool_cfg = parse_tool_config(
+            tool_cfg = parse_tool_config(
                     output_text, 
                     model_mode=model_mode, 
                     image_tool_manager=None,
                     newest_image=input_data[input_idx]["images"][-1]
                 )
-                if not tool_cfg:
-                    continue
-
+            if not tool_cfg:
+                input_data[input_idx]["conversations"] = append_conversation_fn(conversation=input_data[input_idx]["conversations"], text=input_data[input_idx]["prompt"], role="assistant")
+            
+            else:
+                input_data[input_idx]["tool_cfgs"].append(tool_cfg)
                 api_name = tool_cfg[0].get("API_name")
                 api_params = tool_cfg[0].get("API_params", {})
+                if api_name == "Terminate":
+                    input_data[input_idx]["status"] = "finished"
+                    continue
 
                 # Call the tool using the tool manager
                 tool_result = tool_manager.call_tool(api_name, api_params)
                 # Append the tool call output to the conversation history
-                input_data[input_idx]["conversations"] = append_conversation_fn(conversation=input_data[input_idx]["conversations"], text=output_text, role="assistant")
-           
+                input_data[input_idx]["tool_outputs"].append(tool_result)
                 # Process the tool result and update the conversation
                 input_data[input_idx]["conversations"] = handle_tool_result(
                     cfg=tool_cfg[0],
@@ -729,6 +747,9 @@ def vllm_generate_with_tool_calls(
 ##############################################
 # Main execution
 ##############################################
+
+
+
 
 # if __name__ == "__main__":
 #     # Define the model name or path and load the model.
