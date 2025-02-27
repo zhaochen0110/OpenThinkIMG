@@ -461,7 +461,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     reward_func, evaluation_mode=True
                 )
         
-        # remote_breakpoint()
+        remote_breakpoint()
         
         
     def _set_signature_columns_if_needed(self):

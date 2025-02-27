@@ -168,22 +168,52 @@ def parse_tool_config(
     Returns:
         Optional[List[Dict]]: A list of parsed tool configurations, or None if parsing fails.
     """
+    
+    def extract_actions(text: str):
+        """
+        Extract only the 'actions' list from the model response text.
+        
+        Args:
+            text (str): The model response text containing actions
+            
+        Returns:
+            Optional[List]: The parsed actions list or None if extraction fails
+        """
+        try:
+            # Try to find the "actions" part using regex
+            actions_pattern = r'"actions"\s*:\s*(\[(?:[^\[\]]|\[(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*\])*\])'
+            actions_match = re.search(actions_pattern, text)
+            
+            if not actions_match:
+                return None
+                
+            actions_str = actions_match.group(1)
+            actions_list = json.loads(actions_str)
+            return actions_list
+            
+        except Exception as e:
+            print(f"Error extracting actions list: {e}")
+            return None
+    
     if not model_response:
         return None
 
     try:
         if model_mode == "general":
-            pattern = r'\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}'
-            match = re.search(pattern, model_response)
-            if not match:
-                return None
-            data = json.loads(match.group(0))
+            # pattern = r'\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}'
+            # match = re.search(pattern, model_response)
+            # if not match:
+            #     return None
+            # data = json.loads(match.group(0))
 
-            if "actions" not in data or not data["actions"]:
+            # if "actions" not in data or not data["actions"]:
+            #     return None
+            actions = extract_actions(model_response)
+            if not actions:
                 return None
 
             parsed_actions = []
-            for action in data["actions"]:
+            for action in actions:
                 # If an image (as base64) is provided in the action's arguments, process it.
                 if image_tool_manager and 'image' in action.get('arguments', {}):
                     base64_img = action['arguments']['image']

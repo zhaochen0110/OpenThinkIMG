@@ -1,10 +1,10 @@
 # Model arguments
-model_name_or_path: Qwen/Qwen2-VL-2B-Instruct
+model_name_or_path: /mnt/petrelfs/songmingyang/songmingyang/model/mm/Qwen2-VL-2B-Instruct
 model_revision: main
 torch_dtype: bfloat16
 
 # Data training arguments
-dataset_name: MMInstruction/Clevr_CoGenT_TrainA_R1
+dataset_name: /mnt/petrelfs/songmingyang/songmingyang/data/mm/reasoning/Clevr_CoGenT_TrainA_R1
 dataset_configs:
 - all
 preprocessing_num_workers: 8
@@ -28,7 +28,7 @@ packing: true
 max_seq_length: 4096
 max_steps: -1
 num_train_epochs: 1
-output_dir: data/Qwen2-VL-2B-Instruct-SFT
+output_dir: /mnt/petrelfs/songmingyang/songmingyang/runs/r1_p/r1-v/sft
 overwrite_output_dir: true
 per_device_eval_batch_size: 4
 per_device_train_batch_size: 4
