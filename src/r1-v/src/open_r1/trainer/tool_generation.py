@@ -242,6 +242,7 @@ def parse_tool_config(
 
     except Exception as e:
         print(f"[parse_tool_config] Error: {e}")
+        print("Wrong model response:", model_response)
         return None
 
 
@@ -361,11 +362,11 @@ def handle_tool_result(
             new_round_prompt = original_prompt
 
     # Pop previous images since vllm only supports one image
-    if input_data_item:
-        for conv in input_data_item["conversations"]:
-            for idx,c in enumerate(conv["content"]):
-                if c["type"] == "image" or c["type"] == "image_url":
-                    del conv["content"][idx]
+    # if input_data_item:
+    #     for conv in input_data_item["conversations"]:
+    #         for idx,c in enumerate(conv["content"]):
+    #             if c["type"] == "image" or c["type"] == "image_url":
+    #                 del conv["content"][idx]
     # Append the new message (with text and optional image) to the conversation history.
     updated_conversations = append_conversation_fn(
         conversation=conversations, 

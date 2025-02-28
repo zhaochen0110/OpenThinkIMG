@@ -22,10 +22,10 @@ from datasets import load_dataset, load_from_disk
 from transformers import Qwen2VLForConditionalGeneration
 
 from math_verify import parse, verify
-# from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer
-from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer,Qwen2VLGRPOToolTrainer,Qwen2VLGRPOToolVLLMTrainer
+# from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer
 from trl import GRPOConfig, GRPOTrainer, ModelConfig, ScriptArguments, TrlParser, get_peft_config
-from open_r1.trainer.tool_generation import parse_tool_config
+from trainer.tool_generation import parse_tool_config
+from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
 
 
 @dataclass
@@ -39,7 +39,7 @@ class GRPOScriptArguments(ScriptArguments):
     """
 
     reward_funcs: list[str] = field(
-        default_factory=lambda: ["accuracy",], # "format","accuracy"
+        default_factory=lambda: ["accuracy","format"], # "format","accuracy"
         metadata={"help": "List of reward functions. Possible values: 'accuracy', 'format'"},
     )
     max_pixels: Optional[int] = field(
@@ -65,6 +65,7 @@ def accuracy_reward(completions, solution, **kwargs):
         reward = 0.0
         # Try symbolic verification first
         try:
+            breakpoint()
             answer = parse(content)
             if float(verify(answer, parse(sol))) > 0:
                 reward = 1.0
@@ -105,8 +106,9 @@ def accuracy_reward(completions, solution, **kwargs):
 
 
 def format_reward(completions, **kwargs):
-    """Reward function that checks if the completion has a specific format."""
-    pattern = r"<think>.*?</think>\s*<answer>.*?</answer>"
+    """Reward function that checks if the completion has a specific format, in this case, if it contains the word 'Terminate'."""
+    # breakpoint()
+    pattern = r'.*Terminate.*'
     completion_contents = [completion[0]["content"] for completion in completions]
     matches = [re.fullmatch(pattern, content, re.DOTALL) for content in completion_contents]
     return [1.0 if match else 0.0 for match in matches]
@@ -117,12 +119,12 @@ reward_funcs_registry = {
     "format": format_reward,
 }
 
-SYSTEM_PROMPT = (
-    "A conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant "
-    "first thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning "
-    "process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., "
-    "<think> reasoning process here </think><answer> answer here </answer>"
-)
+# SYSTEM_PROMPT = (
+#     "A conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant "
+#     "first thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning "
+#     "process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., "
+#     "<think> reasoning process here </think><answer> answer here </answer>"
+# )
 SYSTEM_PROMPT = (
     "[BEGIN OF GOAL] You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. The available actions include: OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoomInSubfigure, and SegmentRegionAroundPoint. [END OF GOAL] \n\n"
 )
@@ -152,7 +154,7 @@ def main(script_args, training_args, model_args):
         return {
             "prompt": [
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": example["query"]},
+                {"role": "user", "content": example["question"]},
             ],
         }
 
@@ -173,7 +175,7 @@ def main(script_args, training_args, model_args):
                     "role": "user",
                     "content": [
                         {"type": "image"},
-                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example["query"])},
+                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example["question"])},
                     ],
                 },
             ],

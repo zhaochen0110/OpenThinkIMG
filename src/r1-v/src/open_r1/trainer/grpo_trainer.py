@@ -369,7 +369,7 @@ class Qwen2VLGRPOTrainer(Trainer):
             all_completions = []
             # SU: where we add the tool-rl
             for i in range(num_generations):  # -1 because we already have one generation
-                breakpoint()
+                # breakpoint()
                 completion = unwrapped_model.generate(**prompt_inputs, generation_config=temp_generation_config)
                 all_completions.append(completion)
             

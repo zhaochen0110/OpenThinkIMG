@@ -74,7 +74,7 @@ if is_wandb_available():
     import wandb
 import torch.nn as nn
 from torch.utils.data import Sampler
-from ..utils.debug import remote_breakpoint
+# from ..utils.debug import remote_breakpoint
 from .tool_generation import vllm_generate_with_tool_calls, parse_tool_config
 
 # What we call a reward function is a callable that takes a list of prompts and completions and returns a list of
@@ -175,7 +175,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 if args.gradient_checkpointing
                 else model_init_kwargs.get("use_cache")
             )
-            if "Qwen2-VL" in model_id:
+            # breakpoint()
+            if "Qwen2-VL" in model_id or "Qwen2VL" in model_id:
                 model = Qwen2VLForConditionalGeneration.from_pretrained(
                     model, **model_init_kwargs
                 )
@@ -428,6 +429,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                             else None
                         ),
                         max_model_len=args.max_completion_length,
+                        limit_mm_per_prompt={"image": 10},
                     )
                 self.sampling_params = SamplingParams(
                     temperature=args.temperature,
@@ -523,6 +525,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             maybe_apply_chat_template(example, self.processing_class)["prompt"]
             for example in inputs
         ]
+        
         prompt_inputs = self.processing_class(
             # prompts_text, return_tensors="pt", padding=True, padding_side="left", add_special_tokens=False
             text=prompts_text,
@@ -578,11 +581,11 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     prompts = all_prompts,
                     images = all_images,
                     sampling_params = self.sampling_params,
-                    max_rounds = 3,
+                    max_rounds = 8,
                     model_mode = "general",
                 )
-                completion_ids = [list(item["model_output_ids"][-1]) for item in tool_generation_output]
-                completion_ids = [completion_list[:self.max_prompt_length] for completion_list in completion_ids]
+                completion_ids = [list(item["model_output_ids"]) for item in tool_generation_output]
+                completion_ids = [completion_list[:self.max_completion_length] for completion_list in completion_ids]
             else:
                 completion_ids = [None] * len(all_prompts_text)
             

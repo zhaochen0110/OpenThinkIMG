@@ -73,7 +73,8 @@ if is_wandb_available():
     import wandb
 import torch.nn as nn
 from torch.utils.data import Sampler
-from ..utils.debug import remote_breakpoint
+
+# from open_r1.utils.debug import remote_breakpoint
 
 # What we call a reward function is a callable that takes a list of prompts and completions and returns a list of
 # rewards. When it's a string, it's a model ID, so it's loaded as a pretrained model.
@@ -521,10 +522,12 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         device = self.accelerator.device
         prompts = [x["prompt"] for x in inputs]
         images = [x["image"] for x in inputs]
+        # breakpoint()
         prompts_text = [
             maybe_apply_chat_template(example, self.processing_class)["prompt"]
             for example in inputs
         ]
+
         prompt_inputs = self.processing_class(
             # prompts_text, return_tensors="pt", padding=True, padding_side="left", add_special_tokens=False
             text=prompts_text,
@@ -569,7 +572,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 {"prompt": p, "multi_modal_data": {"image": i}}
                 for p, i in zip(all_prompts_text, all_images)
             ]
-            remote_breakpoint()
+
             if self.accelerator.is_main_process:
                 outputs = self.llm.generate(
                     all_multimodal_inputs,
@@ -584,7 +587,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 
             else:
                 completion_ids = [None] * len(all_prompts_text)
-            breakpoint()
+            # breakpoint()
             completion_ids = broadcast_object_list(completion_ids, from_process=0)
             process_slice = slice(
                 self.accelerator.process_index * len(prompts),
@@ -704,6 +707,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     for example in inputs:
                         # Repeat each value in the column for `num_generations` times
                         reward_kwargs[key].extend([example[key]] * self.num_generations)
+                # breakpoint()
                 output_reward_func = reward_func(
                     prompts=prompts, completions=completions, **reward_kwargs
                 )

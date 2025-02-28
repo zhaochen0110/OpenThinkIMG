@@ -123,7 +123,12 @@ def main(script_args, training_args, model_args):
     reward_funcs = [reward_funcs_registry[func] for func in script_args.reward_funcs]
 
     # Load the dataset
-    dataset = load_dataset(script_args.dataset_name, name=script_args.dataset_config)
+    if "json" in script_args.dataset_name:
+        dataset = load_dataset('json', data_files=script_args.dataset_name)
+    else:
+        dataset = load_dataset(script_args.dataset_name, name=script_args.dataset_config)
+
+    # breakpoint()
 
 
     # Format into conversation

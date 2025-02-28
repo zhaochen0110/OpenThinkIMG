@@ -13,6 +13,7 @@ develop-eggs/
 dist/
 downloads/
 eggs/
+src/output_path/
 .eggs/
 lib/
 lib64/
@@ -126,7 +127,7 @@ celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
-
+vllm_run.txt
 # Environments
 .env
 .venv
