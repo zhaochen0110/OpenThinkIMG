@@ -25,7 +25,7 @@ export SLURM_JOB_ID=${job_id}
 unset SLURM_JOB_ID
 
 export DEBUG_MODE="true" # Enable Debug if you want to see the rollout of model during RL
-export LOG_PATH="/mnt/petrelfs/songmingyang/code/reasoning/R1-V/src/r1-v/local_scripts/scripts/logs/debug_log_2b.log"
+export LOG_PATH="/mnt/petrelfs/songmingyang/code/reasoning/R1-V/src/r1-v/local_scripts/scripts/logs/debug_log_2b_tool.log"
 # export CUDA_VISIBLE_DEVICES="2,3,7"
 export WANDB_PROJECT="r1_v"
 export RUN_NAME="Qwen2-VL-2B-GRPO-CHARTGEMMA-1000"
@@ -41,9 +41,9 @@ data_path=/mnt/petrelfs/songmingyang/songmingyang/runs/tool_factory/chart_data/s
 gpus=0
 cpus=2
 quotatype="reserved"
-CUDA_VISIBLE_DEVICES="3,4,5,6,7" srun --partition=MoE --job-name="eval" --mpi=pmi2  --gres=gpu:${gpus} -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
+CUDA_VISIBLE_DEVICES="0,1,2,3" srun --partition=MoE --job-name="eval" --mpi=pmi2  --gres=gpu:${gpus} -n1 --ntasks-per-node=1 -c ${cpus} --kill-on-bad-exit=1 --quotatype=${quotatype}  \
 -w SH-IDCA1404-10-140-54-5 \
-torchrun --nproc_per_node="4" \
+torchrun --nproc_per_node="3" \
     --nnodes="1" \
     --node_rank="0" \
     --master_addr="127.0.0.1" \
@@ -55,7 +55,7 @@ torchrun --nproc_per_node="4" \
     --max_prompt_length 1024 \
     --max_completion_length 2048 \
     --temperature 1.0 \
-    --num_generations 4 \
+    --num_generations 3 \
     --per_device_train_batch_size 1 \
     --gradient_accumulation_steps 4 \
     --logging_steps 1 \
@@ -68,4 +68,5 @@ torchrun --nproc_per_node="4" \
     --run_name $RUN_NAME \
     --save_steps 1000 \
     --save_only_model true \
-    --use_tool
+    --use_tool \
+    --query_key "query" \

@@ -14,6 +14,7 @@
 
 import os
 import re
+import json
 from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Optional
@@ -24,8 +25,8 @@ from transformers import Qwen2VLForConditionalGeneration
 from math_verify import parse, verify
 # from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer
 from trl import GRPOConfig, GRPOTrainer, ModelConfig, ScriptArguments, TrlParser, get_peft_config
-from trainer.tool_generation import parse_tool_config
-from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
+from open_r1.trainer.tool_generation import parse_tool_config
+from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
 
 
 @dataclass
@@ -54,6 +55,9 @@ class GRPOScriptArguments(ScriptArguments):
         default=False,
         metadata={"help": "Whether to use tool trainer for training"},
     )
+    query_key: Optional[str] = field(
+        default="question",
+    )
 
 
 def accuracy_reward(completions, solution, **kwargs):
@@ -61,11 +65,19 @@ def accuracy_reward(completions, solution, **kwargs):
     contents = [completion[0]["content"] for completion in completions]
     rewards = []
     current_time = datetime.now().strftime("%d-%H-%M-%S-%f")
-    for content, sol in zip(contents, solution):
+    output_texts = kwargs.get("model_output_texts", None)
+    
+    if output_texts:
+        renewed_contents = []
+        for output_text in output_texts:
+            renewed_contents.append(output_text[-1])
+    else:
+        renewed_contents = contents
+        
+    for content, sol in zip(renewed_contents, solution):
         reward = 0.0
         # Try symbolic verification first
         try:
-            breakpoint()
             answer = parse(content)
             if float(verify(answer, parse(sol))) > 0:
                 reward = 1.0
@@ -108,10 +120,34 @@ def accuracy_reward(completions, solution, **kwargs):
 def format_reward(completions, **kwargs):
     """Reward function that checks if the completion has a specific format, in this case, if it contains the word 'Terminate'."""
     # breakpoint()
-    pattern = r'.*Terminate.*'
-    completion_contents = [completion[0]["content"] for completion in completions]
-    matches = [re.fullmatch(pattern, content, re.DOTALL) for content in completion_contents]
-    return [1.0 if match else 0.0 for match in matches]
+    output_texts = kwargs.get("model_output_texts", None)
+    if not output_texts:
+        pattern = r'.*Terminate.*'
+        completion_contents = [completion[0]["content"] for completion in completions]
+        matches = [re.fullmatch(pattern, content, re.DOTALL) for content in completion_contents]
+        return [1.0 if match else 0.0 for match in matches]
+    else:
+        rewards = []
+        pattern = r'\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}'
+        for output_text in output_texts:
+            current_rewards = []
+            for output_text_item in output_text:
+                reward = 0.0
+                try:
+                    match = re.search(pattern, output_text_item)
+                    assert match is not None
+                    data = json.loads(match.group(0))
+                    assert "thought" in data or "thoughts" in data or "actions" in data
+                    reward = 1.0
+                except Exception:
+                    reward = 0.0
+                current_rewards.append(reward)
+            current_reward = sum(current_rewards) / len(current_rewards) if current_rewards else 0.0
+            rewards.append(current_reward)
+        return rewards
+        
+        
+        
 
 
 reward_funcs_registry = {
@@ -154,7 +190,7 @@ def main(script_args, training_args, model_args):
         return {
             "prompt": [
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": example["question"]},
+                {"role": "user", "content": example[script_args.query_key]},
             ],
         }
 
@@ -175,7 +211,7 @@ def main(script_args, training_args, model_args):
                     "role": "user",
                     "content": [
                         {"type": "image"},
-                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example["question"])},
+                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example[script_args.query_key])},
                     ],
                 },
             ],

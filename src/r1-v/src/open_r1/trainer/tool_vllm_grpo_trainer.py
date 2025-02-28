@@ -74,7 +74,7 @@ if is_wandb_available():
     import wandb
 import torch.nn as nn
 from torch.utils.data import Sampler
-# from ..utils.debug import remote_breakpoint
+from ..utils.debug import remote_breakpoint
 from .tool_generation import vllm_generate_with_tool_calls, parse_tool_config
 
 # What we call a reward function is a callable that takes a list of prompts and completions and returns a list of
@@ -463,7 +463,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     reward_func, evaluation_mode=True
                 )
         
-        remote_breakpoint()
+        # remote_breakpoint()
         
         
     def _set_signature_columns_if_needed(self):
@@ -584,17 +584,27 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     max_rounds = 8,
                     model_mode = "general",
                 )
-                completion_ids = [list(item["model_output_ids"]) for item in tool_generation_output]
-                completion_ids = [completion_list[:self.max_completion_length] for completion_list in completion_ids]
+                model_output_texts = [item["model_outputs"] for item in tool_generation_output]
+                model_output_ids = []
+                for item in tool_generation_output:
+                    all_outputs = []
+                    for model_output_id in item["model_output_ids"]:
+                        all_outputs.extend(model_output_id)
+                    model_output_ids.append(all_outputs)
+                # completion_ids = [list(item["model_output_ids"]) for item in tool_generation_output]
+                completion_ids = [completion_list[:self.max_completion_length] for completion_list in model_output_ids]
             else:
                 completion_ids = [None] * len(all_prompts_text)
+                model_output_texts = [None] * len(all_prompts_text)
             
             completion_ids = broadcast_object_list(completion_ids, from_process=0)
+            model_output_texts = broadcast_object_list(model_output_texts, from_process=0)
             process_slice = slice(
                 self.accelerator.process_index * len(prompts),
                 (self.accelerator.process_index + 1) * len(prompts),
             )
             completion_ids = completion_ids[process_slice]
+            model_output_texts = model_output_texts[process_slice]
 
             # Pad the completions, and concatenate them with the prompts
             completion_ids = [
@@ -708,6 +718,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     for example in inputs:
                         # Repeat each value in the column for `num_generations` times
                         reward_kwargs[key].extend([example[key]] * self.num_generations)
+                reward_kwargs["model_output_texts"] = model_output_texts
+                # breakpoint()
                 output_reward_func = reward_func(
                     prompts=prompts, completions=completions, **reward_kwargs
                 )
