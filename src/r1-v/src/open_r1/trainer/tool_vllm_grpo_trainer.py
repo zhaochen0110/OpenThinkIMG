@@ -74,7 +74,6 @@ if is_wandb_available():
     import wandb
 import torch.nn as nn
 from torch.utils.data import Sampler
-from ..utils.debug import remote_breakpoint
 from .tool_generation import vllm_generate_with_tool_calls, parse_tool_config
 
 # What we call a reward function is a callable that takes a list of prompts and completions and returns a list of
@@ -575,16 +574,27 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 self.max_prompt_length = 2048
 
             if self.accelerator.is_main_process:
-                
+                # tool_generation's value
                 tool_generation_output = vllm_generate_with_tool_calls(
                     self.llm,
                     prompts = all_prompts,
                     images = all_images,
                     sampling_params = self.sampling_params,
-                    max_rounds = 8,
+                    max_rounds = 6,
                     model_mode = "general",
                 )
+                # SU: the model_output texts
+                # breakpoint()
                 model_output_texts = [item["model_outputs"] for item in tool_generation_output]
+                num = 0
+                for item in tool_generation_output:
+                    num_tool = len(item["tool_outputs"])
+                    num += num_tool
+                ave_tool_num = num / len(tool_generation_output)
+                self._metrics["ave_tool_num"].append(ave_tool_num)
+
+
+
                 model_output_ids = []
                 for item in tool_generation_output:
                     all_outputs = []
@@ -671,6 +681,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         completions = self.processing_class.batch_decode(
             completion_ids, skip_special_tokens=True
         )
+        # reakpoint()
         if is_conversational(inputs[0]):
             completions = [
                 [{"role": "assistant", "content": completion}]
@@ -762,7 +773,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             self._metrics[f"rewards/{reward_func_name}"].append(
                 reward_per_func[i].item()
             )
-
+        # breakpoint()
         self._metrics["reward"].append(rewards.mean().item())
         self._metrics["reward_std"].append(std_grouped_rewards.mean().item())
 
@@ -831,6 +842,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             .mean()
             .item()
         )
+        # breakpoint()
         self._metrics["completion_length"].append(completion_length)
 
         mean_kl = (

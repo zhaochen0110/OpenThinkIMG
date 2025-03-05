@@ -14,7 +14,7 @@ HF_DATASET="/mnt/petrelfs/share_data/suzhaochen/datasets/chartgemma_cot/split_tr
 quotatype="reserved"
 jobname="r1v"
 srun --partition=MoE --job-name=${jobname} --job-name="eval" --mpi=pmi2  --gres=gpu:0 -w SH-IDCA1404-10-140-54-81 -n1 --ntasks-per-node=1 --kill-on-bad-exit=1 --quotatype=${quotatype}  \
-torchrun --nproc_per_node="7" \
+torchrun --nproc_per_node="3" \
     --nnodes="1" \
     --node_rank="0" \
     --master_addr="127.0.0.1" \

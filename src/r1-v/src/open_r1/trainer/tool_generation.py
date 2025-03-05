@@ -659,6 +659,17 @@ def vllm_generate_with_tool_calls(
             - prompt: Original input prompt
     """
     tool_manager = ToolManager()
+    tool_manager.available_tools = [tool for tool in tool_manager.available_tools if tool not in ['crop', 'drawline']]
+    print(f"Avaliable tools are {tool_manager.available_tools}")
+    miss_tool = []
+    for tool in ["ZoomInSubfigure","DrawHorizontalLineByY","OCR","DrawVerticalLineByX","SegmentRegionAroundPoint","Point"]:
+        if tool not in tool_manager.available_tools:
+            miss_tool.append(tool)
+    if len(miss_tool) == 0:
+        print("All tools are called successfully")
+    else:
+        print(f"Not all tools is called successfully, missing tool {miss_tool}")
+
     # image_tool_manager = ImageToolManager()
     # {"prompt": p, "multi_modal_data": {"image": i}}
     
@@ -739,9 +750,9 @@ def vllm_generate_with_tool_calls(
             input_data[input_idx]["conversations"] = append_conversation_fn(conversation=input_data[input_idx]["conversations"], text=output_text, role="assistant")
             
             ## pop qualified data
-            # if "Terminate" in output_text:
-            #     input_data[input_idx]["status"] = "finished"
-            #     continue
+            if "Terminate" in output_text:
+                input_data[input_idx]["status"] = "finished"
+                continue
             
             # If a tool configuration is detected in the output, process it.
             tool_cfg = parse_tool_config(
@@ -757,12 +768,14 @@ def vllm_generate_with_tool_calls(
                 input_data[input_idx]["tool_cfgs"].append(tool_cfg)
                 api_name = tool_cfg[0].get("API_name")
                 api_params = tool_cfg[0].get("API_params", {})
-                if api_name == "Terminate":
-                    input_data[input_idx]["status"] = "finished"
-                    continue
+                # breakpoint()
+                # if "Terminate" in output_text:
+                #     input_data[input_idx]["status"] = "finished"
+                #     continue
                 
                 # print(f"Tool calling: {api_name}")
                 # Call the tool using the tool manager
+                # breakpoint()
                 tool_result = tool_manager.call_tool(api_name, api_params)
                 # Append the tool call output to the conversation history
                 input_data[input_idx]["tool_outputs"].append(tool_result)

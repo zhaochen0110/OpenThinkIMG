@@ -25,8 +25,8 @@ from transformers import Qwen2VLForConditionalGeneration
 from math_verify import parse, verify
 # from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer
 from trl import GRPOConfig, GRPOTrainer, ModelConfig, ScriptArguments, TrlParser, get_peft_config
-from open_r1.trainer.tool_generation import parse_tool_config
-from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
+from trainer.tool_generation import parse_tool_config
+from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
 
 
 @dataclass
@@ -62,6 +62,8 @@ class GRPOScriptArguments(ScriptArguments):
 
 def accuracy_reward(completions, solution, **kwargs):
     """Reward function that checks if the completion is correct using either symbolic verification or exact string matching."""
+
+
     contents = [completion[0]["content"] for completion in completions]
     rewards = []
     current_time = datetime.now().strftime("%d-%H-%M-%S-%f")
@@ -74,7 +76,8 @@ def accuracy_reward(completions, solution, **kwargs):
     else:
         renewed_contents = contents
         
-    for content, sol in zip(renewed_contents, solution):
+    for item, sol in zip(output_texts, solution):
+        content = item[-1] 
         reward = 0.0
         # Try symbolic verification first
         try:
@@ -112,8 +115,9 @@ def accuracy_reward(completions, solution, **kwargs):
             # local_rank = int(os.getenv("LOCAL_RANK", 0))
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(f"------------- {current_time} Accuracy reward: {reward} -------------\n")
-                f.write(f"Content: {content}\n")
+                f.write(f"Content: {item}\n")
                 f.write(f"Solution: {sol}\n")
+        # breakpoint()
     return rewards
 
 
@@ -161,9 +165,14 @@ reward_funcs_registry = {
 #     "process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., "
 #     "<think> reasoning process here </think><answer> answer here </answer>"
 # )
-SYSTEM_PROMPT = (
-    "[BEGIN OF GOAL] You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. The available actions include: OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoomInSubfigure, and SegmentRegionAroundPoint. [END OF GOAL] \n\n"
-)
+# SYSTEM_PROMPT = (
+#     "[BEGIN OF GOAL] You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. The available actions include: OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoomInSubfigure, and SegmentRegionAroundPoint. [END OF GOAL] \n\n"
+# )
+
+SYSTEM_PROMPT = """You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. The available actions include: OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoomInSubfigure, and SegmentRegionAroundPoint.
+Your output should be in a strict JSON format as follows:
+{"thought": "the reasoning process", "actions": [{"name": "action", "arguments": {"argument1": "value1", "argument2": "value2"}}]}
+"""
 
 
 def main(script_args, training_args, model_args):
