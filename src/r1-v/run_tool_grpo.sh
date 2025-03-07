@@ -11,6 +11,11 @@ export HTTPS_PROXY=$new_proxy_address
 # unset HTTP_PROXY
 # unset HTTPS_PROXY
 
+# curl -X POST http://SH-IDCA1404-10-140-54-5:20001/list_models
+export NCCL_DEBUG=INFO
+export NCCL_TIMEOUT=18000
+export NCCL_LAUNCH_MODE=GROUP
+export CUDA_LAUNCH_BLOCKING=1
 export HF_ENDPOINT=https://hf-mirror.com
 unset HF_ENDPOINT
 
@@ -20,13 +25,13 @@ job_id=4294232
 export SLURM_JOB_ID=${job_id}
 unset SLURM_JOB_ID
 
-# nohup bash run_tool_grpo.sh > logs/Qwen2-VL-2B-grpo-chartgemma-combined-allrl.log &
+# nohup bash run_tool_grpo.sh > logs/Qwen2-VL-2B-grpo-chartgemma-chartgemma-katrina.log &
 ############################
 # u need to revise
-export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-combined-allrl"
-# export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6"
-export CUDA_VISIBLE_DEVICES="0,1,4,6"
-hostname="SH-IDCA1404-10-140-54-5" 
+export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-chartgemma-katrina"
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6"
+# export CUDA_VISIBLE_DEVICES="0,1,4,6"
+hostname="SH-IDCA1404-10-140-54-81" 
 # data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/reachqa_final/reachqa_chartgemma_data.json
 data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/chargemma_final/chartgemma_rl.json
 model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-combine
@@ -53,7 +58,7 @@ nproc_per_node=$((num_gpus - 1))
 gpus=0
 cpus=2
 quotatype="reserved"
-srun --partition=MoE --job-name="rl" --mpi=pmi2  --gres=gpu:${gpus} -n1 --ntasks-per-node=1 --kill-on-bad-exit=1 --quotatype=${quotatype}  \
+srun --partition=MoE --job-name="katrina" --mpi=pmi2  --gres=gpu:${gpus} -n1 --ntasks-per-node=1 --kill-on-bad-exit=1 --quotatype=${quotatype}  \
 -w ${hostname} \
 torchrun --nproc_per_node=${nproc_per_node} \
     --nnodes="1" \
@@ -65,12 +70,12 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --model_name_or_path ${model_path} \
     --dataset_name ${data_path} \
     --max_prompt_length 1024 \
-    --max_completion_length 2048 \
+    --max_completion_length 3500 \
     --temperature 1.0 \
     --learning_rate 1e-6 \
-    --num_generations 4 \
-    --per_device_train_batch_size 4 \
-    --gradient_accumulation_steps 8 \
+    --num_generations 6 \
+    --per_device_train_batch_size 1 \
+    --gradient_accumulation_steps 2 \
     --logging_steps 1 \
     --bf16  \
     --report_to wandb \
@@ -79,6 +84,6 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --max_pixels 400000 \
     --max_steps 1600 \
     --run_name $RUN_NAME \
-    --save_steps 100 \
-    --save_only_model true \
+    --save_steps 40 \
+    --save_only_model false \
     --use_tool

@@ -20,6 +20,7 @@ from accelerate.utils.other import is_compiled_module
 from accelerate.utils import broadcast_object_list, gather, gather_object
 import torch
 import torch.utils.data
+from torch.utils.data import SequentialSampler
 import transformers
 import warnings
 from unittest.mock import patch
@@ -110,12 +111,46 @@ class RepeatRandomSampler(Sampler):
             for idx in torch.randperm(self.num_samples).tolist()
             for _ in range(self.repeat_count)
         ]
+        if indexes:
+            first_index = indexes[0]
+            first_data = self.data_source[first_index]
+            print(f"Random Mode!!! Random data: {first_data}")
         return iter(indexes)
 
     def __len__(self):
         return self.num_samples * self.repeat_count
 
+class RepeatSequentialSampler(Sampler):
+    """
+    Sequential sampler that samples in order and repeats each index a specified number of times.
 
+    Args:
+        data_source (`Sized`):
+            Dataset to sample from.
+        repeat_count (`int`): 
+            Number of times to repeat each index.
+    """
+
+    def __init__(self, data_source, repeat_count: int):
+        self.data_source = data_source
+        self.repeat_count = repeat_count
+        self.num_samples = len(data_source)
+
+    def __iter__(self):
+        indexes = [
+            idx
+            for idx in range(self.num_samples)
+            for _ in range(self.repeat_count)
+        ]
+        if indexes:
+            first_index = indexes[0]
+            first_data = self.data_source[first_index]
+            print(f"Sequential Mode!!! First data: {first_data}")
+        return iter(indexes)
+
+    def __len__(self):
+        return self.num_samples * self.repeat_count
+    
 class Qwen2VLGRPOVLLMTrainer(Trainer):
     def __init__(
         self,
@@ -474,9 +509,14 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             self._signature_columns = ["prompt"]
     
     # We need a custom sampler that samples the same prompt multiple times
-    def _get_train_sampler(self):
-        return RepeatRandomSampler(self.train_dataset, self.num_generations)
+    # def _get_train_sampler(self):
+    #     return RepeatRandomSampler(self.train_dataset, self.num_generations)
 
+    ## SU: for debug
+    # We need a custom sampler that samples the same prompt multiple times
+    def _get_train_sampler(self):
+        return RepeatSequentialSampler(self.train_dataset, self.num_generations)
+    
     # Get the per-token log probabilities for the completions for the model and the reference model
     def _get_per_token_logps(
         self,
@@ -574,7 +614,13 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 self.max_prompt_length = 2048
 
             if self.accelerator.is_main_process:
+                ## SU: for debug
+                for i, (prompt, image) in enumerate(zip(all_prompts, all_images)):
+                    print(f"Input {i}:")
+                    print(f"Prompt: {prompt}")
+                    print(f"Image: {image}")
                 # tool_generation's value
+                # breakpoint()
                 tool_generation_output = vllm_generate_with_tool_calls(
                     self.llm,
                     prompts = all_prompts,
@@ -583,8 +629,12 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     max_rounds = 6,
                     model_mode = "general",
                 )
-                # SU: the model_output texts
-                # breakpoint()
+                # SU: for debug
+                for i, output in enumerate(tool_generation_output):
+                    print(f"Output {i}:")
+                    print(f"Model Outputs: {output['model_outputs']}")
+                    print(f"Tool Outputs: {output['tool_outputs']}")
+
                 model_output_texts = [item["model_outputs"] for item in tool_generation_output]
                 num = 0
                 for item in tool_generation_output:
@@ -592,8 +642,6 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     num += num_tool
                 ave_tool_num = num / len(tool_generation_output)
                 self._metrics["ave_tool_num"].append(ave_tool_num)
-
-
 
                 model_output_ids = []
                 for item in tool_generation_output:

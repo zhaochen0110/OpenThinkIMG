@@ -329,6 +329,8 @@ def handle_tool_result(
                 # # Note: Assumes that image_tool_manager has an 'add_image' method.
                 # image_tool_manager.add_image(edited_image)
                 # Convert the base64 string to a PIL image.
+                # if edited_image == None:
+                #     breakpoint()
                 edited_image = base64_to_pil(edited_image)
                 if input_data_item:
                     input_data_item["images"].append(edited_image)
@@ -346,13 +348,13 @@ def handle_tool_result(
                 new_response = f"{api_name} model outputs: {tool_response_text}\n\n"
                 new_round_prompt = (
                     f"{new_response} Please summarize the model outputs "
-                    f"and answer my first question"
+                    f"and answer my first question."
                 )
             elif model_mode == "general":
                 new_response = f"OBSERVATION:\n{api_name} model outputs: {tool_response_text}\n"
                 new_round_prompt = (
-                    f"<tool_result>{new_response}Please summarize the model outputs "
-                    f"and answer my first question</tool_result>"
+                    f"{new_response}Please summarize the model outputs "
+                    f"and answer my first question."
                 )
 
         except Exception as e:
@@ -677,6 +679,7 @@ def vllm_generate_with_tool_calls(
 
     
     input_data = []
+
     
     for prompt, image in zip(prompts, images):
         current_image = image
@@ -724,7 +727,8 @@ def vllm_generate_with_tool_calls(
             prompt = current_prompt
         )
         input_data.append(data_instance)
-    
+
+    # breakpoint()    
     ## Vllm inference with tool calling
     for _ in range(max_rounds):
         input_conversations = [item["conversations"] for item in input_data if item["status"] == "processing"]
@@ -738,6 +742,7 @@ def vllm_generate_with_tool_calls(
             output_texts = [output.outputs[0].text for output in outputs]
             output_idss = [output.outputs[0].token_ids for output in outputs]
         except Exception as e:
+            # breakpoint()
             print(f"[vllm generation] {e}")
             output_texts = ["Model generation error"] * len(input_conversations)
             output_idss = [(1712, 9471, 1465, 151645)] * len(input_conversations)
@@ -766,8 +771,18 @@ def vllm_generate_with_tool_calls(
             
             else:
                 input_data[input_idx]["tool_cfgs"].append(tool_cfg)
-                api_name = tool_cfg[0].get("API_name")
+                original_api_name = tool_cfg[0].get("API_name").lower() 
                 api_params = tool_cfg[0].get("API_params", {})
+                tool_name_mapping = {
+                    'drawhorizontallinebyy': 'DrawHorizontalLineByY',
+                    'zoominsubfigure': 'ZoomInSubfigure',
+                    'drawverticallinebyx': 'DrawVerticalLineByX',
+                    'segmentregionaroundpoint': 'SegmentRegionAroundPoint',
+                    'point': 'Point',
+                    'ocr': 'OCR'
+                }
+                api_name = tool_name_mapping.get(original_api_name)
+
                 # breakpoint()
                 # if "Terminate" in output_text:
                 #     input_data[input_idx]["status"] = "finished"
@@ -776,6 +791,9 @@ def vllm_generate_with_tool_calls(
                 # print(f"Tool calling: {api_name}")
                 # Call the tool using the tool manager
                 # breakpoint()
+                if "param" in api_params:
+                    p = api_params["param"]
+                    print(f"Tool name: {api_name}, params: {p}")
                 tool_result = tool_manager.call_tool(api_name, api_params)
                 # Append the tool call output to the conversation history
                 input_data[input_idx]["tool_outputs"].append(tool_result)

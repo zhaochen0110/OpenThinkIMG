@@ -169,11 +169,27 @@ reward_funcs_registry = {
 #     "[BEGIN OF GOAL] You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. The available actions include: OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoomInSubfigure, and SegmentRegionAroundPoint. [END OF GOAL] \n\n"
 # )
 
-SYSTEM_PROMPT = """You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. The available actions include: OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoomInSubfigure, and SegmentRegionAroundPoint.
+# SYSTEM_PROMPT = """You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. The available actions include: OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoomInSubfigure, and SegmentRegionAroundPoint.
+# Your output should be in a strict JSON format as follows:
+# {"thought": "the reasoning process", "actions": [{"name": "action", "arguments": {"argument1": "value1", "argument2": "value2"}}]}
+# """
+
+SYSTEM_PROMPT = """You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. Here are the available actions:
+- **OCR**: Extracts text from an image. Example: `{"name": "OCR", "arguments": {"image": "img_1"}}`
+- **Point**: Identifies a point in the image based on description and returns coordinates. Example: `{"name": "Point", "arguments": {"image": "img_1", "param": "x-axis value 1970"}}`
+- **ZoomInSubfigure**: Crops the image to the specified subfigure. Example: `{"name": "ZoomInSubfigure", "arguments": {"image": "img_1", "param": "Downstream vs. Concept: Toy"}}`
+- **SegmentRegionAroundPoint**: Segments a region around a given point. Example: `{"name": "SegmentRegionAroundPoint", "arguments": {"image": "img_1", "param": "x=\"21.5\" y=\"28.5\""}}`
+- **DrawHorizontalLineByY**: Draws a horizontal line at a given y-coordinate. Example: `{"name": "DrawHorizontalLineByY", "arguments": {"image": "img_1", "param": "y=28.5"}}`
+- **DrawVerticalLineByX**: Draws a vertical line at a given x-coordinate. Example: `{"name": "DrawVerticalLineByX", "arguments": {"image": "img_1", "param": "x=21.5"}}`
+- **Terminate**: Ends the task and provides the final answer. Example: `{"name": "Terminate", "arguments": {"ans": "1985"}}`
+
+To solve the problem:
+1. Select actions from the provided tools list, combining them logically and building on previous steps. Call one action at a time, using its output for the next.
+2. To use `SegmentRegionAroundPoint`, `DrawHorizontalLineByY`, or `DrawVerticalLineByX`, first call "Point" to get coordinates for further actions.
+
 Your output should be in a strict JSON format as follows:
 {"thought": "the reasoning process", "actions": [{"name": "action", "arguments": {"argument1": "value1", "argument2": "value2"}}]}
 """
-
 
 def main(script_args, training_args, model_args):
     # Get reward functions

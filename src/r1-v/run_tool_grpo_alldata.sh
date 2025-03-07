@@ -11,8 +11,6 @@ export HTTPS_PROXY=$new_proxy_address
 # unset HTTP_PROXY
 # unset HTTPS_PROXY
 
-# curl -X POST http://SH-IDCA1404-10-140-54-5:20001/list_models
-
 export HF_ENDPOINT=https://hf-mirror.com
 unset HF_ENDPOINT
 
@@ -22,18 +20,18 @@ job_id=4294232
 export SLURM_JOB_ID=${job_id}
 unset SLURM_JOB_ID
 
-# nohup bash run_tool_grpo.sh > logs/Qwen2-VL-2B-grpo-chartgemma-combined-allrl.log &
+# nohup bash run_tool_grpo_alldata.sh > logs/Qwen2-VL-2B-grpo-chartgemma-reachqa-combined-allrl.log &
 ############################
 # u need to revise
-export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-chartgemma-caogao"
-export CUDA_VISIBLE_DEVICES="2,4,5,7"
-# export CUDA_VISIBLE_DEVICES="0,1,4,6"
-hostname="SH-IDCA1404-10-140-54-79" 
-# data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/reachqa_final/reachqa_chartgemma_data.json
-data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/chargemma_final/chartgemma_rl.json
-model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-combine
-# /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-combined
-# /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-cota
+export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-reachqa-combined"
+# export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6"
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6"
+hostname="SH-IDCA1404-10-140-54-81" 
+data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/reachqa_final/reachqa_chartgemma_data.json
+# data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/chargemma_final/chartgemma_rl.json
+# model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-combine
+model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-combined
+# model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-cota
 # 
 ###########################
 # onlytool: /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-onlytool
@@ -67,12 +65,12 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --model_name_or_path ${model_path} \
     --dataset_name ${data_path} \
     --max_prompt_length 1024 \
-    --max_completion_length 3500 \
+    --max_completion_length 3000 \
     --temperature 1.0 \
     --learning_rate 1e-6 \
-    --num_generations 6 \
+    --num_generations 8 \
     --per_device_train_batch_size 2 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 4 \
     --logging_steps 1 \
     --bf16  \
     --report_to wandb \
