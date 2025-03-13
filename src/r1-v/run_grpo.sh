@@ -2,6 +2,7 @@
 AD_NAME=songmingyang
 encrypted_password=iWRsYqbwV4EJgJvU8QjLe00CptZc5jBVH3FMo5i6n9mVdOSoUurpyBTmst1Z
 new_proxy_address=http://${AD_NAME}:${encrypted_password}@10.1.20.50:23128/
+export CUDA_LAUNCH_BLOCKING=1
 export http_proxy=$new_proxy_address
 export https_proxy=$new_proxy_address
 export HTTP_PROXY=$new_proxy_address
@@ -22,17 +23,18 @@ job_id=4294232
 export SLURM_JOB_ID=${job_id}
 unset SLURM_JOB_ID
 
-# nohup bash run_tool_grpo.sh > logs/Qwen2-VL-2B-grpo-chartgemma-combined-allrl.log &
+# nohup bash run_grpo.sh > logs/Qwen2-VL-2B-grpo-chartgemma-baseline-rlfromzero.log &
 ############################
 # u need to revise
-export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-chartgemma-caogao"
-export CUDA_VISIBLE_DEVICES="2,4,5,7"
+export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-baseline-rlfromzero"
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6"
 # export CUDA_VISIBLE_DEVICES="0,1,4,6"
-hostname="SH-IDCA1404-10-140-54-79" 
+hostname="SH-IDCA1404-10-140-54-16" 
 # data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/reachqa_final/reachqa_chartgemma_data.json
 data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/chargemma_final/chartgemma_rl.json
-model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-combine
-# /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-combined
+model_path=/mnt/petrelfs/share_data/songmingyang/model/mm/Qwen2-VL-2B-Instruct
+# model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-combine
+# model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-combined
 # /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-cota
 # 
 ###########################
@@ -62,25 +64,25 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --node_rank="0" \
     --master_addr="127.0.0.1" \
     --master_port=${master_port} \
-    src/open_r1/tool_grpo.py --use_vllm True \
+    src/open_r1/grpo.py --use_vllm True \
     --output_dir /mnt/petrelfs/share_data/suzhaochen/r1/R1-V-tool/R1-V/src/output_path/$RUN_NAME \
     --model_name_or_path ${model_path} \
     --dataset_name ${data_path} \
     --max_prompt_length 1024 \
     --max_completion_length 3500 \
     --temperature 1.0 \
+    --seed 42 \
     --learning_rate 1e-6 \
-    --num_generations 6 \
+    --num_generations 12 \
     --per_device_train_batch_size 2 \
-    --gradient_accumulation_steps 8 \
+    --gradient_accumulation_steps 12 \
     --logging_steps 1 \
     --bf16  \
     --report_to wandb \
     --gradient_checkpointing true \
     --attn_implementation flash_attention_2 \
     --max_pixels 400000 \
-    --max_steps 1600 \
+    --num_train_epochs 1 \
     --run_name $RUN_NAME \
-    --save_steps 100 \
-    --save_only_model true \
-    --use_tool
+    --save_steps 200 \
+    --save_only_model true 

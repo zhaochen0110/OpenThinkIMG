@@ -25,17 +25,17 @@ job_id=4294232
 export SLURM_JOB_ID=${job_id}
 unset SLURM_JOB_ID
 
-# nohup bash run_tool_grpo.sh > logs/Qwen2-VL-2B-grpo-chartgemma-chartgemma-katrina.log &
+# nohup bash run_tool_grpo.sh > logs/Qwen2-VL-2B-grpo-chartgemma-katrina-noformat-tool-batch144.log &
 ############################
 # u need to revise
-export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-chartgemma-katrina"
+export RUN_NAME="Qwen2-VL-2B-grpo-chartgemma-chartgemma-katrina-noformat-batch144"
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6"
 # export CUDA_VISIBLE_DEVICES="0,1,4,6"
-hostname="SH-IDCA1404-10-140-54-81" 
+hostname="SH-IDCA1404-10-140-54-16" 
 # data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/reachqa_final/reachqa_chartgemma_data.json
 data_path=/mnt/petrelfs/share_data/suzhaochen/datasets/chargemma_final/chartgemma_rl.json
 model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-combine
-# /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-combined
+# model_path=/mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-combined
 # /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/saves/Qwen2-VL-chartgemma-reachqa-cota
 # 
 ###########################
@@ -72,18 +72,22 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --max_prompt_length 1024 \
     --max_completion_length 3500 \
     --temperature 1.0 \
+    --seed 42 \
     --learning_rate 1e-6 \
-    --num_generations 6 \
-    --per_device_train_batch_size 1 \
-    --gradient_accumulation_steps 2 \
+    --num_generations 12 \
+    --per_device_train_batch_size 2 \
+    --gradient_accumulation_steps 12 \
     --logging_steps 1 \
     --bf16  \
     --report_to wandb \
     --gradient_checkpointing true \
     --attn_implementation flash_attention_2 \
     --max_pixels 400000 \
-    --max_steps 1600 \
+    --num_train_epochs 1 \
     --run_name $RUN_NAME \
-    --save_steps 40 \
-    --save_only_model false \
+    --save_steps 200 \
+    --save_only_model true \
+    --controller_addr http://SH-IDCA1404-10-140-54-16:20001 \
     --use_tool
+
+#     --max_steps 10000 \

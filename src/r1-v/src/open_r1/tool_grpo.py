@@ -21,6 +21,8 @@ from typing import Optional
 from PIL import Image
 from datasets import load_dataset, load_from_disk
 from transformers import Qwen2VLForConditionalGeneration
+from transformers.trainer_utils import get_last_checkpoint
+from transformers import set_seed
 
 from math_verify import parse, verify
 # from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer
@@ -40,7 +42,7 @@ class GRPOScriptArguments(ScriptArguments):
     """
 
     reward_funcs: list[str] = field(
-        default_factory=lambda: ["accuracy","format"], # "format","accuracy"
+        default_factory=lambda: ["accuracy"], # "format","accuracy"
         metadata={"help": "List of reward functions. Possible values: 'accuracy', 'format'"},
     )
     max_pixels: Optional[int] = field(
@@ -57,6 +59,10 @@ class GRPOScriptArguments(ScriptArguments):
     )
     query_key: Optional[str] = field(
         default="question",
+    )
+    controller_addr: Optional[str] = field(
+        default="http://SH-IDCA1404-10-140-54-5:20001",
+        metadata={"help": "Address of the controller"},
     )
 
 
@@ -192,6 +198,16 @@ Your output should be in a strict JSON format as follows:
 """
 
 def main(script_args, training_args, model_args):
+    # Set seed for reproducibility
+    set_seed(training_args.seed)
+
+    # Check for last checkpoint
+    last_checkpoint = None
+    if os.path.isdir(training_args.output_dir):
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+    if last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+        logger.info(f"Checkpoint detected, resuming training at {last_checkpoint=}.")
+
     # Get reward functions
     reward_funcs = [reward_funcs_registry[func] for func in script_args.reward_funcs]
 
@@ -271,10 +287,20 @@ def main(script_args, training_args, model_args):
         attn_implementation=model_args.attn_implementation,
         max_pixels=script_args.max_pixels,
         min_pixels=script_args.min_pixels,
+        controller_addr=script_args.controller_addr,
     )
 
     # Train and push the model to the Hub
     trainer.train()
+
+    # Su: add the train from the saved checkpoint
+
+    checkpoint = None
+    if training_args.resume_from_checkpoint is not None:
+        checkpoint = training_args.resume_from_checkpoint
+    elif last_checkpoint is not None:
+        checkpoint = last_checkpoint
+    train_result = trainer.train(resume_from_checkpoint=checkpoint)
 
     # Save and push to hub
     trainer.save_model(training_args.output_dir)

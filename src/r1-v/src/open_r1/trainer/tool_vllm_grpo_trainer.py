@@ -174,6 +174,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         max_pixels: Optional[int] = 12845056,
         min_pixels: Optional[int] = 3136,
         attn_implementation: str = "flash_attention_2",
+        controller_addr: str = "http://SH-IDCA1404-10-140-54-5:20001",
     ):
 
         # Args
@@ -308,6 +309,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 reward_func.config.pad_token_id = reward_processing_class.pad_token_id
                 reward_processing_classes[i] = reward_processing_class
         self.reward_processing_classes = reward_processing_classes
+
+        self.controller_addr = controller_addr
         
         
         # Data collator
@@ -509,13 +512,13 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             self._signature_columns = ["prompt"]
     
     # We need a custom sampler that samples the same prompt multiple times
-    # def _get_train_sampler(self):
-    #     return RepeatRandomSampler(self.train_dataset, self.num_generations)
+    def _get_train_sampler(self):
+        return RepeatRandomSampler(self.train_dataset, self.num_generations)
 
     ## SU: for debug
     # We need a custom sampler that samples the same prompt multiple times
-    def _get_train_sampler(self):
-        return RepeatSequentialSampler(self.train_dataset, self.num_generations)
+    # def _get_train_sampler(self):
+    #     return RepeatSequentialSampler(self.train_dataset, self.num_generations)
     
     # Get the per-token log probabilities for the completions for the model and the reference model
     def _get_per_token_logps(
@@ -628,6 +631,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     sampling_params = self.sampling_params,
                     max_rounds = 6,
                     model_mode = "general",
+                    controller_addr = self.controller_addr,
                 )
                 # SU: for debug
                 for i, output in enumerate(tool_generation_output):

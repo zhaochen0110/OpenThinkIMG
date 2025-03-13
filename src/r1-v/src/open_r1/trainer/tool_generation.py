@@ -635,6 +635,7 @@ def vllm_generate_with_tool_calls(
     sampling_params = None,
     max_rounds: int = 3,
     model_mode: str = "general",
+    controller_addr: str = "http://SH-IDCA1404-10-140-54-5:20001",
 ):
     """
     Perform multi-turn generation with support for tool calls. Dynamically inserts tool outputs into the conversation.
@@ -660,8 +661,9 @@ def vllm_generate_with_tool_calls(
             - images: List of images used
             - prompt: Original input prompt
     """
-    tool_manager = ToolManager()
+    tool_manager = ToolManager(controller_addr)
     tool_manager.available_tools = [tool for tool in tool_manager.available_tools if tool not in ['crop', 'drawline']]
+    print(f"controller_addr: {controller_addr}")
     print(f"Avaliable tools are {tool_manager.available_tools}")
     miss_tool = []
     for tool in ["ZoomInSubfigure","DrawHorizontalLineByY","OCR","DrawVerticalLineByX","SegmentRegionAroundPoint","Point"]:

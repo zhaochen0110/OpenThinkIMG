@@ -17,12 +17,12 @@ import re
 from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Optional
-
+from PIL import Image
 from datasets import load_dataset, load_from_disk
 from transformers import Qwen2VLForConditionalGeneration
 
 from math_verify import parse, verify
-from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer,Qwen2VLGRPOToolTrainer,Qwen2VLGRPOToolVLLMTrainer
+from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer,Qwen2VLGRPOToolTrainer,Qwen2VLGRPOToolVLLMTrainer
 from trl import GRPOConfig, GRPOTrainer, ModelConfig, ScriptArguments, TrlParser, get_peft_config
 
 
@@ -123,22 +123,29 @@ def main(script_args, training_args, model_args):
     reward_funcs = [reward_funcs_registry[func] for func in script_args.reward_funcs]
 
     # Load the dataset
-    if "json" in script_args.dataset_name:
-        dataset = load_dataset('json', data_files=script_args.dataset_name)
-    else:
-        dataset = load_dataset(script_args.dataset_name, name=script_args.dataset_config)
+    dataset = load_dataset('json', data_files=script_args.dataset_name)
 
-    # breakpoint()
+    # Load the image from the dataset
+    def load_image_from_path(example):
+        if "solution" not in example:
+            example["solution"] = example["label"]
+        if "label" in example:
+            example.pop("label", None)
 
+        image = Image.open(example["image_path"])  
+        image = image.convert("RGBA") 
+        example["image"] = image  
+        return example
 
     # Format into conversation
     def make_conversation(example):
         return {
             "prompt": [
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": example["problem"]},
+                {"role": "user", "content": example[script_args.query_key]},
             ],
         }
+
 
     # def make_conversation_image(example):
     #     return {
@@ -157,28 +164,28 @@ def main(script_args, training_args, model_args):
     QUESTION_TEMPLATE = "{Question}  Output the thinking process in <think> </think> and final answer (number) in <answer> </answer> tags."
 
     def make_conversation_image(example):
+        # breakpoint()
         return {
             "prompt": [
                 {
                     "role": "user",
                     "content": [
                         {"type": "image"},
-                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example["problem"])},
+                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example['question'])},
                     ],
                 },
             ],
         }
 
 
-    if "image" in dataset[script_args.dataset_train_split].features:
-        print("has image in dataset")
-        dataset = dataset.map(make_conversation_image)  # Utilize multiprocessing for faster mapping
-        # dataset = dataset.remove_columns(["original_question", "original_answer"])
-
+    if "image_path" in dataset[script_args.dataset_train_split].features:
+        print("image in dataset")
+        dataset = dataset.map(load_image_from_path)
+        dataset = dataset.map(make_conversation_image)  
     else:
         print("no image in dataset")
         dataset = dataset.map(make_conversation)
-        dataset = dataset.remove_columns("messages")
+        dataset = dataset.remove_columns("query")
 
     if script_args.use_tool:
         trainer_cls = Qwen2VLGRPOToolTrainer if not training_args.use_vllm else Qwen2VLGRPOToolVLLMTrainer
