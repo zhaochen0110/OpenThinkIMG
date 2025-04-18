@@ -249,7 +249,7 @@ class BaseInferencer():
             
         return generation_logs, conversation_logs
     
-    # SU    
+    
     def single_loop_inference(self):
         assert self.data_args is not None, "data_args is required for single loop inference"
         self.dataset = dataset_dict[self.data_args.dataset_name](self.data_args)
