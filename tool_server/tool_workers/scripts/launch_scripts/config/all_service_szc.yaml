@@ -1,5 +1,5 @@
 base_dir: /mnt/petrelfs/share_data/suzhaochen/new_tool/Tool-Factory/tool_server/tool_workers
-log_folder: /mnt/petrelfs/share_data/suzhaochen/new_tool/Tool-Factory/tool_server/tool_workers/logs/server_log
+log_folder: /mnt/petrelfs/share_data/suzhaochen/new_tool/Tool-Factory/tool_server/tool_workers/logs/server_log_79
 partition: "MoE"
 default_calculate_gpus: 0
 default_calculate_cpus: 2
@@ -12,6 +12,8 @@ controller_config:
   worker_name: controller
   job_name: zc_controller
   calculate_type: control
+  srun_kwargs:
+    w: SH-IDCA1404-10-140-54-79
   cmd:
     script-addr: ./online_workers/controller.py
     port: 20001
@@ -19,33 +21,19 @@ controller_config:
 
 
 tool_worker_config:
-  - grouding:
-      worker_name: grounding
-      job_name: zc_grounding
-      calculate_type: calculate
-      srun_kwargs:
-        w: SH-IDCA1404-10-140-54-96
-      cuda_visible_devices: "2"
-      cmd:
-        script-addr: ./online_workers/cogcom_grounding_worker.py
-        port: 20017
-        host: "0.0.0.0"
-        model_base: "/mnt/petrelfs/share_data/quxiaoye/models/vicuna-7b-v1.5"
-        model_path: "/mnt/petrelfs/share_data/quxiaoye/models/cogcom-grounding-17b"
-
   - Point:
       worker_name: Point
       job_name: zc_point
       calculate_type: calculate
       conda_env: "molmo"
       srun_kwargs:
-        w: SH-IDCA1404-10-140-54-96
+        w: SH-IDCA1404-10-140-54-79
       cuda_visible_devices: "7"
       cmd:
         script-addr: ./online_workers/molmo_point_worker.py
         port: 20027
         host: "0.0.0.0"
-        model_path: "/mnt/petrelfs/share_data/mmtool/Molmo-7B-D-0924"
+        model_path: "/mnt/petrelfs/share_data/suzhaochen/models/Molmo-7B-D-0924"
 
   - SegmentRegionAroundPoint:
       worker_name: SegmentRegionAroundPoint
@@ -53,19 +41,21 @@ tool_worker_config:
       calculate_type: calculate
       conda_env: "sam2"
       srun_kwargs:
-        w: SH-IDCA1404-10-140-54-119
-      cuda_visible_devices: "2"
+        w: SH-IDCA1404-10-140-54-79
+      cuda_visible_devices: "7"
       cmd:
         script-addr: ./online_workers/SAMAroundPoint_worker.py
         port: 20036
         host: "0.0.0.0"
-        sam2_checkpoint: /mnt/petrelfs/share_data/mmtool/sam2/sam2_hiera_large.pt
+        sam2_checkpoint: /mnt/petrelfs/share_data/suzhaochen/models/sam2-hiera-large/sam2_hiera_large.pt
         sam2_model_cfg: sam2_hiera_l.yaml
 
   - DrawHorizontalLineByY:
       worker_name: DrawHorizontalLineByY
       job_name: zc_drawliney
       calculate_type: control
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-79
       cmd:
         script-addr: ./online_workers/DrawHorizontalLineByY_worker.py
         port: 20032
@@ -75,6 +65,8 @@ tool_worker_config:
       worker_name: DrawVerticalLineByX
       job_name: zc_drawlinex
       calculate_type: control
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-79
       cmd:
         script-addr: ./online_workers/DrawVerticalLineByX_worker.py
         port: 20089
@@ -85,7 +77,7 @@ tool_worker_config:
       job_name: zc_SelectSubplot
       calculate_type: control
       srun_kwargs:
-        w: SH-IDCA1404-10-140-54-119
+        w: SH-IDCA1404-10-140-54-79
       cmd:
         script-addr: ./online_workers/SelectSubplot_worker.py
         port: 20039
@@ -95,6 +87,8 @@ tool_worker_config:
       worker_name: OCR
       job_name: zc_ocr
       calculate_type: control
+      srun_kwargs:
+        w: SH-IDCA1404-10-140-54-79
       cmd:
         script-addr: ./online_workers/ocr_worker.py
         port: 20009

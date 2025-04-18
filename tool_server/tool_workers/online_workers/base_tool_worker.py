@@ -16,10 +16,38 @@ import torch
 import uvicorn
 from functools import partial
 
-
+from enum import IntEnum
 
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
+
+SERVER_ERROR_MSG = "**NETWORK ERROR DUE TO HIGH TRAFFIC. PLEASE REGENERATE OR REFRESH THIS PAGE.**"
+class ErrorCode(IntEnum):
+    """
+    https://platform.openai.com/docs/guides/error-codes/api-errors
+    """
+
+    VALIDATION_TYPE_ERROR = 40001
+
+    INVALID_AUTH_KEY = 40101
+    INCORRECT_AUTH_KEY = 40102
+    NO_PERMISSION = 40103
+
+    INVALID_MODEL = 40301
+    PARAM_OUT_OF_RANGE = 40302
+    CONTEXT_OVERFLOW = 40303
+    TIMEOUT_ERROR = 40304
+
+    RATE_LIMIT = 42901
+    QUOTA_EXCEEDED = 42902
+    ENGINE_OVERLOADED = 42903
+
+    INTERNAL_ERROR = 50001
+    CUDA_OUT_OF_MEMORY = 50002
+    GRADIO_REQUEST_ERROR = 50003
+    GRADIO_STREAM_UNKNOWN_ERROR = 50004
+    CONTROLLER_NO_WORKER = 50005
+    CONTROLLER_WORKER_TIMEOUT = 50006
 
 
 GB = 1 << 30
@@ -201,14 +229,21 @@ class BaseToolWorker:
     @torch.inference_mode()
     def generate(self, params):
         pass
+
+    # async def async_generate(self, params):
+    #     try:
+    #         return await asyncio.wait_for(self.generate(params), timeout=20.0)
+    #     except asyncio.TimeoutError:
+    #         return {
+    #             "text": "Request timed out after 20 seconds",
+    #             "error_code": ErrorCode.TIMEOUT_ERROR
+    #         }
     
     def generate_gate(self, params):
         try:
-
             ret = {"text": "", "error_code": 0}
-            ret = self.generate(
-                params,
-            )
+            ret = self.generate(params)
+            # ret = asyncio.get_event_loop().run_until_complete(self.async_generate(params))
         except torch.cuda.OutOfMemoryError as e:
             ret = {
                 "text": f"{SERVER_ERROR_MSG}\n\n({e})",

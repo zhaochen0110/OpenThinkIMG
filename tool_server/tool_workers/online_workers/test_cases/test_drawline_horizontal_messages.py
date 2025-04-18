@@ -113,7 +113,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # worker parameters
     parser.add_argument(
-        "--controller-address", type=str, default="http://SH-IDCA1404-10-140-54-119:20001"
+        "--controller-address", type=str, default="http://SH-IDCA1404-10-140-54-5:20001"
     )
     parser.add_argument("--worker-address", type=str)
     parser.add_argument("--model-name", type=str, default='DrawVerticalLineByX')

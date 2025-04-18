@@ -168,3 +168,18 @@ LLaVA-Plus-Codebase/
 
 *logs
 *__pycache__
+
+
+
+# all files
+chart_results/*
+chartcot_default/*
+chartgemma4cota/*
+chartgemma4cotagemini_4/*
+chartgemma4cota_4/*
+charxiv_gemini/*
+clean_results/*
+results/*
+
+output/
+

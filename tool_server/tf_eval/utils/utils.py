@@ -119,14 +119,16 @@ def tqdm_rank0(total, desc):
         return pbar
 
 def is_main_process():
-    if dist.is_available() and dist.is_initialized():
-        return dist.get_rank() == 0
-    else:
-        return True
+    if not is_vllm_environment(): 
+        if dist.is_available() and dist.is_initialized():
+            return dist.get_rank() == 0
+        else:
+            return True
 
 def dist_wait_for_everyone():
-    if dist.is_available() and dist.is_initialized():
-        dist.barrier()
+    if not is_vllm_environment(): 
+        if dist.is_available() and dist.is_initialized():
+            dist.barrier()
         
     
     
@@ -134,7 +136,7 @@ def gather_dict_lists(local_dict_list):
     '''
         使用all_gather_object收集所有进程的数据
     '''
-    if dist.is_available() and dist.is_initialized():
+    if dist.is_available() and dist.is_initialized() and not is_vllm_environment():
         # 获取总进程数
         world_size = dist.get_world_size()
 
@@ -181,6 +183,8 @@ def b64_encode(img):
     return img_b64_str
 
 def pil_to_base64(image):
+    if image.mode in ("RGBA", "LA", "P"):
+        image = image.convert("RGB") 
     return b64_encode(image)
 
 def base64_to_pil(b64_str):
@@ -222,7 +226,7 @@ def remove_pil_objects(data):
         return [remove_pil_objects(item) for item in data if not isinstance(item, Image.Image)]
     elif isinstance(data, dict):
         # 如果是字典，对键值递归调用
-        return {key: remove_pil_objects(value) for key, value in data.items() if not isinstance(value, Image.Image) and not key == "image" and not key == "image_url"}
+        return {key: remove_pil_objects(value) for key, value in data.items() if not isinstance(value, Image.Image)}
     else:
         # 如果是其他类型，直接返回
         return data

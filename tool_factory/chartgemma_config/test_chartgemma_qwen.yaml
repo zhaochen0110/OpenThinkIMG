@@ -1,0 +1,17 @@
+model_args:
+  model: vllm_models
+  model_args: pretrained=Qwen2-VL-2B,tensor_parallel=2,limit_mm_per_prompt=10
+  batch_size: 500
+  max_rounds: 6
+  stop_token: <stop>
+  model_mode: general
+task_args:
+  task_name: chartgemma
+  resume_from_ckpt:
+    chartgemma: use_tool_result/chartgemma/test.jsonl
+  save_to_ckpt:
+    chartgemma: use_tool_result/chartgemma/test.jsonl
+script_args:
+  verbosity: INFO
+  output_path: use_tool_result/chartgemma/test.jsonl
+  controller_addr: http://SH-IDCA1404-10-140-54-36:20001

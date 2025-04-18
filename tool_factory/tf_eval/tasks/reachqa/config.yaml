@@ -1,0 +1,8 @@
+task_name: "reachqa"
+dataset_path: /mnt/petrelfs/share_data/suzhaochen/new_tool/Tool-Factory/reachqa_to_process/to_process_2.json
+image_dir_path: /mnt/petrelfs/share_data/suzhaochen/datasets/reachqa_cot
+num_sample: None
+dataset_type: "unique" # Which means we need to implement load data logic sepretely for charxiv
+generation_config:
+  max_length: 2048
+

@@ -1,0 +1,8 @@
+task_name: "chartcot"
+dataset_path: /mnt/petrelfs/share_data/suzhaochen/datasets/chart_cot/chart_cot_wrong.json
+image_dir_path: /mnt/petrelfs/share_data/suzhaochen/datasets/chart_cot
+num_sample: 10
+dataset_type: "unique" # Which means we need to implement load data logic sepretely for charxiv
+generation_config:
+  max_length: 2048
+

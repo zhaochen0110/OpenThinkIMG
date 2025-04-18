@@ -1,8 +1,11 @@
+import os
+# os.environ['CUDA_VISIBLE_DEVICES']='4,5'
 from .abstract_model import tp_model
 import uuid,requests,time
 from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor
 from PIL import Image
 from typing import List
+import torch
 from vllm import LLM, SamplingParams
 
 
@@ -19,11 +22,13 @@ class VllmModels(tp_model):
       self,  
       pretrained : str = None,
       tensor_parallel: str = "1",
+      limit_mm_per_prompt: str = "1"
     ):
-        tensor_parallel = int(tensor_parallel)  
+        tensor_parallel = eval(tensor_parallel)
         self.model = LLM(
             model=pretrained,
             tensor_parallel_size=tensor_parallel,
+            limit_mm_per_prompt={"image": int(limit_mm_per_prompt)}
         )
 
     def generate_conversation_fn(
@@ -32,10 +37,19 @@ class VllmModels(tp_model):
         image, 
         role = "user",
     ):  
-        text = fs_cota + "\n" + "Question: " + text
+        text = "Question: " + text
         
         image = pil_to_base64(image)
-        messages=[
+        messages = [
+            {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": eval_prompt,
+                    },
+                ],
+            },
             {
                 "role": "user",
                 "content": [
@@ -66,7 +80,7 @@ class VllmModels(tp_model):
         if image:
             new_messages=[
                 {
-                    "role": "user",
+                    "role": role,
                     "content": [
                         {
                             "type": "text",
@@ -84,7 +98,7 @@ class VllmModels(tp_model):
         else:
             new_messages=[
                 {
-                    "role": "user",
+                    "role": role,
                     "content": [
                         {
                             "type": "text",
@@ -119,22 +133,21 @@ class VllmModels(tp_model):
         if not batch or len(batch) == 0:
             return
         max_new_tokens = self.generation_config.get("max_new_tokens", 2048)
-        sampling_params = SamplingParams(max_tokens=max_new_tokens)
+        sampling_params = SamplingParams(max_tokens=max_new_tokens, temperature=0.6)
         
         inputs = self.form_input_from_dynamic_batch(batch)
+        # breakpoint()
         response = self.model.chat(inputs, sampling_params)
-        
-        # import debugpy
-        # debugpy.listen(address = ('0.0.0.0', 7119))
-        # debugpy.wait_for_client() 
-        # breakpoint() # 在下一句代码处暂停
-        # dist.barrier()
+
+
         for item, output_item in zip(batch, response):
             output_text = output_item.outputs[0].text
             item.model_response.append(output_text)
             self.append_conversation_fn(
                 item.conversation, output_text, None, "assistant"
             )
+
+
     
     def to(self, *args, **kwargs):
         return self

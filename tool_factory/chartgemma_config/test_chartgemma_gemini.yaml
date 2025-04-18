@@ -1,0 +1,17 @@
+model_args:
+  model: gemini
+  model_args: model_name=gpt-4.1-2025-04-14,max_retry=5,temperature=0.6
+  batch_size: 1
+  max_rounds: 8
+  stop_token: <stop>
+  model_mode: general
+task_args:
+  task_name: chartgemma
+  resume_from_ckpt:
+    chartgemma: use_tool_result/chartgemma/test.jsonl
+  save_to_ckpt:
+    chartgemma: use_tool_result/chartgemma/test.jsonl
+script_args:
+  verbosity: INFO
+  output_path: use_tool_result/chartgemma/test.jsonl
+  controller_addr: http://SH-IDCA1404-10-140-54-36:20001

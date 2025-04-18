@@ -12,6 +12,7 @@ from .template_instruct import *
 from ..utils.log_utils import get_logger
 import google.generativeai as genai
 import time
+import random
 
 inferencer_id = str(uuid.uuid4())[:6]
 logger = get_logger(__name__)
@@ -35,12 +36,16 @@ class GeminiModels(tp_model):
         #     )
 
         # self.model = OpenAI(
-        #     api_key=os.environ["GEMINI_API_KEY"],  # Google Gemini API key
-        #     base_url="https://generativelanguage.googleapis.com/v1beta/"  # Gemini base URL
+        #     api_key="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", 
         # )
-
+        # self.api_keys = ['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']
+        self.api_keys = ['AIzaSyDpF7CzIoNNAThuWhXedXnr_ssvjCfNQMs',
+                         'AIzaSyDkIF9DP5FC_0wdPw7K7rAfbsYTVEJgsIM',
+                         'AIzaSyAb1kFdf7_ZJ2iA7SLzohM8fNUyZeVK6Hg',
+                         'AIzaSyCL9u4UtpEQKrnFqBKs62UX7wBOGvrqHec']
+        self.api_key = random.choice(self.api_keys)
         self.model = OpenAI(
-            api_key="AIzaSyCL9u4UtpEQKrnFqBKs62UX7wBOGvrqHec",  # Google Gemini API key
+            api_key=self.api_key,  # Google Gemini API key
             base_url="https://generativelanguage.googleapis.com/v1beta/"  # Gemini base URL
         )
 
@@ -57,28 +62,55 @@ class GeminiModels(tp_model):
         image, 
         role = "user",
     ):  
-        # import pdb; pdb.set_trace()
-        text = online_fs_cota + "\n" + "Question: " + text
-        
-        image = pil_to_base64(image)
-        messages=[
+        messages = [
             {
-                "role": role,
-                "content": [
-                    {
-                        "type": "text",
-                        "text": text,
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{image}"
-                        },
-                    },
-                ],
+                "role": "system",
+                "content": [{"type": "text", "text": online_update_system_prompt}],
             }
         ]
 
+        # Add FS examples to the conversation
+        for fs in fs_example_offlinetype:
+            messages.append({
+                "role": "user",
+                "content": [{"type": "text", "text": fs["user_request"]}],
+            })
+
+            assistant_reply = []
+            for step in fs['steps']:
+
+
+                # Combine thought and actions as assistant's response
+                step_content = {
+                    "thought": step["thought"],
+                    "actions": step["actions"],
+                }
+
+                messages.append({
+                    "role": "assistant",
+                    "content": [{"type": "text", "text": json.dumps(step_content)}],
+                })
+
+                if step["observation"] != {}:
+                    # Adding the observation as assistant's content
+                    messages.append({
+                        "role": "user",
+                        "content": [{"type": "text", "text": "OBSERVATION:\n" + step["observation"]}],
+                    })
+                # breakpoint()
+
+        # Add text and image for the current conversation
+        image_base64 = pil_to_base64(image)  # Convert image to base64 string
+        messages.append(
+            {
+                "role": role,
+                "content": [
+                    {"type": "text", "text": text},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}},
+                ],
+            }
+        )
+        # breakpoint()
         return messages
     
     
@@ -156,7 +188,6 @@ class GeminiModels(tp_model):
             return
         max_new_tokens = self.generation_config.get("max_new_tokens", 2048)
         inputs = self.form_input_from_dynamic_batch(batch)
-
         fail_times = 1
         fail_flag = False
         base_sleeptime = 15
@@ -167,7 +198,7 @@ class GeminiModels(tp_model):
             try:
                 response = self.model.chat.completions.create(
                     model=self.model_name,
-                    messages=inputs,
+                    messages=inputs[0],
                     max_tokens=max_new_tokens,
                     temperature=self.temperature
                 )
@@ -187,6 +218,14 @@ class GeminiModels(tp_model):
 
 
             except Exception as e:
+                new_api = random.choice(self.api_keys)
+                while new_api == self.api_key:
+                    new_api = random.choice(self.api_keys)
+                self.api_key = new_api
+                self.model = OpenAI(
+            api_key=new_api,
+            base_url="https://generativelanguage.googleapis.com/v1beta/"  # Gemini base URL
+                )
                 logger.error(
                     f"Error: {e}, retrying in {fail_times * base_sleeptime} seconds"
                 )

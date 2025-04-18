@@ -4,6 +4,7 @@ model_args:
   batch_size: 2
   max_rounds: 3
   stop_token: <stop>
+  model_mode: general
 task_args:
   task_name: charxiv
   resume_from_ckpt:

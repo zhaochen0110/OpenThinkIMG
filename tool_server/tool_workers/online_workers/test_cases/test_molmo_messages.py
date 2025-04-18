@@ -20,16 +20,12 @@ import re
 import io
 
 from PIL import Image, ImageDraw
-from tool_server.utils import build_logger, pretty_print_semaphore
 from tool_server.utils.utils import *
 from tool_server.utils.server_utils import *
 import matplotlib.pyplot as plt
 
 from tool_server.tool_workers.online_workers.base_tool_worker import BaseToolWorker
 
-from tool_server.utils.cogcom.models.cogcom_model import CogCoMModel
-from tool_server.utils.cogcom.utils import chat
-from tool_server.utils.cogcom.utils import get_image_processor, llama2_tokenizer, llama2_text_processor_inference
 
 
 def load_image(image_path):
@@ -91,6 +87,7 @@ def main():
         "image": img_arg,
     }
     tic = time.time()
+    # breakpoint()
     response = requests.post(
         worker_addr + "/worker_generate",
         headers=headers,
@@ -100,7 +97,7 @@ def main():
     print(f"Time: {toc - tic:.3f}s")
 
     print("detection result:")
-    # print(response)
+    print(response)
     print(response.json())
     # response is 'Response' with :
     # ['_content', '_content_consumed', '_next', 'status_code', 'headers', 'raw', 'url', 'encoding', 'history', 'reason', 'cookies', 'elapsed', 'request', 'connection', '__module__', '__doc__', '__attrs__', '__init__', '__enter__', '__exit__', '__getstate__', '__setstate__', '__repr__', '__bool__', '__nonzero__', '__iter__', 'ok', 'is_redirect', 'is_permanent_redirect', 'next', 'apparent_encoding', 'iter_content', 'iter_lines', 'content', 'text', 'json', 'links', 'raise_for_status', 'close', '__dict__', '__weakref__', '__hash__', '__str__', '__getattribute__', '__setattr__', '__delattr__', '__lt__', '__le__', '__eq__', '__ne__', '__gt__', '__ge__', '__new__', '__reduce_ex__', '__reduce__', '__subclasshook__', '__init_subclass__', '__format__', '__sizeof__', '__dir__', '__class__']
@@ -117,10 +114,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # worker parameters
     parser.add_argument(
-        "--controller-address", type=str, default="http://SH-IDCA1404-10-140-54-89:20001"
+        "--controller-address", type=str, default="http://SH-IDCA1404-10-140-54-5:20001"
     )
     parser.add_argument("--worker-address", type=str)
-    parser.add_argument("--model-name", type=str, default='point')
+    parser.add_argument("--model-name", type=str, default='Point')
 
     # model parameters
     parser.add_argument(
