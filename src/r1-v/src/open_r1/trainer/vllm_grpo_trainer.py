@@ -36,6 +36,7 @@ from transformers import (
     PreTrainedModel,
     PreTrainedTokenizerBase,
     Qwen2VLForConditionalGeneration,
+    Qwen2_5_VLForConditionalGeneration,
     Trainer,
     TrainerCallback,
     is_wandb_available,
@@ -60,7 +61,6 @@ from trl.trainer.utils import generate_model_card, get_comet_experiment_url, pad
 from trl import GRPOTrainer
 
 import copy
-import torch.distributed as dist
 
 if is_peft_available():
     from peft import PeftConfig, get_peft_model
@@ -73,8 +73,6 @@ if is_wandb_available():
     import wandb
 import torch.nn as nn
 from torch.utils.data import Sampler
-
-# from open_r1.utils.debug import remote_breakpoint
 
 # What we call a reward function is a callable that takes a list of prompts and completions and returns a list of
 # rewards. When it's a string, it's a model ID, so it's loaded as a pretrained model.
@@ -178,6 +176,10 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 model = Qwen2VLForConditionalGeneration.from_pretrained(
                     model, **model_init_kwargs
                 )
+            elif "Qwen2.5-VL" in model_id:
+                model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                    model, **model_init_kwargs
+                )
             elif "Aria" in model_id:
                 model_init_kwargs.pop("use_cache")
                 model = AriaForConditionalGeneration.from_pretrained(
@@ -202,6 +204,10 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 self.ref_model = Qwen2VLForConditionalGeneration.from_pretrained(
                     model_id, **model_init_kwargs
                 )
+            elif "Qwen2.5-VL" in model_id:
+                self.ref_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+                    model_id, **model_init_kwargs
+                )
             elif "Aria" in model_id:
                 self.ref_model = AriaForConditionalGeneration.from_pretrained(
                     model_id, **model_init_kwargs
@@ -220,12 +226,12 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
 
         # Processing class
         if processing_class is None:
-            if "Qwen2-VL" in model_id or "Aria" in model_id:
+            if "Qwen2-VL" in model_id or "Qwen2.5-VL" in model_id or "Aria" in model_id:
                 processing_class = AutoProcessor.from_pretrained(model_id)
                 pad_token_id = processing_class.tokenizer.pad_token_id
                 processing_class.pad_token_id = pad_token_id
                 processing_class.eos_token_id = processing_class.tokenizer.eos_token_id
-                if "Qwen2-VL" in model_id:
+                if "Qwen" in model_id:
                     processing_class.image_processor.max_pixels = max_pixels
                     processing_class.image_processor.min_pixels = min_pixels
             else:
@@ -406,15 +412,11 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 )
                 with world_size_patch, profiling_patch:
                     print("vllm is running on: ", vllm_device)
+                    # breakpoint()
                     self.llm = LLM(
                         model=model.name_or_path,
-                        device=vllm_device,
                         gpu_memory_utilization=self.args.vllm_gpu_memory_utilization,
                         dtype=torch.bfloat16,
-                        # Automatic Prefix Caching caches the KV cache of existing queries, so that a new query can
-                        # directly reuse the KV cache if it shares the same prefix with one of the existing queries.
-                        # This is particularly useful here because we generate completions from the same prompts.
-                        enable_prefix_caching=True,
                         enforce_eager=True,
                         # Ensure that training and inference use the same processor for images.
                         mm_processor_kwargs=(
@@ -425,8 +427,31 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                             if "Qwen2-VL" in model_id or "Qwen2.5-VL" in model_id
                             else None
                         ),
-                        max_model_len=args.max_completion_length,
                     )
+                    # breakpoint()
+                    # self.llm = LLM(
+                    #     model=model.name_or_path,
+                    #     device=vllm_device,
+                    #     gpu_memory_utilization=self.args.vllm_gpu_memory_utilization,
+                    #     dtype=torch.bfloat16,
+                    #     # enable_chunked_prefill=False,
+                    #     # Automatic Prefix Caching caches the KV cache of existing queries, so that a new query can
+                    #     # directly reuse the KV cache if it shares the same prefix with one of the existing queries.
+                    #     # This is particularly useful here because we generate completions from the same prompts.
+                    #     # enable_prefix_caching=True,
+                    #     enforce_eager=True,
+                    #     # Ensure that training and inference use the same processor for images.
+                    #     mm_processor_kwargs=(
+                    #         {
+                    #             "max_pixels": max_pixels,
+                    #             "min_pixels": min_pixels,
+                    #         }
+                    #         if "Qwen2-VL" in model_id or "Qwen2.5-VL" in model_id
+                    #         else None
+                    #     ),
+                    #     # max_model_len=args.max_completion_length,
+                    # )
+                print("fucking world!")
                 self.sampling_params = SamplingParams(
                     temperature=args.temperature,
                     max_tokens=self.max_completion_length,
@@ -435,7 +460,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             self._last_loaded_step = (
                 0  # tag to avoid useless loading during grad accumulation
             )
-            
+
+
             # When using vLLM, the main process is responsible for loading the model weights. This can cause process
             # desynchronization and seems to lead to DeepSpeed hanging during initialization. To prevent this, we
             # synchronize all processes after vLLM has been fully initialized.
@@ -458,23 +484,15 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 self.reward_funcs[i] = self.accelerator.prepare_model(
                     reward_func, evaluation_mode=True
                 )
-        
-        # if self.accelerator.is_main_process:
-        #     import debugpy
-        #     debugpy.listen(address = ('0.0.0.0', 7119))
-        #     debugpy.wait_for_client()
-        #     breakpoint() #在下一句代码处暂停
-        # dist.barrier()
-        # remote_breakpoint()
-        
+
     def _set_signature_columns_if_needed(self):
         # If `self.args.remove_unused_columns` is True, non-signature columns are removed.
         # By default, this method sets `self._signature_columns` to the model's expected inputs.
         # In GRPOTrainer, we preprocess data, so using the model's signature columns doesn't work.
-        # Instead, we set them to the columns expec                                             ted by the `training_step` method, hence the override.
+        # Instead, we set them to the columns expected by the `training_step` method, hence the override.
         if self._signature_columns is None:
             self._signature_columns = ["prompt"]
-    
+
     # We need a custom sampler that samples the same prompt multiple times
     def _get_train_sampler(self):
         return RepeatRandomSampler(self.train_dataset, self.num_generations)
@@ -522,12 +540,11 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         device = self.accelerator.device
         prompts = [x["prompt"] for x in inputs]
         images = [x["image"] for x in inputs]
-        # breakpoint()
         prompts_text = [
-            maybe_apply_chat_template(example, self.processing_class)["prompt"]
+            apply_chat_template(example, self.processing_class)["prompt"]
             for example in inputs
         ]
-
+        # breakpoint()
         prompt_inputs = self.processing_class(
             # prompts_text, return_tensors="pt", padding=True, padding_side="left", add_special_tokens=False
             text=prompts_text,
@@ -551,7 +568,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                 with unwrap_model_for_generation(
                     self.model,
                     self.accelerator,
-                    gather_deepspeed3_params = False,  # TODO: fix this, self.args.ds3_gather_for_generation,
+                    gather_deepspeed3_params=False,  # TODO: fix this, self.args.ds3_gather_for_generation,
                 ) as unwrapped_model:
                     if is_compiled_module(unwrapped_model):
                         state_dict = unwrapped_model._orig_mod.state_dict()
@@ -574,6 +591,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             ]
 
             if self.accelerator.is_main_process:
+                # breakpoint()
                 outputs = self.llm.generate(
                     all_multimodal_inputs,
                     sampling_params=self.sampling_params,
@@ -584,10 +602,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     for completions in outputs
                     for out in completions.outputs
                 ]
-                
             else:
                 completion_ids = [None] * len(all_prompts_text)
-            # breakpoint()
             completion_ids = broadcast_object_list(completion_ids, from_process=0)
             process_slice = slice(
                 self.accelerator.process_index * len(prompts),
@@ -707,7 +723,6 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     for example in inputs:
                         # Repeat each value in the column for `num_generations` times
                         reward_kwargs[key].extend([example[key]] * self.num_generations)
-                # breakpoint()
                 output_reward_func = reward_func(
                     prompts=prompts, completions=completions, **reward_kwargs
                 )

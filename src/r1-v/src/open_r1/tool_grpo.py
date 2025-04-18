@@ -30,7 +30,6 @@ from trl import GRPOConfig, GRPOTrainer, ModelConfig, ScriptArguments, TrlParser
 from trainer.tool_generation import parse_tool_config
 from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
 
-
 @dataclass
 class GRPOScriptArguments(ScriptArguments):
     """
@@ -272,23 +271,35 @@ def main(script_args, training_args, model_args):
     
     if script_args.use_tool:
         trainer_cls = Qwen2VLGRPOToolTrainer if not training_args.use_vllm else Qwen2VLGRPOToolVLLMTrainer
+        trainer = trainer_cls(
+            model=model_args.model_name_or_path,
+            reward_funcs=reward_funcs,
+            args=training_args,
+            train_dataset=dataset[script_args.dataset_train_split],
+            eval_dataset=dataset[script_args.dataset_test_split] if training_args.eval_strategy != "no" else None,
+            peft_config=get_peft_config(model_args),
+            attn_implementation=model_args.attn_implementation,
+            max_pixels=script_args.max_pixels,
+            min_pixels=script_args.min_pixels,
+            controller_addr=script_args.controller_addr,
+        )
     else:
         trainer_cls = Qwen2VLGRPOTrainer if not training_args.use_vllm else Qwen2VLGRPOVLLMTrainer
+        trainer = trainer_cls(
+            model=model_args.model_name_or_path,
+            reward_funcs=reward_funcs,
+            args=training_args,
+            train_dataset=dataset[script_args.dataset_train_split],
+            eval_dataset=dataset[script_args.dataset_test_split] if training_args.eval_strategy != "no" else None,
+            peft_config=get_peft_config(model_args),
+            attn_implementation=model_args.attn_implementation,
+            max_pixels=script_args.max_pixels,
+            min_pixels=script_args.min_pixels,
+        )
     print("using: ", trainer_cls)
 
     # Initialize the GRPO trainer
-    trainer = trainer_cls(
-        model=model_args.model_name_or_path,
-        reward_funcs=reward_funcs,
-        args=training_args,
-        train_dataset=dataset[script_args.dataset_train_split],
-        eval_dataset=dataset[script_args.dataset_test_split] if training_args.eval_strategy != "no" else None,
-        peft_config=get_peft_config(model_args),
-        attn_implementation=model_args.attn_implementation,
-        max_pixels=script_args.max_pixels,
-        min_pixels=script_args.min_pixels,
-        controller_addr=script_args.controller_addr,
-    )
+
 
     # Train and push the model to the Hub
     trainer.train()

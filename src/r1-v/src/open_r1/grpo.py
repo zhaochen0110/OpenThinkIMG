@@ -20,6 +20,7 @@ from typing import Optional
 from PIL import Image
 from datasets import load_dataset, load_from_disk
 from transformers import Qwen2VLForConditionalGeneration
+from transformers import set_seed
 
 from math_verify import parse, verify
 from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer,Qwen2VLGRPOToolTrainer,Qwen2VLGRPOToolVLLMTrainer
@@ -47,6 +48,9 @@ class GRPOScriptArguments(ScriptArguments):
     min_pixels: Optional[int] = field(
         default=3136,
         metadata={"help": "Minimum number of pixels for the image"},
+    )
+    query_key: Optional[str] = field(
+        default="question",
     )
     use_tool: Optional[bool]  = field(
         default=False,
@@ -120,6 +124,7 @@ SYSTEM_PROMPT = (
 
 def main(script_args, training_args, model_args):
     # Get reward functions
+    set_seed(training_args.seed)
     reward_funcs = [reward_funcs_registry[func] for func in script_args.reward_funcs]
 
     # Load the dataset
@@ -137,7 +142,6 @@ def main(script_args, training_args, model_args):
         example["image"] = image  
         return example
 
-    # Format into conversation
     def make_conversation(example):
         return {
             "prompt": [
@@ -146,21 +150,7 @@ def main(script_args, training_args, model_args):
             ],
         }
 
-
-    # def make_conversation_image(example):
-    #     return {
-    #         "prompt": [
-    #             {"role": "system", "content": [{"type": "text", "text": SYSTEM_PROMPT}]},
-    #             {
-    #                 "role": "user",
-    #                 "content": [
-    #                     {"type": "image"},
-    #                     {"type": "text", "text": example["problem"]},
-    #                 ],
-    #             },
-    #         ],
-    #     }
-
+    # Format into conversation
     QUESTION_TEMPLATE = "{Question}  Output the thinking process in <think> </think> and final answer (number) in <answer> </answer> tags."
 
     def make_conversation_image(example):
@@ -171,11 +161,13 @@ def main(script_args, training_args, model_args):
                     "role": "user",
                     "content": [
                         {"type": "image"},
-                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example['question'])},
+                        {"type": "text", "text": QUESTION_TEMPLATE.format(Question=example["question"])},
                     ],
                 },
             ],
         }
+
+
 
 
     if "image_path" in dataset[script_args.dataset_train_split].features:

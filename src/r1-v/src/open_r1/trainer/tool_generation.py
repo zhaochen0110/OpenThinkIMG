@@ -736,6 +736,7 @@ def vllm_generate_with_tool_calls(
         input_conversations = [item["conversations"] for item in input_data if item["status"] == "processing"]
         input_idxs = [idx for idx, item in enumerate(input_data) if item["status"] == "processing"]
         try:
+            # breakpoint()
             outputs = vllm_model.chat(
                 input_conversations,
                 sampling_params = sampling_params,

@@ -1,40 +1,3 @@
-# Copyright 2025 The HuggingFace Team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-"""
-Supervised fine-tuning script for decoder language models.
-
-Usage:
-
-# One 1 node of 8 x H100s
-accelerate launch --config_file=configs/zero3.yaml src/open_r1/sft.py \
-    --model_name_or_path Qwen/Qwen2.5-1.5B-Instruct \
-    --dataset_name HuggingFaceH4/Bespoke-Stratos-17k \
-    --learning_rate 2.0e-5 \
-    --num_train_epochs 1 \
-    --packing \
-    --max_seq_length 4096 \
-    --per_device_train_batch_size 4 \
-    --gradient_accumulation_steps 4 \
-    --gradient_checkpointing \
-    --bf16 \
-    --logging_steps 5 \
-    --eval_strategy steps \
-    --eval_steps 100 \
-    --output_dir data/Qwen2.5-1.5B-Open-R1-Distill
-"""
-
 import logging
 import os
 import sys
@@ -59,8 +22,34 @@ from trl import (
 )
 
 from qwen_vl_utils import process_vision_info
+import wandb
+
+from transformers import TrainerCallback
+from deepspeed.accelerator import get_accelerator
+
+class EmptyCacheCallback(TrainerCallback):
+    def on_step_end(self, args, state, control, **kwargs):
+        get_accelerator().empty_cache()
+        
+wandb.init(mode="disabled")
 logger = logging.getLogger(__name__)
 
+SYSTEM_PROMPT = """You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. Here are the available actions:
+- **OCR**: Extracts text from an image. Example: `{"name": "OCR", "arguments": {"image": "img_1"}}`
+- **Point**: Identifies a point in the image based on description and returns coordinates. Example: `{"name": "Point", "arguments": {"image": "img_1", "param": "x-axis value 1970"}}`
+- **ZoomInSubfigure**: Crops the image to the specified subfigure. Example: `{"name": "ZoomInSubfigure", "arguments": {"image": "img_1", "param": "Downstream vs. Concept: Toy"}}`
+- **SegmentRegionAroundPoint**: Segments a region around a given point. Example: `{"name": "SegmentRegionAroundPoint", "arguments": {"image": "img_1", "param": "x=\"21.5\" y=\"28.5\""}}`
+- **DrawHorizontalLineByY**: Draws a horizontal line at a given y-coordinate. Example: `{"name": "DrawHorizontalLineByY", "arguments": {"image": "img_1", "param": "y=28.5"}}`
+- **DrawVerticalLineByX**: Draws a vertical line at a given x-coordinate. Example: `{"name": "DrawVerticalLineByX", "arguments": {"image": "img_1", "param": "x=21.5"}}`
+- **Terminate**: Ends the task and provides the final answer. Example: `{"name": "Terminate", "arguments": {"ans": "1985"}}`
+
+To solve the problem:
+1. Select actions from the provided tools list, combining them logically and building on previous steps. Call one action at a time, using its output for the next.
+2. To use `SegmentRegionAroundPoint`, `DrawHorizontalLineByY`, or `DrawVerticalLineByX`, first call "Point" to get coordinates for further actions.
+
+Your output should be in a strict JSON format as follows:
+{"thought": "the reasoning process", "actions": [{"name": "action", "arguments": {"argument1": "value1", "argument2": "value2"}}]}
+"""
 
 @dataclass
 class SFTConfig(trl.SFTConfig):
@@ -104,68 +93,76 @@ def convert_example(example):
     }
     """
     messages = []
-    if "system" in example:
-        messages.append({
-            "role": "system",
-            "content": [{"type": "text", "text": example["system"]}],
-        })
-    else:
-        SYSTEM_PROMPT = (
-    "A conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant "
-    "first thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning "
-    "process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., "
-    "<think> reasoning process here </think><answer> answer here </answer>"
-        )
-        messages.append({
-            "role": "system",
-            "content": [{"type": "text", "text": SYSTEM_PROMPT}],
-        })
+    
+    SYSTEM_PROMPT = ("""You are a visual assistant capable of generating and solving steps for chart-based reasoning. Your goal is to answer chart-related questions. You can rely on your own capabilities or use external tools to assist in solving. Here are the available actions:
+    - **OCR**: Extracts text from an image. Example: `{"name": "OCR", "arguments": {"image": "img_1"}}`
+    - **Point**: Identifies a point in the image based on description and returns coordinates. Example: `{"name": "Point", "arguments": {"image": "img_1", "param": "x-axis value 1970"}}`
+    - **ZoomInSubfigure**: Crops the image to the specified subfigure. Example: `{"name": "ZoomInSubfigure", "arguments": {"image": "img_1", "param": "Downstream vs. Concept: Toy"}}`
+    - **SegmentRegionAroundPoint**: Segments a region around a given point. Example: `{"name": "SegmentRegionAroundPoint", "arguments": {"image": "img_1", "param": "x=\"21.5\" y=\"28.5\""}}`
+    - **DrawHorizontalLineByY**: Draws a horizontal line at a given y-coordinate. Example: `{"name": "DrawHorizontalLineByY", "arguments": {"image": "img_1", "param": "y=28.5"}}`
+    - **DrawVerticalLineByX**: Draws a vertical line at a given x-coordinate. Example: `{"name": "DrawVerticalLineByX", "arguments": {"image": "img_1", "param": "x=21.5"}}`
+    - **Terminate**: Ends the task and provides the final answer. Example: `{"name": "Terminate", "arguments": {"ans": "1985"}}`
 
-    thinking = example.get("thinking")
-    problem = example.get("problem")
-    solution = example.get("solution")
-    image = example.get("image")
+    To solve the problem:
+    1. Select actions from the provided tools list, combining them logically and building on previous steps. Call one action at a time, using its output for the next.
+    2. To use `SegmentRegionAroundPoint`, `DrawHorizontalLineByY`, or `DrawVerticalLineByX`, first call "Point" to get coordinates for further actions.
+
+    Your output should be in a strict JSON format as follows:
+    {"thought": "the reasoning process", "actions": [{"name": "action", "arguments": {"argument1": "value1", "argument2": "value2"}}]}
+    """)
+
     messages.append({
-        "role": "user",
-        "content": [
-            {"type": "text", "text": problem},
-            {"type": "image", "image": image},
-            ]
+        "role": "system",
+        "content": [{"type": "text", "text": SYSTEM_PROMPT}],
     })
-    messages.append({
-        "role": "assistant",
-        "content": f"{thinking}\n\n{solution}",
-    })
+
+    conversations = example.get('conversations')
+    image_paths = example.get('images')
+    img_idx = 0
+    
+    for item in conversations:
+        content = []
+        if item['from'] == 'human':
+            role = 'user'
+        else:
+            role = 'assistant'
+        if "You are a visual assistant capable of generating and solving steps" in item['value']:
+            content.append({'type':'text', 'text':item['value'].split("\n\nQuestion: ")[-1]})
+        else:
+            content.append({'type':'text', 'text':item['value']})
+        
+        if '<image>' in item['value']:
+            content.append({'type':'image', 'image':image_paths[img_idx]})
+            img_idx += 1
+        
+        messages.append({
+            'role': role,
+            'content': content
+        })
     
     example["messages"] = messages
+
     return example
 
 
 def collate_fn(examples):
-    texts = [
-        processor.apply_chat_template( convert_example(example)["messages"], tokenize=False, add_generation_prompt=True)
-        for example in examples
-    ]
-    image_inputs = []
-    for example in examples:
-        imgs, vids = process_vision_info(example["messages"])
-        image_inputs.append(imgs)
-    batch = processor(
-        text=texts,
-        images=image_inputs,
-        return_tensors="pt",
-        padding=True,
-    )
+    texts = [processor.apply_chat_template(convert_example(example)["messages"], tokenize=False, add_generation_prompt=True) for example in examples]
+    image_inputs = [process_vision_info(example["messages"])[0] for example in examples]
+    batch = processor(text=texts, images=image_inputs, return_tensors="pt", padding=True)
     labels = batch["input_ids"].clone()
     labels[labels == processor.tokenizer.pad_token_id] = -100
     image_token_id = processor.tokenizer.convert_tokens_to_ids(processor.image_token)
     labels[labels == image_token_id] = -100
     batch["labels"] = labels
-
+    # 释放中间变量
+    del texts, image_inputs
+    # print(batch['input_ids'].shape)
+    # print(batch['pixel_values'].shape)
     return batch
 
 
 def main(script_args, training_args, model_args):
+    torch.cuda.empty_cache()
     # Set seed for reproducibility
     set_seed(training_args.seed)
 
@@ -204,17 +201,22 @@ def main(script_args, training_args, model_args):
     # Load datasets
     ################
 
-    dataset = load_dataset(script_args.dataset_name, name=script_args.dataset_config)
+    dataset = load_dataset('json', data_files=script_args.dataset_name)
 
     ################
     # Load tokenizer
     ################
+    min_pixels = 3136
+    max_pixels = 200000
     global processor
     if "vl" in model_args.model_name_or_path.lower():
         processor = AutoProcessor.from_pretrained(
-            model_args.model_name_or_path, trust_remote_code=model_args.trust_remote_code
+            model_args.model_name_or_path, trust_remote_code=model_args.trust_remote_code, min_pixels=min_pixels, max_pixels=max_pixels
         )
-        logger.info("Using AutoProcessor for vision-language model.")
+        # if "Qwen2.5-VL" in model_args.model_name_or_path.lower():
+        #     processor.image_processor.max_pixels = 4000
+        #     # processor.image_processor.min_pixels = 3136
+        #     logger.info("Using AutoProcessor for vision-language model.")
     else:
         processor = AutoTokenizer.from_pretrained(
             model_args.model_name_or_path, trust_remote_code=model_args.trust_remote_code, use_fast=True
@@ -237,14 +239,19 @@ def main(script_args, training_args, model_args):
         revision=model_args.model_revision,
         trust_remote_code=model_args.trust_remote_code,
         attn_implementation=model_args.attn_implementation,
-        torch_dtype=torch_dtype,
+        torch_dtype=torch.bfloat16,
         use_cache=False if training_args.gradient_checkpointing else True,
         device_map=get_kbit_device_map() if quantization_config is not None else None,
         quantization_config=quantization_config,
     )
+    print(model_kwargs)
     # training_args.model_init_kwargs = model_kwargs
-    from transformers import Qwen2VLForConditionalGeneration
-    model = Qwen2VLForConditionalGeneration.from_pretrained(
+    # from transformers import Qwen2VLForConditionalGeneration
+    # model = Qwen2VLForConditionalGeneration.from_pretrained(
+    #     model_args.model_name_or_path, **model_kwargs
+    # )
+    from transformers import Qwen2_5_VLForConditionalGeneration
+    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         model_args.model_name_or_path, **model_kwargs
     )
     ############################
@@ -254,6 +261,7 @@ def main(script_args, training_args, model_args):
         "skip_prepare_dataset": True,
     }
     training_args.remove_unused_columns = False
+
     trainer = SFTTrainer(
         model=model,
         args=training_args,
@@ -261,7 +269,8 @@ def main(script_args, training_args, model_args):
         eval_dataset=dataset[script_args.dataset_test_split] if training_args.eval_strategy != "no" else None,
         processing_class=processor.tokenizer,
         data_collator=collate_fn,
-        peft_config=get_peft_config(model_args)
+        peft_config=get_peft_config(model_args),
+        callbacks=[EmptyCacheCallback()]
     )
 
     ###############
@@ -273,6 +282,7 @@ def main(script_args, training_args, model_args):
         checkpoint = training_args.resume_from_checkpoint
     elif last_checkpoint is not None:
         checkpoint = last_checkpoint
+
     train_result = trainer.train(resume_from_checkpoint=checkpoint)
     metrics = train_result.metrics
     metrics["train_samples"] = len(dataset[script_args.dataset_train_split])
@@ -306,8 +316,6 @@ def main(script_args, training_args, model_args):
         logger.info("Pushing to hub...")
         trainer.push_to_hub(**kwargs)
         processor.push_to_hub(training_args.hub_model_id)
-
-
 
 
 if __name__ == "__main__":

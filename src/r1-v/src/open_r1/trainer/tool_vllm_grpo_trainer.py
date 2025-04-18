@@ -37,6 +37,7 @@ from transformers import (
     PreTrainedModel,
     PreTrainedTokenizerBase,
     Qwen2VLForConditionalGeneration,
+    Qwen2_5_VLForConditionalGeneration,
     Trainer,
     TrainerCallback,
     is_wandb_available,
@@ -187,6 +188,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         # Trained model
         model_init_kwargs = args.model_init_kwargs or {}
         model_init_kwargs["attn_implementation"] = attn_implementation
+        model_init_kwargs["torch_dtype"] = torch.float16
+
         if isinstance(model, str):
             model_id = model
             torch_dtype = model_init_kwargs.get("torch_dtype")
@@ -204,6 +207,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     "Invalid `torch_dtype` passed to `GRPOConfig`. Expected either 'auto' or a string representing "
                     f"a `torch.dtype` (e.g., 'float32'), but got {torch_dtype}."
                 )
+            
             # Disable caching if gradient checkpointing is enabled (not supported)
             model_init_kwargs["use_cache"] = (
                 False
@@ -213,6 +217,10 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
             # breakpoint()
             if "Qwen2-VL" in model_id or "Qwen2VL" in model_id:
                 model = Qwen2VLForConditionalGeneration.from_pretrained(
+                    model, **model_init_kwargs
+                )
+            elif "Qwen2.5-VL" in model_id:
+                model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
                     model, **model_init_kwargs
                 )
             elif "Aria" in model_id:
@@ -232,11 +240,17 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
 
         if peft_config is not None:
             model = get_peft_model(model, peft_config)
+        
+        # breakpoint()
 
         # Reference model
         if is_deepspeed_zero3_enabled():
             if "Qwen2-VL" in model_id:
                 self.ref_model = Qwen2VLForConditionalGeneration.from_pretrained(
+                    model_id, **model_init_kwargs
+                )
+            elif "Qwen2.5-VL" in model_id:
+                self.ref_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
                     model_id, **model_init_kwargs
                 )
             elif "Aria" in model_id:
@@ -257,14 +271,14 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
 
         # Processing class
         if processing_class is None:
-            if "Qwen2-VL" in model_id or "Aria" in model_id:
-                processing_class = AutoProcessor.from_pretrained(model_id)
+            if "Qwen2-VL" in model_id or "Qwen2.5-VL" in model_id or "Aria" in model_id:
+                processing_class = AutoProcessor.from_pretrained(model_id, min_pixels=min_pixels, max_pixels=max_pixels)
                 pad_token_id = processing_class.tokenizer.pad_token_id
                 processing_class.pad_token_id = pad_token_id
                 processing_class.eos_token_id = processing_class.tokenizer.eos_token_id
-                if "Qwen2-VL" in model_id:
-                    processing_class.image_processor.max_pixels = max_pixels
-                    processing_class.image_processor.min_pixels = min_pixels
+                # if "Qwen" in model_id:
+                #     processing_class.image_processor.max_pixels = max_pixels
+                #     processing_class.image_processor.min_pixels = min_pixels
             else:
                 processing_class = AutoTokenizer.from_pretrained(
                     model.config._name_or_path, padding_side="left"
@@ -347,14 +361,14 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         # rewrite the processing AutoTokenizer -> AutoProcessor
         model_id = model if isinstance(model, str) else model.config._name_or_path
         if processing_class is None:
-            if "Qwen2-VL" in model_id or "Aria" in model_id:
-                processing_class = AutoProcessor.from_pretrained(model_id)
+            if "Qwen2-VL" in model_id or "Qwen2.5-VL" in model_id or "Aria" in model_id:
+                processing_class = AutoProcessor.from_pretrained(model_id, min_pixels=min_pixels, max_pixels=max_pixels)
                 pad_token_id = processing_class.tokenizer.pad_token_id
                 processing_class.pad_token_id = pad_token_id
                 processing_class.eos_token_id = processing_class.tokenizer.eos_token_id
-                if "Qwen2-VL" in model_id:
-                    processing_class.image_processor.max_pixels = max_pixels
-                    processing_class.image_processor.min_pixels = min_pixels
+                # if "Qwen" in model_id:
+                #     processing_class.image_processor.max_pixels = max_pixels
+                #     processing_class.image_processor.min_pixels = min_pixels
             else:
                 processing_class = AutoTokenizer.from_pretrained(
                     model.config._name_or_path, padding_side="left"
@@ -465,8 +479,8 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                             if "Qwen2-VL" in model_id or "Qwen2.5-VL" in model_id
                             else None
                         ),
-                        max_model_len=args.max_completion_length,
-                        limit_mm_per_prompt={"image": 10},
+                        max_model_len=args.max_prompt_length,
+                        limit_mm_per_prompt={"image": 6},
                     )
                 self.sampling_params = SamplingParams(
                     temperature=args.temperature,
@@ -500,7 +514,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
                     reward_func, evaluation_mode=True
                 )
         
-        # remote_breakpoint()
+        # breakpoint()
         
         
     def _set_signature_columns_if_needed(self):
@@ -530,14 +544,15 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         image_grid_thw,
         logits_to_keep,
     ):
-        pixel_values = pixel_values.to(model.device)
+        pixel_values = pixel_values.to(device=model.device)
         image_grid_thw = image_grid_thw.to(device=model.device)
-        logits = model(
-            input_ids,
-            attention_mask=attention_mask,
-            pixel_values=pixel_values,
-            image_grid_thw=image_grid_thw,
-        ).logits  # (B, L, V)
+        with torch.amp.autocast(device_type="cuda", dtype=torch.bfloat16):
+            logits = model(
+                input_ids,
+                attention_mask=attention_mask,
+                pixel_values=pixel_values,
+                image_grid_thw=image_grid_thw,
+            ).logits  # (B, L, V)
         logits = logits[
             :, :-1, :
         ]  # (B, L-1, V), exclude the last logit: it corresponds to the next token pred
@@ -854,7 +869,7 @@ class Qwen2VLGRPOVLLMTrainer(Trainer):
         )
         input_ids = torch.cat([prompt_ids, completion_ids], dim=1)
         attention_mask = torch.cat([prompt_mask, completion_mask], dim=1)
-        pixel_values = inputs["pixel_values"]
+        pixel_values = inputs["pixel_values"].to(dtype=torch.bfloat16)
         image_grid_thw = inputs["image_grid_thw"]
         logits_to_keep = completion_ids.size(
             1
