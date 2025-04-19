@@ -1,6 +1,8 @@
-# Tool-Factory
+# OpenVisRealm
 
-> A universal plug-and-play tool usage multimodal framework
+> **Empowering vision-driven reasoning through modular tool orchestration**
+>
+> OpenVisRealm is an end-to-end framework for building multimodal agents that seamlessly integrate vision tools to analyze, interpret, and reason over images. From dynamic tool management to unified training via SFT and RL, VisRealm accelerates development of robust, adaptable vision-enhanced AI systems.
 
 ![License: Apache-2.0](https://img.shields.io/badge/license-Apache%202.0-green)
 
@@ -14,7 +16,6 @@
   - 🧩 Easy integration of new tools
   - ⚡ Dynamic inference and planning
   - 🧠 Unified training via SFT & RL
-  
 
 
 
@@ -28,6 +29,16 @@
 2. **🧠 Training Framework (SFT + RL)**: A pipeline to teach models how to use tools through **supervised fine-tuning (SFT)** and **reinforcement learning**.
 
 ---
+
+
+
+## 📈 Key Results Summary
+
+- 🚀 **Tool-Augmented GRPO for Accelerated Convergence**: By augmenting the GRPO reinforcement learning algorithm with vision tools on the ChartGemma dataset, our approach achieves approximately 20% higher rewards earlier in training, with smoother and more stable learning curves.
+
+- 🎯 **Superior Final Performance**: Our model achieves a 43.2% score on ChartGemma, outperforming Qwen-2VL (29.5%) by +13.7% and TACO-8B (30.5%) by +12.7%, and improving over the RL-from-scratch baseline by +11.7%, demonstrating competitive performance against leading commercial models.
+
+  
 
 ## ⚙️ Installation
 
@@ -49,6 +60,7 @@ conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=
 pip install -r requirements.txt
 pip install -e .
 ```
+
 > 💡 Note: The `requirements.txt` is tailored for inference & evaluation. For training, refer to the [Training Section](https://github.com/SalesforceAIResearch/TACO#training) for additional dependencies.
 
 If you encounter issues, check out our [📄 Documentation](docs/README.md).
@@ -135,7 +147,7 @@ Our training pipeline builds on the solid foundation of [OpenR1](https://github.
 To run training code, make sure to install the additional required packages:
 
 ```
-pip install -r requirements.txt
+pip install -r requirements_train.txt
 ```
 
 
@@ -213,36 +225,11 @@ We also support supervised fine-tuning for training models on curated tool usage
     --save_only_model true
 ```
 
+
+
 ## 📊 Experimental Results
 
-To comprehensively evaluate the effectiveness of our **vision tool-enhanced multimodal framework**, we examine both:
-
-- **Training Dynamics**: How fast and stable the model learns to use tools during RL.
-- **Final Performance**: The quality of reasoning and accuracy after training.
-
----
-
-### ⚡ Convergence Analysis: RL Training Efficiency
-
-We compare two reinforcement learning strategies on the **ChartGemma** task:
-
-- **RL from Scratch**: Learning tool usage purely through interaction.
-- **RL from Chartagent (Ours)**: Incorporates prior knowledge via task-specific tool demonstrations.
-
-
-#### 📌 Observations
-
-- 📈 **Faster Convergence**: Our method reaches higher rewards earlier in training.
-- 🧠 **Improved Stability**: Less fluctuation in reward curves across training steps.
-- 🧪 **Higher Final Reward**: A ~20% boost in accuracy-based reward compared to the RL-from-zero baseline.
-
-> ✅ **Conclusion**: Prior-guided training with vision tools leads to more efficient and robust learning.
-
----
-
-### 📈 Final Performance: Model Comparison on ChartGemma
-
-We benchmark our model against both commercial and open-source baselines:
+To comprehensively evaluate the effectiveness of our **vision tool-enhanced multimodal framework, we benchmark our model against both commercial and open-source baselines:
 
 | Model              | Score (%) |
 | ------------------ | --------- |
@@ -262,6 +249,6 @@ We benchmark our model against both commercial and open-source baselines:
 
 ---
 
-### 🔍 Qualitative Case Study: Tool-Augmented Visual Reasoning
+### 🔍  Case Study: Tool-Augmented Visual Reasoning
 
 We further showcase the **explainability and reasoning ability** of our model using a real-world chart reasoning task.
