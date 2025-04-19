@@ -183,3 +183,5 @@ results/*
 
 output/
 
+**/controller.log.*
+

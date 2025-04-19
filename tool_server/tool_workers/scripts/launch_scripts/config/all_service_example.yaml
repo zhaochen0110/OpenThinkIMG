@@ -1,0 +1,79 @@
+# base_dir: ../..
+# log_folder: ../../logs/server_log
+base_dir: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers
+log_folder: /mnt/petrelfs/songmingyang/code/reasoning/tool-agent/tool_server/tool_workers/logs/server_log
+partition: "MoE"
+default_calculate_gpus: 1
+default_calculate_cpus: 16
+default_control_cpus: 2
+default_control_gpus: 0
+retry_interval: 1
+request_timeout: 10
+
+controller_config:
+  worker_name: controller
+  job_name: controller
+  calculate_type: control
+  cmd:
+    script-addr: ./online_workers/controller.py
+    port: 20001
+    host: "0.0.0.0"
+
+
+tool_worker_config:
+  - Point:
+      worker_name: Point
+      job_name: point
+      calculate_type: calculate
+      cmd:
+        script-addr: ./online_workers/molmo_point_worker.py
+        port: 20027
+        host: "0.0.0.0"
+        model_path: "/mnt/petrelfs/share_data/suzhaochen/models/Molmo-7B-D-0924"
+
+  - SegmentRegionAroundPoint:
+      worker_name: SegmentRegionAroundPoint
+      job_name: sam2
+      calculate_type: calculate
+      cmd:
+        script-addr: ./online_workers/SAMAroundPoint_worker.py
+        port: 20036
+        host: "0.0.0.0"
+        sam2_checkpoint: /mnt/petrelfs/share_data/suzhaochen/models/sam2-hiera-large/sam2_hiera_large.pt
+        sam2_model_cfg: sam2_hiera_l.yaml
+
+  - DrawHorizontalLineByY:
+      worker_name: DrawHorizontalLineByY
+      job_name: drawliney
+      calculate_type: control
+      cmd:
+        script-addr: ./online_workers/DrawHorizontalLineByY_worker.py
+        port: 20032
+        host: "0.0.0.0"
+
+  - DrawVerticalLineByX:
+      worker_name: DrawVerticalLineByX
+      job_name: drawlinex
+      calculate_type: control
+      cmd:
+        script-addr: ./online_workers/DrawVerticalLineByX_worker.py
+        port: 20089
+        host: "0.0.0.0"
+
+  - ZoomInSubfigure:
+      worker_name: ZoomInSubfigure
+      job_name: SelectSubplot
+      calculate_type: control
+      cmd:
+        script-addr: ./online_workers/SelectSubplot_worker.py
+        port: 20039
+        host: "0.0.0.0"
+
+  - OCR:
+      worker_name: OCR
+      job_name: ocr
+      calculate_type: control
+      cmd:
+        script-addr: ./online_workers/ocr_worker.py
+        port: 20009
+        host: "0.0.0.0"
