@@ -1,9 +1,0 @@
-compute_environment: LOCAL_MACHINE
-distributed_type: "NO"
-mixed_precision: "no"
-num_processes: 1
-machine_rank: 0
-main_training_function: main
-dynamo_backend: "no"
-num_machines: 1
-use_cpu: true
