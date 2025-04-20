@@ -27,8 +27,8 @@ from transformers import set_seed
 from math_verify import parse, verify
 # from open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer
 from trl import GRPOConfig, GRPOTrainer, ModelConfig, ScriptArguments, TrlParser, get_peft_config
-from trainer.tool_generation import parse_tool_config
-from trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
+from r1_v.open_r1.trainer.tool_generation import parse_tool_config
+from r1_v.open_r1.trainer import Qwen2VLGRPOTrainer, Qwen2VLGRPOVLLMTrainer, Qwen2VLGRPOToolTrainer, Qwen2VLGRPOToolVLLMTrainer
 
 @dataclass
 class GRPOScriptArguments(ScriptArguments):
@@ -155,8 +155,6 @@ def format_reward(completions, **kwargs):
             rewards.append(current_reward)
         return rewards
         
-        
-        
 
 
 reward_funcs_registry = {
@@ -212,7 +210,6 @@ def main(script_args, training_args, model_args):
 
     # Load the dataset
     dataset = load_dataset('json', data_files=script_args.dataset_name)
-
     # Load the image from the dataset
     def load_image_from_path(example):
         if "solution" not in example:
@@ -261,7 +258,7 @@ def main(script_args, training_args, model_args):
     if "image_path" in dataset[script_args.dataset_train_split].features:
         print("image in dataset")
         dataset = dataset.map(load_image_from_path)
-        dataset = dataset.map(make_conversation_image)  
+        dataset = dataset.map(make_conversation_image)
     else:
         print("no image in dataset")
         dataset = dataset.map(make_conversation)
