@@ -1,8 +1,0 @@
-task_name: "chartqa"
-dataset_path: /mnt/petrelfs/share_data/suzhaochen/new_tool/Tool-Factory/test_dataset/chartqa_test_200.json
-image_dir_path: /mnt/petrelfs/share_data/suzhaochen/datasets/chartqa/image
-num_sample: 3213
-dataset_type: "unique" # Which means we need to implement load data logic sepretely for charxiv
-generation_config:
-  max_length: 2048
-
