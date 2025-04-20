@@ -1,44 +1,39 @@
-# OpenVisRealm
+# OpenThinkIMG
 
-> **Empowering vision-driven reasoning through modular tool orchestration**
+> **Reasoning over images via vision tools**
 >
-> OpenVisRealm is an end-to-end framework for building multimodal agents that seamlessly integrate vision tools to analyze, interpret, and reason over images. From dynamic tool management to unified training via SFT and RL, VisRealm accelerates development of robust, adaptable vision-enhanced AI systems.
+> OpenThinkIMG is an end-to-end framework for building multimodal agents that seamlessly integrate vision tools to analyze, interpret, and reason over images. From dynamic tool management to unified training via SFT and RL, OpenThinkIMG accelerates the development of robust, adaptable vision AI systems.
 
-![License: Apache-2.0](https://img.shields.io/badge/license-Apache%202.0-green)
+<p align="center">
+  <img src="framework.png" width="500" />
+</p>
+
+<p align="center">
+  Supported Features by OpenThinkIMG 
+</p>
 
 
  📚 [Documentation](docs/README.md)
 
 ## 🔔 News
 
-- **[2025-04]** We release **VisRealm**, the first **end-to-end multimodal reasoning framework** over images, featuring:
+- **[2025-04]** We release **OpenThinkIMG**, the first **end-to-end multimodal reasoning framework** over images, featuring:
   - 🔧 Flexible vision tool management
   - 🧩 Easy integration of new tools
   - ⚡ Dynamic inference and planning
   - 🧠 Unified training via SFT & RL
+  
 
 
 
----
 
 ## 📌 Overview
 
-**VisRealm** is designed for building and training **multimodal agents** that can **reason over images via vision tools**. It includes two core components:
+**OpenThinkIMG** is designed for building and training **multimodal agents** that can **reason over images via vision tools**. It includes two core components:
 
-1. **🔌 Tool Deployment Framework**: A modular system to run and serve vision tools in isolated environments.
-2. **🧠 Training Framework (SFT + RL)**: A pipeline to teach models how to use tools through **supervised fine-tuning (SFT)** and **reinforcement learning**.
+- **🔌 Tool Deployment Framework**: A modular system to run and serve vision tools in isolated environments.
 
----
-
-
-
-## 📈 Key Results Summary
-
-- 🚀 **Tool-Augmented GRPO for Accelerated Convergence**: By augmenting the GRPO reinforcement learning algorithm with vision tools on the ChartGemma dataset, our approach achieves approximately 20% higher rewards earlier in training, with smoother and more stable learning curves.
-
-- 🎯 **Superior Final Performance**: Our model achieves a 43.2% score on ChartGemma, outperforming Qwen-2VL (29.5%) by +13.7% and TACO-8B (30.5%) by +12.7%, and improving over the RL-from-scratch baseline by +11.7%, demonstrating competitive performance against leading commercial models.
-
-  
+- **🧠 Training Framework (SFT + RL)**: A pipeline to teach models how to use tools through **supervised fine-tuning (SFT)** and **reinforcement learning**.
 
 ## ⚙️ Installation
 
@@ -60,7 +55,6 @@ conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=
 pip install -r requirements.txt
 pip install -e .
 ```
-
 > 💡 Note: The `requirements.txt` is tailored for inference & evaluation. For training, refer to the [Training Section](https://github.com/SalesforceAIResearch/TACO#training) for additional dependencies.
 
 If you encounter issues, check out our [📄 Documentation](docs/README.md).
@@ -84,7 +78,7 @@ python start_server_config.py --config ./config/all_service.yaml
 ## Press control + C to shutdown all services automatically.
 ```
 
-### 🔍 Step 2: Run Inference with Tool-Factory
+### 🔍 Step 2: Run Inference with OpenThinkIMG
 
 #### ✅ Option 1: Direct Evaluation (e.g., Qwen2VL on ChartGemma)
 
@@ -140,8 +134,6 @@ Once the vision tools are properly deployed, we provide a flexible training pipe
 
 Our training pipeline builds on the solid foundation of [OpenR1](https://github.com/OpenR1), integrating visual tools as external reasoning capabilities.
 
-
-
 ### 📦 Install Additional Dependencies
 
 To run training code, make sure to install the additional required packages:
@@ -149,8 +141,6 @@ To run training code, make sure to install the additional required packages:
 ```
 pip install -r requirements_train.txt
 ```
-
-
 
 ### 🔁 Reinforcement Learning with Vision Tools
 
@@ -163,7 +153,7 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --master_addr="127.0.0.1" \
     --master_port=${master_port} \
     src/open_r1/tool_grpo.py --use_vllm True \
-    --output_dir /mnt/petrelfs/share_data/suzhaochen/r1/R1-V-tool/R1-V/src/output_path/$RUN_NAME \
+    --output_dir ${output_dir} \
     --model_name_or_path ${model_path} \
     --dataset_name ${data_path} \
     --max_prompt_length 16000 \
@@ -191,11 +181,7 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --use_tool true
 ```
 
-
-
 > 📈  This helps the model learn **dynamic planning & tool invocation** using environment feedback.
-
-
 
 ### 🧪 SFT: Supervised Fine-Tuning
 
@@ -204,14 +190,14 @@ We also support supervised fine-tuning for training models on curated tool usage
 ```
     accelerate launch --num_machines 1 --num_processes 6 --main_process_port 29502 --multi_gpu\
     src/open_r1/sft.py \
-    --output_dir /mnt/petrelfs/share_data/suzhaochen/r1/R1-V-tool/R1-V/src/output_path/$RUN_NAME \
+    --output_dir ${output_dir} \
     --model_name_or_path ${model_path} \
     --dataset_name ${data_path} \
     --seed 42 \
     --learning_rate 2e-5 \
     --max_seq_length 4096 \
-    --deepspeed /mnt/petrelfs/share_data/suzhaochen/LLaMA-Factory/examples/deepspeed/ds_z3_offload_config.json \
-    --per_device_train_batch_size 1 \
+    --deepspeed config/deepspeed/ds_z3_offload_config.json \
+    --per_device_train_batch_size 2 \
     --gradient_accumulation_steps 8 \
     --logging_steps 1 \
     --report_to wandb \
@@ -220,7 +206,7 @@ We also support supervised fine-tuning for training models on curated tool usage
     --bf16 \
     --num_train_epochs 2 \
     --run_name $RUN_NAME \
-    --save_steps 90 \
+    --save_steps 100 \
     --warmup_ratio 0.1 \
     --save_only_model true
 ```
@@ -229,7 +215,7 @@ We also support supervised fine-tuning for training models on curated tool usage
 
 ## 📊 Experimental Results
 
-To comprehensively evaluate the effectiveness of our **vision tool-enhanced multimodal framework, we benchmark our model against both commercial and open-source baselines:
+To thoroughly assess the effectiveness of our vision tool–enhanced multimodal framework, we constructed a dataset of 14,501 chart‐reasoning examples for reinforcement learning. Starting from the SFT‑fine‑tuned model, we then performed RL training—achieving convergence in just 200 steps. Below are the comparative results against various baseline models:
 
 | Model              | Score (%) |
 | ------------------ | --------- |
@@ -249,6 +235,52 @@ To comprehensively evaluate the effectiveness of our **vision tool-enhanced mult
 
 ---
 
-### 🔍  Case Study: Tool-Augmented Visual Reasoning
+## 📂 Examples & Case Studies
 
-We further showcase the **explainability and reasoning ability** of our model using a real-world chart reasoning task.
+- **Zoom + OCR:** automatic zoom-in and OCR extraction on charts.
+
+<p align="center">
+  <img src="crop.png" width="800" />
+</p>
+
+- **Point + DrawLine:** interactive annotation and drawing tools.
+
+
+<p align="center">
+  <img src="line.png" width="800" />
+</p>
+
+## 🤝 Contributing
+
+We welcome contributions of all kinds! In our [Documentation](docs/README.md) you’ll find detailed guides for:
+
+- Importing custom models  
+- Defining and integrating new vision tools  
+- Extending the training pipeline  
+
+To contribute:
+
+1. **Fork** the repository and create a feature branch (e.g., `feature/new-vision-tool`).  
+2. **Implement** your changes, adding or updating tests under `tests/`.  
+4. **Submit** a pull request referencing the relevant issue, with clear descriptions and code snippets.  
+
+---
+
+## Citation
+
+Please cite the following if you find OpenThinkIMG helpful:
+
+```
+@misc{OpenThinkIMG,
+  author       = {OpenThinkIMG Team},
+  title        = {OpenThinkIMG: Empowering vision-driven reasoning through modular tool orchestration},
+  year         = {2025},
+  organization = {GitHub},
+  url          = {https://github.com/OpenThinkIMG/OpenThinkIMG},
+}
+```
+
+
+
+
+
