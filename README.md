@@ -271,7 +271,6 @@ To contribute:
 Please cite the following if you find OpenThinkIMG helpful:
 
 ```
-
 @misc{OpenThinkIMG,
   author       = {OpenThinkIMG Team},
   title        = {OpenThinkIMG: Empowering vision-driven reasoning through modular tool orchestration},
