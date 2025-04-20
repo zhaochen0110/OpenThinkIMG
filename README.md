@@ -153,7 +153,7 @@ torchrun --nproc_per_node=${nproc_per_node} \
     --master_addr="127.0.0.1" \
     --master_port=${master_port} \
     src/open_r1/tool_grpo.py --use_vllm True \
-    --output_dir /mnt/petrelfs/share_data/suzhaochen/r1/R1-V-tool/R1-V/src/output_path/$RUN_NAME \
+    --output_dir ${output_dir} \
     --model_name_or_path ${model_path} \
     --dataset_name ${data_path} \
     --max_prompt_length 16000 \
@@ -190,7 +190,7 @@ We also support supervised fine-tuning for training models on curated tool usage
 ```
     accelerate launch --num_machines 1 --num_processes 6 --main_process_port 29502 --multi_gpu\
     src/open_r1/sft.py \
-    --output_dir /mnt/petrelfs/share_data/suzhaochen/r1/R1-V-tool/R1-V/src/output_path/$RUN_NAME \
+    --output_dir ${output_dir} \
     --model_name_or_path ${model_path} \
     --dataset_name ${data_path} \
     --seed 42 \
@@ -276,7 +276,7 @@ Please cite the following if you find OpenThinkIMG helpful:
   title        = {OpenThinkIMG: Empowering vision-driven reasoning through modular tool orchestration},
   year         = {2025},
   organization = {GitHub},
-  url          = {https://github.com/zhaochen0110/Tool-Factory},
+  url          = {https://github.com/OpenThinkIMG/OpenThinkIMG},
 }
 ```
 
