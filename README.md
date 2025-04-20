@@ -1,8 +1,8 @@
 # OpenThinkIMG
 
-> **Empowering vision-driven reasoning through modular tool orchestration**
+> **Reasoning over images via vision tools**
 >
-> OpenThinkIMG is an end-to-end framework for building multimodal agents that seamlessly integrate vision tools to analyze, interpret, and reason over images. From dynamic tool management to unified training via SFT and RL, OpenThinkIMG accelerates development of robust, adaptable vision-enhanced AI systems.
+> OpenThinkIMG is an end-to-end framework for building multimodal agents that seamlessly integrate vision tools to analyze, interpret, and reason over images. From dynamic tool management to unified training via SFT and RL, OpenThinkIMG accelerates the development of robust, adaptable vision AI systems.
 
 <p align="center">
   <img src="framework.png" width="500" />
