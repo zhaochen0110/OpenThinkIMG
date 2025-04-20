@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  **Supported Features by OpenThinkIMG**  
+  Supported Features by OpenThinkIMG 
 </p>
 
 
