@@ -239,31 +239,16 @@ To thoroughly assess the effectiveness of our vision tool–enhanced multimodal 
 
 - **Zoom + OCR:** automatic zoom-in and OCR extraction on charts.
 
-![截屏2025-04-20 14.26.48](/Users/warrier/Library/Application Support/typora-user-images/截屏2025-04-20 14.26.48.png)
+<p align="center">
+  <img src="crop.png" width="800" />
+</p>
 
 - **Point + DrawLine:** interactive annotation and drawing tools.
 
-### ![截屏2025-04-20 14.30.56](/Users/warrier/Library/Application Support/typora-user-images/截屏2025-04-20 14.30.56.png)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<p align="center">
+  <img src="line.png" width="800" />
+</p>
 
 ## 🤝 Contributing
 
