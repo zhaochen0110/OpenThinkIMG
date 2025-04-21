@@ -1,4 +1,7 @@
-# OpenThinkIMG
+<div align="center">
+  <img src="docs/logo.png" alt="Logo" width="200">
+  <h1 align="center">OpenThinkIMG: Use Vision Tools, Think with Images</h1>
+</div>
 
 > **Thinking with Images via Vision Tools**
 >
