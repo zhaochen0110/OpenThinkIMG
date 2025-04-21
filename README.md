@@ -17,16 +17,10 @@
 
 ## 🔔 News
 
-- **[2025-04]** Launch of **OpenThinkIMG**: the first **Thinking with Image** platform integrating a **Tool Factory**, a **Vision Toolset**, and **Unified Training**:  
-  - **🔍 Grounding SAM / SAM2**: state-of-the-art mask proposals for any object, ensuring pixel-perfect ROI extraction.  
-  - **➡️ Point Tool**: fine-grained, user-steered region selection through point-based prompts.  
-  - **📝 OCR**: robust text detection and recognition. 
-  - **🔎 ZoomInSubfigure**: context-aware subfigure zooming that retains layout semantics.  
-  - **📏 DrawHorizontalLineByY / DrawVerticalLineByX**: automated axis and guideline drawing for precise data annotation.  
-  - **🔵 SegmentRegionAroundPoint**: localized segmentation anchored at any point, crucial for cluttered visuals.  
-  - **🏭 Tool Factory Pattern**: plug-and-play tool registration, version control, and isolated deployment—integrate new tools in two lines of code.  
-  - **⚡ Dynamic Inference & Planning**: real-time tool scheduling and composition, adapting to diverse visual tasks.  
-  - **🧠 Unified Training (SFT + RL)**: end-to-end pipeline teaching agents not just *what* tools to use, but *when* and *how*.  
+- **[2025-04]** Launch of OpenThinkIMG: the first Thinking with Image framework integrating a modular Tool Factory, a versatile Vision Toolset, and Unified Training (SFT + RL):
+  - Toolset: GroundingDINO, SAM, SAM2, OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, SelectSubplot
+  - Key Features: plug‑and‑play tool registration, dynamic tool planning & composition, and transparent execution logs
+  
 - **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
 
 ## 📌 Key Contributions
