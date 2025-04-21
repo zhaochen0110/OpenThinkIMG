@@ -51,15 +51,17 @@
   <img src="docs/tool_factory.png" width="600" alt="Tool Factory architecture" />
 </p>
 
-| **Tool**                     | **Primary Function**                                   | **Unique Strength**                                    |
-|------------------------------|--------------------------------------------------------|--------------------------------------------------------|
-| **Grounding SAM / SAM2**     | Pixel-level segmentation for arbitrary objects         | High-precision masks, zero-shot generalization         |
-| **Point Tool**               | ROI extraction via point prompts                       | Interactive, user-driven focus for ambiguous regions   |
-| **OCR**                      | Text detection & recognition                           | Optimized for dense chart labels and multi-language text |
-| **ZoomInSubfigure**          | Automated subfigure zoom preserving context            | Retains neighboring visual cues and layout integrity   |
-| **DrawHorizontalLineByY**    | Horizontal line annotation at given Y-coordinate       | Precise data-driven standoff lines for charts          |
-| **DrawVerticalLineByX**      | Vertical line annotation at given X-coordinate         | Exact alignment for axis markers and thresholds        |
-| **SegmentRegionAroundPoint** | Segments local region around a point                   | Effective in cluttered scenes, isolates target clusters |
+| **Tool**                  | **Description**                                                                                       |
+|---------------------------|-------------------------------------------------------------------------------------------------------|
+| **GroundingDINO**         | Object detection using GroundingDINO, producing bounding boxes for any target                          |
+| **SAM**                   | Global segmentation (SAM-1) that generates precise object masks                                         |
+| **SAM2**                  | Localized segmentation around a specified point, refining regions of interest                           |
+| **OCR**                   | Optical character recognition for detecting and extracting text from images                             |
+| **Point**                 | Uses molmo-7b to predict the coordinate(s) of a specified object within an image                       |
+| **DrawHorizontalLineByY** | Draws a horizontal line at a given Y-coordinate and returns the annotated image                       |
+| **DrawVerticalLineByX**   | Draws a vertical line at a given X-coordinate and returns the annotated image                         |
+| **SelectSubplot**         | Selects subplot(s) based on a description (e.g., title or position) and returns a list of images      |
+
 
 
 ## 🧪 Experimental Highlights
