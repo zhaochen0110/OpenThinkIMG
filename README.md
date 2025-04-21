@@ -11,9 +11,9 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 
 ## 🔔 News
 
-- **[2025-04]** Launch of OpenThinkIMG: the first Thinking with Images framework integrating a modular Tool Factory, a versatile Vision Toolset, and unified SFT + RL training:
+- **[2025-04]** Launch of OpenThinkIMG: the first Thinking with Images framework integrating a modular Tool Factory, a versatile Vision Toolset, and unified SFT + Agent-RL training:
   - **Toolset**: GroundingDINO, SAM, OCR, Crop, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoominSubplot, SegmentRegionAroundPoint
-  - **Key Features**: plug‑and‑play tool registration, tool sequencing for image manipulation, and streamlined SFT + RL training
+  - **Key Features**: plug‑and‑play tool registration, tool sequencing for image manipulation, and streamlined SFT + Agent-RL training
 
 - **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
 
@@ -22,7 +22,7 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 - **Thinking with Image paradigm**: agents reason by invoking specialized vision tools, moving beyond monolithic multimodal models.
 -  **Comprehensive Vision Toolset**: nine purpose-built tools covering detection, segmentation, OCR, cropping, and annotation—each with clear inputs and outputs.
 -  **Modular Tool Factory**: easy registration and management of tools with version control and isolated lifecycles.
--  **Unified SFT + RL Framework**: combined supervised fine-tuning on tool-use demonstrations with reinforcement learning to optimize policies under real-world feedback.
+-  **Unified SFT + Agent-RL Framework**: combined supervised fine-tuning on tool-use demonstrations with reinforcement learning to optimize policies under real-world feedback.
 
 
 ## 🔧 Tool Factory & Vision Toolset
