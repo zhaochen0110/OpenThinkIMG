@@ -54,11 +54,10 @@ To thoroughly assess the effectiveness of our vision tool–enhanced multimodal 
 | TACO-8B            | 30.5      |
 | CogCom-13B         | 15.07     |
 
-
-- **Outcomes**: 
-  - ✅ Outperforms **Qwen-2VL** baseline by **+13.7%** and **TACO-8B** by **+12.7%**
-  - 🔁 Improves over the same base model trained from scratch by **+11.7%**
-  - ⚖️ Competitive with state-of-the-art commercial models while being fully open-source
+**Outcomes**: 
+- ✅ Outperforms **Qwen-2VL** baseline by **+13.7%** and **TACO-8B** by **+12.7%**
+- 🔁 Improves over the same base model trained from scratch by **+11.7%**
+- ⚖️ Competitive with state-of-the-art commercial models while being fully open-source
 
 
 
