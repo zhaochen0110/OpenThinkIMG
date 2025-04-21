@@ -20,7 +20,7 @@
 - **[2025-04]** Launch of **OpenThinkIMG**: the first **Thinking with Image** platform integrating a **Tool Factory**, a **Vision Toolset**, and **Unified Training**:  
   - **🔍 Grounding SAM / SAM2**: state-of-the-art mask proposals for any object, ensuring pixel-perfect ROI extraction.  
   - **➡️ Point Tool**: fine-grained, user-steered region selection through point-based prompts.  
-  - **📝 OCR**: robust text detection and recognition, optimized for charts, tables, and diagrams.  
+  - **📝 OCR**: robust text detection and recognition. 
   - **🔎 ZoomInSubfigure**: context-aware subfigure zooming that retains layout semantics.  
   - **📏 DrawHorizontalLineByY / DrawVerticalLineByX**: automated axis and guideline drawing for precise data annotation.  
   - **🔵 SegmentRegionAroundPoint**: localized segmentation anchored at any point, crucial for cluttered visuals.  
