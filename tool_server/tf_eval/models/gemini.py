@@ -35,14 +35,7 @@ class GeminiModels(tp_model):
         #     generation_config=generation_config,
         #     )
 
-        # self.model = OpenAI(
-        #     api_key="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", 
-        # )
-        # self.api_keys = ['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']
-        self.api_keys = ['AIzaSyDpF7CzIoNNAThuWhXedXnr_ssvjCfNQMs',
-                         'AIzaSyDkIF9DP5FC_0wdPw7K7rAfbsYTVEJgsIM',
-                         'AIzaSyAb1kFdf7_ZJ2iA7SLzohM8fNUyZeVK6Hg',
-                         'AIzaSyCL9u4UtpEQKrnFqBKs62UX7wBOGvrqHec']
+        self.api_keys = []
         self.api_key = random.choice(self.api_keys)
         self.model = OpenAI(
             api_key=self.api_key,  # Google Gemini API key

@@ -318,7 +318,7 @@ def main():
 
 
     # 创建模型并生成响应
-    model = GeminiModels(model_name="gpt-4o", api_key="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")
+    model = GeminiModels(model_name="gpt-4o", api_key="your_api_key_here")
     generated_response = model.generate(text, image, online_system_prompt, fs_example)
 
     # 输出生成的响应
