@@ -3,7 +3,7 @@
   <h1 align="center">Use Vision Tools, Think with Images</h1>
 </div>
 
-OpenThinkIMG is an end-to-end open-source framework that empowers models to think with images, featuring flexible tool management, easy integration of new tools, efficient dynamic inference, and a streamlined SFT/RL training pipeline.
+OpenThinkIMG is an end-to-end open-source framework that empowers models to think with images, featuring flexible tool management, easy integration of new tools, efficient dynamic inference, and a streamlined SFT/Agent-RL training pipeline.
 
 
 
