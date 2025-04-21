@@ -47,9 +47,6 @@
 
 ## 🔧 Tool Factory & Vision Toolset
 
-<p align="center">
-  <img src="docs/tool_factory.png" width="600" alt="Tool Factory architecture" />
-</p>
 
 | **Tool**                  | **Description**                                                                                       |
 |---------------------------|-------------------------------------------------------------------------------------------------------|
