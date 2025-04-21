@@ -5,40 +5,25 @@
 
 OpenThinkIMG is an end-to-end open-source framework that empowers models to think with images, featuring flexible tool management, easy integration of new tools, efficient dynamic inference, and a streamlined SFT/RL training pipeline.
 
-<p align="center">
-  <img src="docs/framework.png" width="500" />
-</p>
-
-<p align="center">
-  Supported Features by OpenThinkIMG 
-</p>
 
 
  📚 [Documentation](docs/README.md)
 
 ## 🔔 News
 
-- **[2025-04]** Launch of OpenThinkIMG: the first Thinking with Image framework integrating a modular Tool Factory, a versatile Vision Toolset, and Unified Training (SFT + RL):
-  - **Toolset**: GroundingDINO, SAM, OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, SelectSubplot, and SegmentRegionAroundPoint
-  - **Key Features**: plug‑and‑play tool registration, dynamic tool planning & composition, and a streamlined SFT & RL training framework
-  
+- **[2025-04]** Launch of OpenThinkIMG: the first Thinking with Images framework integrating a modular Tool Factory, a versatile Vision Toolset, and unified SFT + RL training:
+  - **Toolset**: GroundingDINO, SAM, OCR, Crop, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoominSubplot, SegmentRegionAroundPoint
+  - **Key Features**: plug‑and‑play tool registration, tool sequencing for image manipulation, and streamlined SFT + RL training
+
 - **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
 
 ## 📌 Key Contributions
 
-1. **Thinking with Image** paradigm: agents reason by invoking specialized vision tools, moving beyond monolithic multimodal models.  
-2. **Comprehensive Vision Toolset**: seven purpose-built tools covering segmentation, zoom, OCR, and annotation—each contributing unique capabilities to downstream reasoning.  
-3. **Modular Tool Factory**: design pattern for managing tool lifecycles, isolation, dependencies, and versioning in a unified registry.  
-4. **Dynamic Planner**: orchestrates tool invocation in response to intermediate reasoning states, minimizing redundant calls and latency.  
-5. **Unified SFT + RL Framework**: combined supervised fine-tuning on tool-use demos with reinforcement learning for policy optimization under real-world feedback.
+- **Thinking with Image paradigm**: agents reason by invoking specialized vision tools, moving beyond monolithic multimodal models.
+-  **Comprehensive Vision Toolset**: nine purpose-built tools covering detection, segmentation, OCR, cropping, and annotation—each with clear inputs and outputs.
+-  **Modular Tool Factory**: easy registration and management of tools with version control and isolated lifecycles.
+-  **Unified SFT + RL Framework**: combined supervised fine-tuning on tool-use demonstrations with reinforcement learning to optimize policies under real-world feedback.
 
-## 📈 Why Use OpenThinkIMG?
-
-- **Unmatched Extensibility**: add custom vision tools (e.g., custom detectors, metric calculators) with minimal boilerplate.  
-- **Transparent Decision-Making**: detailed logs showing which tools ran, inputs/outputs, and decision rationale—ideal for auditing.  
-- **Performance & Efficiency**: adaptive tool selection reduces unnecessary computation, achieving SOTA chart reasoning with lean inference overhead.  
-- **Reproducible Training**: singular pipeline for SFT and RL ensures consistent evaluation and easy experimentation across tool configurations.  
-- **Community-Driven**: fully open-source, designed for collaboration—shape the next generation of vision reasoning together.
 
 ## 🔧 Tool Factory & Vision Toolset
 
@@ -51,7 +36,7 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 | **Point**                   | image + target description       | point coordinates                      | Uses a model to predict the location of a specified object                                      |
 | **DrawHorizontalLineByY**   | image + Y-coordinate             | annotated image                        | Draws a horizontal line at the given Y-coordinate                                                |
 | **DrawVerticalLineByX**     | image + X-coordinate             | annotated image                        | Draws a vertical line at the given X-coordinate                                                  |
-| **SelectSubplot**           | image + description (title/pos)  | list of subplot images                 | Selects subplot(s) based on description                                                         |
+| **ZoominSubplot**           | image + description (title/pos)  | subplot images                 | Selects subplot(s) based on description                                                         |
 | **SegmentRegionAroundPoint**| image + point coordinate         | localized mask                         | Refines segmentation around a specified point                                                    |
 
 
