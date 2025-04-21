@@ -18,8 +18,8 @@
 ## 🔔 News
 
 - **[2025-04]** Launch of OpenThinkIMG: the first Thinking with Image framework integrating a modular Tool Factory, a versatile Vision Toolset, and Unified Training (SFT + RL):
-  - Toolset: GroundingDINO, SAM, SAM2, OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, SelectSubplot
-  - Key Features: plug‑and‑play tool registration, dynamic tool planning & composition, and transparent execution logs
+  - **Toolset**: GroundingDINO, SAM, OCR, Point, DrawHorizontalLineByY, DrawVerticalLineByX, SelectSubplot, and SegmentRegionAroundPoint
+  - **Key Features**: plug‑and‑play tool registration, dynamic tool planning & composition, and a streamlined SFT & RL training framework
   
 - **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
 
@@ -46,12 +46,12 @@
 |---------------------------|-------------------------------------------------------------------------------------------------------|
 | **GroundingDINO**         | Object detection using GroundingDINO, producing bounding boxes for any target                          |
 | **SAM**                   | Global segmentation (SAM-1) that generates precise object masks                                         |
-| **SAM2**                  | Localized segmentation around a specified point, refining regions of interest                           |
 | **OCR**                   | Optical character recognition for detecting and extracting text from images                             |
 | **Point**                 | Uses molmo-7b to predict the coordinate(s) of a specified object within an image                       |
 | **DrawHorizontalLineByY** | Draws a horizontal line at a given Y-coordinate and returns the annotated image                       |
 | **DrawVerticalLineByX**   | Draws a vertical line at a given X-coordinate and returns the annotated image                         |
 | **SelectSubplot**         | Selects subplot(s) based on a description (e.g., title or position) and returns a list of images      |
+| **SegmentRegionAroundPoint**                  | Localized segmentation around a specified point, refining regions of interest                           |
 
 
 
