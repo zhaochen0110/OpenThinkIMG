@@ -1,8 +1,8 @@
 # OpenThinkIMG
 
-> **Reasoning over images via vision tools**
+> **Thinking with Images via Vision Tools**
 >
-> OpenThinkIMG is an end-to-end framework for building multimodal agents that seamlessly integrate vision tools to analyze, interpret, and reason over images. From dynamic tool management to unified training via SFT and RL, OpenThinkIMG accelerates the development of robust, adaptable vision AI systems.
+> OpenThinkIMG is an end-to-end, open-source framework empowering AI agents to think with images by orchestrating a rich suite of vision tools—enabling precise analysis, transparent tool orchestration, and dynamic reasoning.
 
 <p align="center">
   <img src="docs/framework.png" width="500" />
@@ -17,23 +17,72 @@
 
 ## 🔔 News
 
-- **[2025-04]** We release **OpenThinkIMG**, the first **end-to-end multimodal reasoning framework** over images, featuring:
-  - 🔧 Flexible vision tool management
-  - 🧩 Easy integration of new tools
-  - ⚡ Dynamic inference and planning
-  - 🧠 Unified training via SFT & RL
-  
+- **[2025-04]** Launch of **OpenThinkIMG**: the first **Thinking with Image** platform integrating a **Tool Factory**, a **Vision Toolset**, and **Unified Training**:  
+  - **🔍 Grounding SAM / SAM2**: state-of-the-art mask proposals for any object, ensuring pixel-perfect ROI extraction.  
+  - **➡️ Point Tool**: fine-grained, user-steered region selection through point-based prompts.  
+  - **📝 OCR**: robust text detection and recognition, optimized for charts, tables, and diagrams.  
+  - **🔎 ZoomInSubfigure**: context-aware subfigure zooming that retains layout semantics.  
+  - **📏 DrawHorizontalLineByY / DrawVerticalLineByX**: automated axis and guideline drawing for precise data annotation.  
+  - **🔵 SegmentRegionAroundPoint**: localized segmentation anchored at any point, crucial for cluttered visuals.  
+  - **🏭 Tool Factory Pattern**: plug-and-play tool registration, version control, and isolated deployment—integrate new tools in two lines of code.  
+  - **⚡ Dynamic Inference & Planning**: real-time tool scheduling and composition, adapting to diverse visual tasks.  
+  - **🧠 Unified Training (SFT + RL)**: end-to-end pipeline teaching agents not just *what* tools to use, but *when* and *how*.  
+- **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
+
+## 📌 Key Contributions
+
+1. **Thinking with Image** paradigm: agents reason by invoking specialized vision tools, moving beyond monolithic multimodal models.  
+2. **Comprehensive Vision Toolset**: seven purpose-built tools covering segmentation, zoom, OCR, and annotation—each contributing unique capabilities to downstream reasoning.  
+3. **Modular Tool Factory**: design pattern for managing tool lifecycles, isolation, dependencies, and versioning in a unified registry.  
+4. **Dynamic Planner**: orchestrates tool invocation in response to intermediate reasoning states, minimizing redundant calls and latency.  
+5. **Unified SFT + RL Framework**: combined supervised fine-tuning on tool-use demos with reinforcement learning for policy optimization under real-world feedback.
+
+## 📈 Why Use OpenThinkIMG?
+
+- **Unmatched Extensibility**: add custom vision tools (e.g., custom detectors, metric calculators) with minimal boilerplate.  
+- **Transparent Decision-Making**: detailed logs showing which tools ran, inputs/outputs, and decision rationale—ideal for auditing.  
+- **Performance & Efficiency**: adaptive tool selection reduces unnecessary computation, achieving SOTA chart reasoning with lean inference overhead.  
+- **Reproducible Training**: singular pipeline for SFT and RL ensures consistent evaluation and easy experimentation across tool configurations.  
+- **Community-Driven**: fully open-source, designed for collaboration—shape the next generation of vision reasoning together.
+
+## 🔧 Tool Factory & Vision Toolset
+
+<p align="center">
+  <img src="docs/tool_factory.png" width="600" alt="Tool Factory architecture" />
+</p>
+
+| **Tool**                     | **Primary Function**                                   | **Unique Strength**                                    |
+|------------------------------|--------------------------------------------------------|--------------------------------------------------------|
+| **Grounding SAM / SAM2**     | Pixel-level segmentation for arbitrary objects         | High-precision masks, zero-shot generalization         |
+| **Point Tool**               | ROI extraction via point prompts                       | Interactive, user-driven focus for ambiguous regions   |
+| **OCR**                      | Text detection & recognition                           | Optimized for dense chart labels and multi-language text |
+| **ZoomInSubfigure**          | Automated subfigure zoom preserving context            | Retains neighboring visual cues and layout integrity   |
+| **DrawHorizontalLineByY**    | Horizontal line annotation at given Y-coordinate       | Precise data-driven standoff lines for charts          |
+| **DrawVerticalLineByX**      | Vertical line annotation at given X-coordinate         | Exact alignment for axis markers and thresholds        |
+| **SegmentRegionAroundPoint** | Segments local region around a point                   | Effective in cluttered scenes, isolates target clusters |
 
 
+## 🧪 Experimental Highlights
+
+To thoroughly assess the effectiveness of our vision tool–enhanced multimodal framework, we constructed a dataset of 14,501 chart‐reasoning examples for reinforcement learning. Starting from the SFT‑fine‑tuned model, we then performed RL training—achieving convergence in just 200 steps. Below are the comparative results against various baseline models:
+
+| Model              | Score (%) |
+| ------------------ | --------- |
+| **Gemini**         | 61.5      |
+| **GPT-4o**         | 51.0      |
+| **Our Model**      | **43.2**  |
+| Qwen-2VL (RL-Zero) | 31.5      |
+| Qwen-2VL           | 29.5      |
+| TACO-8B            | 30.5      |
+| CogCom-13B         | 15.07     |
 
 
-## 📌 Overview
+- **Outcomes**: 
+  - ✅ Outperforms **Qwen-2VL** baseline by **+13.7%** and **TACO-8B** by **+12.7%**
+  - 🔁 Improves over the same base model trained from scratch by **+11.7%**
+  - ⚖️ Competitive with state-of-the-art commercial models while being fully open-source
 
-**OpenThinkIMG** is designed for building and training **multimodal agents** that can **reason over images via vision tools**. It includes two core components:
 
-- **🔌 Tool Deployment Framework**: A modular system to run and serve vision tools in isolated environments.
-
-- **🧠 Training Framework (SFT + RL)**: A pipeline to teach models how to use tools through **supervised fine-tuning (SFT)** and **reinforcement learning**.
 
 ## ⚙️ Installation
 
@@ -210,30 +259,6 @@ We also support supervised fine-tuning for training models on curated tool usage
     --warmup_ratio 0.1 \
     --save_only_model true
 ```
-
-
-
-## 📊 Experimental Results
-
-To thoroughly assess the effectiveness of our vision tool–enhanced multimodal framework, we constructed a dataset of 14,501 chart‐reasoning examples for reinforcement learning. Starting from the SFT‑fine‑tuned model, we then performed RL training—achieving convergence in just 200 steps. Below are the comparative results against various baseline models:
-
-| Model              | Score (%) |
-| ------------------ | --------- |
-| **Gemini**         | 61.5      |
-| **GPT-4o**         | 51.0      |
-| **Our Model**      | **43.2**  |
-| Qwen-2VL (RL-Zero) | 31.5      |
-| Qwen-2VL           | 29.5      |
-| TACO-8B            | 30.5      |
-| CogCom-13B         | 15.07     |
-
-#### 🔍 Highlights
-
-- ✅ Outperforms **Qwen-2VL** baseline by **+13.7%** and **TACO-8B** by **+12.7%**
-- 🔁 Improves over the same base model trained from scratch by **+11.7%**
-- ⚖️ Competitive with state-of-the-art commercial models while being fully open-source
-
----
 
 ## 📂 Examples & Case Studies
 
