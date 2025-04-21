@@ -41,18 +41,17 @@
 
 ## 🔧 Tool Factory & Vision Toolset
 
-
-| **Tool**                  | **Description**                                                                                       |
-|---------------------------|-------------------------------------------------------------------------------------------------------|
-| **GroundingDINO**         | Object detection using GroundingDINO, producing bounding boxes for any target                          |
-| **SAM**                   | Global segmentation (SAM-1) that generates precise object masks                                         |
-| **OCR**                   | Optical character recognition for detecting and extracting text from images                             |
-| **Point**                 | Uses molmo-7b to predict the coordinate(s) of a specified object within an image                       |
-| **DrawHorizontalLineByY** | Draws a horizontal line at a given Y-coordinate and returns the annotated image                       |
-| **DrawVerticalLineByX**   | Draws a vertical line at a given X-coordinate and returns the annotated image                         |
-| **SelectSubplot**         | Selects subplot(s) based on a description (e.g., title or position) and returns a list of images      |
-| **SegmentRegionAroundPoint**                  | Localized segmentation around a specified point, refining regions of interest                           |
-
+| **Tool**                    | **Input**                        | **Output**                             | **Description**                                                                                  |
+|-----------------------------|----------------------------------|----------------------------------------|--------------------------------------------------------------------------------------------------|
+| **GroundingDINO**           | image + text query               | bounding boxes                         | Object detection producing boxes for any target                                                  |
+| **SAM**                     | image + bounding box             | segmentation mask                      | Global segmentation generating precise object masks                                             |
+| **OCR**                     | image                            | text strings + bounding boxes          | Optical character recognition for extracting text from images                                    |
+| **Crop**                    | image + region coordinates       | cropped image                          | Extracts a sub-region of the image for focused analysis                                          |
+| **Point**                   | image + target description       | point coordinates                      | Uses a model to predict the location of a specified object                                      |
+| **DrawHorizontalLineByY**   | image + Y-coordinate             | annotated image                        | Draws a horizontal line at the given Y-coordinate                                                |
+| **DrawVerticalLineByX**     | image + X-coordinate             | annotated image                        | Draws a vertical line at the given X-coordinate                                                  |
+| **SelectSubplot**           | image + description (title/pos)  | list of subplot images                 | Selects subplot(s) based on description                                                         |
+| **SegmentRegionAroundPoint**| image + point coordinate         | localized mask                         | Refines segmentation around a specified point                                                    |
 
 
 ## 🧪 Experimental Highlights
