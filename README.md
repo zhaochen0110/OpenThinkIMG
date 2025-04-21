@@ -5,7 +5,7 @@
 > OpenThinkIMG is an end-to-end framework for building multimodal agents that seamlessly integrate vision tools to analyze, interpret, and reason over images. From dynamic tool management to unified training via SFT and RL, OpenThinkIMG accelerates the development of robust, adaptable vision AI systems.
 
 <p align="center">
-  <img src="framework.png" width="500" />
+  <img src="docs/framework.png" width="500" />
 </p>
 
 <p align="center">
@@ -240,14 +240,14 @@ To thoroughly assess the effectiveness of our vision tool–enhanced multimodal 
 - **Zoom + OCR:** automatic zoom-in and OCR extraction on charts.
 
 <p align="center">
-  <img src="crop.png" width="800" />
+  <img src="docs/crop.png" width="800" />
 </p>
 
 - **Point + DrawLine:** interactive annotation and drawing tools.
 
 
 <p align="center">
-  <img src="line.png" width="800" />
+  <img src="docs/line.png" width="800" />
 </p>
 
 ## 🤝 Contributing
