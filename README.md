@@ -39,7 +39,7 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 | **DrawVerticalLineByX**     | image + X-coordinate             | annotated image                        | Draws a vertical line at the given X-coordinate                                                  |
 | **ZoominSubplot**           | image + description (title/pos)  | subplot images                 | Zoomin subplot(s) based on description                                                         |
 | **SegmentRegionAroundPoint**| image + point coordinate         | localized mask                         | Refines segmentation around a specified point                                                    |
-> 💡 And more vision tools coming soon!
+> 💡 More vision tools are coming soon!
 
 ## 🧪 Experimental Highlights
 
