@@ -37,13 +37,13 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 | **Point**                   | image + target description       | point coordinates                      | Uses a model to predict the location of a specified object                                      |
 | **DrawHorizontalLineByY**   | image + Y-coordinate             | annotated image                        | Draws a horizontal line at the given Y-coordinate                                                |
 | **DrawVerticalLineByX**     | image + X-coordinate             | annotated image                        | Draws a vertical line at the given X-coordinate                                                  |
-| **ZoominSubplot**           | image + description (title/pos)  | subplot images                 | Selects subplot(s) based on description                                                         |
+| **ZoominSubplot**           | image + description (title/pos)  | subplot images                 | Zoomin subplot(s) based on description                                                         |
 | **SegmentRegionAroundPoint**| image + point coordinate         | localized mask                         | Refines segmentation around a specified point                                                    |
 > 💡 And more vision tools coming soon!
 
 ## 🧪 Experimental Highlights
 
-To thoroughly assess the effectiveness of our vision tool–enhanced multimodal framework, we constructed a dataset of 14,501 chart‐reasoning examples for reinforcement learning. Starting from the SFT‑fine‑tuned model, we then performed RL training—achieving convergence in just 200 steps. Below are the comparative results against various baseline models:
+To thoroughly assess the effectiveness of our vision tool–enhanced multimodal framework, we constructed a dataset of 14,501 chart‐reasoning examples for reinforcement learning. Starting from the SFT fine‑tuned model, we then performed RL training, achieving convergence in just 200 steps. Below are the comparative results against various baseline models:
 
 | Model              | Score (%) |
 | ------------------ | --------- |
