@@ -17,7 +17,7 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 
 - **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
 
-## 📌 🌟 Features & Benefits
+## 📌 🌟 Features
 
 - Agents step through images using vision tools (detection, segmentation, OCR, cropping, drawing, etc.).
 - **Seamless tool management**: add or swap custom tools with minimal setup via the Tool Factory.
@@ -26,7 +26,7 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 - **Community-driven and open-source**: collaborate to extend capabilities and drive the next generation of image reasoning.
 
 
-## 🔧 Tool Factory & Vision Toolset
+## 🔧 Vision Toolset
 
 | **Tool**                    | **Input**                        | **Output**                             | **Description**                                                                                  |
 |-----------------------------|----------------------------------|----------------------------------------|--------------------------------------------------------------------------------------------------|
@@ -238,7 +238,7 @@ We also support supervised fine-tuning for training models on curated tool usage
     --save_only_model true
 ```
 
-## 📂 Examples & Case Studies
+## 📂 Case Studies
 
 - **Zoom + OCR:** automatic zoom-in and OCR extraction on charts.
 
