@@ -267,6 +267,27 @@ To contribute:
 2. **Implement** your changes, adding or updating tests under `tests/`.  
 4. **Submit** a pull request referencing the relevant issue, with clear descriptions and code snippets.  
 
+## Acknowledgments
+
+We thank the Visual Sketchpad and TACO teams for inspiring our vision-driven reasoning paradigm.
+```
+@article{hu2024visual,
+  title={Visual Sketchpad: Sketching as a Visual Chain of Thought for Multimodal Language Models},
+  author={Hu, Yushi and Shi, Weijia and Fu, Xingyu and Roth, Dan and Ostendorf, Mari and Zettlemoyer, Luke and Smith, Noah A and Krishna, Ranjay},
+  journal={arXiv preprint arXiv:2406.09403},
+  year={2024}
+}
+
+@misc{ma2024tacolearningmultimodalaction,
+  title={TACO: Learning Multi-modal Action Models with Synthetic Chains-of-Thought-and-Action},
+  author={Zixian Ma and Jianguo Zhang and Zhiwei Liu and Jieyu Zhang and Juntao Tan and Manli Shu and Juan Carlos Niebles and Shelby Heinecke and Huan Wang and Caiming Xiong and Ranjay Krishna and Silvio Savarese},
+  year={2024},
+  eprint={2412.05479},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2412.05479},
+}
+```
 ---
 
 ## Citation
