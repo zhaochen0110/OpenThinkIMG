@@ -56,7 +56,7 @@ To thoroughly assess the effectiveness of our vision tool–enhanced multimodal 
 | CogCom-13B         | 15.07     |
 
 **Outcomes**: 
-- ✅ Outperforms **Qwen-2VL** baseline by **+13.7%** and **TACO-8B** by **+12.7%**
+- ✅ Outperforms **Qwen-2VL-2B** baseline by **+13.7%** and **TACO-8B** by **+12.7%**
 - 🔁 Improves over the same base model trained from scratch by **+11.7%**
 - ⚖️ Competitive with state-of-the-art commercial models while being fully open-source
 
@@ -267,7 +267,14 @@ To contribute:
 2. **Implement** your changes, adding or updating tests under `tests/`.  
 4. **Submit** a pull request referencing the relevant issue, with clear descriptions and code snippets.  
 
-## Acknowledgments
+
+## 📝 TODO
+- Technical report and model release coming soon
+- More vision tool support
+- Support the MCP server
+
+
+## 🙏 Acknowledgments
 
 We thank the Visual Sketchpad and TACO teams for inspiring our vision-driven reasoning paradigm.
 ```
@@ -290,7 +297,7 @@ We thank the Visual Sketchpad and TACO teams for inspiring our vision-driven rea
 ```
 ---
 
-## Citation
+## 📖 Citation
 
 Please cite the following if you find OpenThinkIMG helpful:
 
