@@ -17,12 +17,13 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 
 - **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
 
-## 📌 Key Contributions
+## 📌 🌟 Features & Benefits
 
-- **Thinking with Image paradigm**: agents reason by invoking specialized vision tools, moving beyond monolithic multimodal models.
--  **Comprehensive Vision Toolset**: nine purpose-built tools covering detection, segmentation, OCR, cropping, and annotation—each with clear inputs and outputs.
--  **Modular Tool Factory**: easy registration and management of tools with version control and isolated lifecycles.
--  **Unified SFT + Agent-RL Framework**: combined supervised fine-tuning on tool-use demonstrations with reinforcement learning to optimize policies under real-world feedback.
+- Agents step through images using vision tools (detection, segmentation, OCR, cropping, drawing, etc.).
+- **Seamless tool management**: add or swap custom tools with minimal setup via the Tool Factory.
+- **Transparent workflows**: automatic logs of each tool’s inputs and outputs for easy debugging and auditing.
+- **Unified training pipeline**: combined supervised fine-tuning (SFT) and reinforcement learning (RL) for consistent, reproducible improvements.
+- **Community-driven and open-source**: collaborate to extend capabilities and drive the next generation of image reasoning.
 
 
 ## 🔧 Tool Factory & Vision Toolset
@@ -38,7 +39,7 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 | **DrawVerticalLineByX**     | image + X-coordinate             | annotated image                        | Draws a vertical line at the given X-coordinate                                                  |
 | **ZoominSubplot**           | image + description (title/pos)  | subplot images                 | Selects subplot(s) based on description                                                         |
 | **SegmentRegionAroundPoint**| image + point coordinate         | localized mask                         | Refines segmentation around a specified point                                                    |
-
+> 💡 And more vision tools coming soon!
 
 ## 🧪 Experimental Highlights
 
