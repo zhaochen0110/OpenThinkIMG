@@ -53,7 +53,7 @@ To thoroughly assess the effectiveness of our vision tool–enhanced multimodal 
 | Qwen-2VL (RL-Zero) | 31.5      |
 | Qwen-2VL           | 29.5      |
 | TACO-8B            | 30.5      |
-| CogCom-13B         | 15.07     |
+| CogCom-13B         | 15.1     |
 
 **Outcomes**: 
 - ✅ Outperforms **Qwen-2VL-2B** baseline by **+13.7%** and **TACO-8B** by **+12.7%**
