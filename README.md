@@ -24,7 +24,7 @@ OpenThinkIMG is an end-to-end open-source framework that empowers models to thin
 | **Tool**                    | **Input**                        | **Output**                             | **Description**                                                                                  |
 |-----------------------------|----------------------------------|----------------------------------------|--------------------------------------------------------------------------------------------------|
 | **GroundingDINO**           | image + text query               | bounding boxes                         | Object detection producing boxes for any target                                                  |
-| **SAM**                     | image + bounding box             | segmentation mask                      | Global segmentation generating precise object masks                                             |
+| **SAM**                     | image + bounding box             | segmentation mask                      | Generates precise segmentation masks based on provided regions                    |
 | **OCR**                     | image                            | text strings + bounding boxes          | Optical character recognition for extracting text from images                                    |
 | **Crop**                    | image + region coordinates       | cropped image                          | Extracts a sub-region of the image for focused analysis                                          |
 | **Point**                   | image + target description       | point coordinates                      | Uses a model to predict the location of a specified object                                      |
