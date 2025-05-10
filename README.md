@@ -49,17 +49,19 @@ We welcome contributions and feedback to help us achieve these goals!
 
 ---
 
+## 👁️ Vision: "Thinking with Images"
 
- 📚 [Documentation](docs/README.md)
+> *"The eye sees only what the mind is prepared to comprehend."* – Robertson Davies
 
-## 🔔 News
+Humans don't just passively observe; we actively engage with visual information, sketching, highlighting, and manipulating it to understand. OpenThinkIMG aims to bring this interactive visual cognition to AI, enabling agents that can genuinely "think with images."
 
-- **[2025-04]** Launch of OpenThinkIMG: the first Thinking with Images framework integrating a modular Tool Factory, a versatile Vision Toolset, and unified SFT + Agent-RL training:
-  - **Toolset**: GroundingDINO, SAM, OCR, Crop, Point, DrawHorizontalLineByY, DrawVerticalLineByX, ZoominSubplot, SegmentRegionAroundPoint
-  - **Key Features**: plug‑and‑play tool registration, tool sequencing for image manipulation, and streamlined SFT + Agent-RL training
 
-- **Impact**: outperforms TACO-8B by **+12.7%** and Qwen-2VL by **+13.7%** on complex chart reasoning benchmarks, while maintaining full transparency and extensibility.
-
+<p align="center">
+  <img src="picture/v-toolrl.pdf" alt="Architecture Overview" style="width:100%;">
+</p>
+<p align="center">
+  <em>Architecture Overview</em>
+</p>
 
 
 ## 🔧 Vision Toolset
