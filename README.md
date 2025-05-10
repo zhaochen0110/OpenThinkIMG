@@ -57,7 +57,7 @@ Humans don't just passively observe; we actively engage with visual information,
 
 
 <div align="center">
-  <img src="docs/v-toolrl.png" alt="Architecture Overview" width="600">
+  <img src="docs/v-toolrl.png" alt="Architecture Overview" width="800">
   <br>
   <em>Figure 1: Overview of the OpenThinkIMG framework and V-ToolRL training process.</em>
 </div>
@@ -303,11 +303,6 @@ To contribute:
 2. **Implement** your changes, adding or updating tests under `tests/`.  
 4. **Submit** a pull request referencing the relevant issue, with clear descriptions and code snippets.  
 
-
-## 📝 TODO
-- Technical report and model release coming soon
-- More vision tool support
-- Support the MCP server
 
 
 ## 🙏 Acknowledgments
