@@ -3,7 +3,41 @@
   <h1 align="center">Use Vision Tools, Think with Images</h1>
 </div>
 
-OpenThinkIMG is an end-to-end open-source framework that empowers models to think with images, featuring flexible tool management, easy integration of new tools, efficient dynamic inference, and a streamlined SFT/Agent-RL training pipeline.
+## 🤔 What is OpenThinkIMG?
+
+OpenThinkIMG is an end-to-end open-source framework that empowers Large Vision-Language Models (LVLMs) to think with images. It features:
+*   Flexible vision tool management and easy integration of new tools.
+*   Efficient dynamic inference with distributed tool deployment.
+*   A streamlined SFT (Supervised Fine-Tuning) and Agent-RL (Reinforcement Learning) training pipeline, including our novel **V-ToolRL** method.
+
+Our goal is to enable AI agents to interactively use visual tools to decompose, analyze, and solve complex visual problems, moving beyond passive observation towards active visual cognition.
+
+---
+
+## 🐚 Why OpenThinkIMG?
+
+Current Large Vision-Language Models (LVLMs) excel at many tasks but often struggle when:
+*   Deep, iterative visual reasoning is required, not just single-pass description.
+*   Precise interaction with visual content (e.g., reading specific chart values, identifying exact locations) is crucial.
+*   Generalizing learned tool-use to new scenarios dynamically.
+
+OpenThinkIMG addresses these challenges by:
+
+*   **Bridging the Gap to Human-like Visual Cognition**: We enable LVLMs to "think with images" by actively using a suite of visual tools, much like humans use sketches or highlights to understand complex scenes.
+*   **Standardizing a Fragmented Landscape**: The current ecosystem for vision tools lacks unification. OpenThinkIMG provides:
+    *   **Unified Tool Interfaces**: A standardized way to define and interact with diverse visual tools.
+    *   **Modular, Distributed Deployment**: Tools run as independent services, enhancing scalability, fault isolation, and resource management.
+*   **Overcoming Data Bottlenecks**: Generating high-quality training data for tool-augmented reasoning is expensive and complex. We offer:
+    *   **Scalable Trajectory Generation**: A three-stage pipeline leveraging LLM planning, automated tool execution, and rigorous filtering to create rich tool-use demonstrations.
+*   **Moving Beyond Static SFT Limitations**: Supervised Fine-Tuning (SFT) on fixed trajectories often leads to poor generalization and lacks adaptability. We introduce:
+    *   **V-ToolRL for Adaptive Policies**: Our novel reinforcement learning framework allows agents to *autonomously discover optimal tool-usage strategies* by directly optimizing for task success through interaction and feedback. This leads to significantly better performance and adaptability compared to SFT-only approaches.
+*   **Driving Reproducible Research**: By open-sourcing the entire framework, we aim to provide a common platform for the community to build upon, experiment with, and advance the field of tool-augmented visual reasoning.
+
+---
+
+## 🚧 Project Status
+
+OpenThinkIMG is currently an **alpha release** but is actively being developed. The core end-to-end system, including tool integration, trajectory generation, SFT (Cold-Start), and V-ToolRL training, is functional and can be used to replicate the results in our paper.
 
 
 
