@@ -283,7 +283,7 @@ We also support supervised fine-tuning for training models on curated tool usage
 
 
 <div align="center">
-  <img src="docs/case.png" width="700">
+  <img src="docs/example.png" width="700">
   <br>
   <em>An example demonstrating the step-by-step visual reasoning process of our V-ToolRL agent.</em>
 </div>
