@@ -77,19 +77,22 @@ Humans don't just passively observe; we actively engage with visual information,
 | **SegmentRegionAroundPoint**| image + point coordinate         | localized mask                         | Refines segmentation around a specified point                                                    |
 > 💡 More vision tools are coming soon!
 
-## 🧪 Experimental Highlights
+## 📊 Results on Chart Reasoning (ChartGemma)
+Our V-ToolRL approach significantly boosts performance:
 
-To thoroughly assess the effectiveness of our vision tool–enhanced multimodal framework, we constructed a dataset of 14,501 chart‐reasoning examples for reinforcement learning. Starting from the SFT fine‑tuned model, we then performed RL training, achieving convergence in just 200 steps. Below are the comparative results against various baseline models:
 
-| Model              | Score (%) |
-| ------------------ | --------- |
-| **Gemini**         | 61.5      |
-| **GPT-4o**         | 51.0      |
-| **Our Model**      | **43.2**  |
-| Qwen-2VL (RL-Zero) | 31.5      |
-| Qwen-2VL           | 29.5      |
-| TACO-8B            | 30.5      |
-| CogCom-13B         | 15.1     |
+| Model                          | Method       | Accuracy (%) |
+| :----------------------------- | :----------- | :----------- |
+| GPT-4.1       | Zero-shot    | 50.71        |
+| Gemini-2.0-flash-exp   | Zero-shot    | 68.20        |
+| ---                            | ---          | ---          |
+| CogCom                         |  SFT (CoM)    | 15.07        |
+| TACO                           | SFT (CoTA)   | 30.50        |
+| ---                            | ---          | ---          |
+| Qwen2-vl-2B                    | Zero-shot    | 29.56        |
+| Qwen2-vl-2B-SFT      | SFT          | 45.67        |
+| Text-based RL     | RL (No Vis)  | 51.63        |
+| **V-ToolRL**    | **V-ToolRL** | **59.39**    |
 
 V-ToolRL not only enhances our base model by +29.83 points but also outperforms other open-source tool-augmented agents and even strong closed-source models like GPT-4.1.
 
