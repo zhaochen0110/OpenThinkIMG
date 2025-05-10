@@ -56,12 +56,10 @@ We welcome contributions and feedback to help us achieve these goals!
 Humans don't just passively observe; we actively engage with visual information, sketching, highlighting, and manipulating it to understand. OpenThinkIMG aims to bring this interactive visual cognition to AI, enabling agents that can genuinely "think with images."
 
 
-<p align="center">
-  <img src="docs/v-toolrl.pdf" alt="Architecture Overview" style="width:100%;">
-</p>
-<p align="center">
-  <em>Architecture Overview</em>
-</p>
+<div align="center">
+  <img src="docs/v-toolrl.pdf" alt="Architecture Overview" width="600">
+  <h1 align="center">Architecture Overview</h1>
+</div>
 
 
 ## 🔧 Vision Toolset
