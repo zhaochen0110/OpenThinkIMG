@@ -276,18 +276,12 @@ We also support supervised fine-tuning for training models on curated tool usage
 
 ## 📂 Case Studies
 
-- **Zoom + OCR:** automatic zoom-in and OCR extraction on charts.
 
-<p align="center">
-  <img src="docs/crop.png" width="800" />
-</p>
-
-- **Point + DrawLine:** interactive annotation and drawing tools.
-
-
-<p align="center">
-  <img src="docs/line.png" width="800" />
-</p>
+<div align="center">
+  <img src="docs/example.png" width="700">
+  <br>
+  <em>An example demonstrating the step-by-step visual reasoning process of our V-ToolRL agent.</em>
+</div>
 
 ## 🤝 Contributing
 
