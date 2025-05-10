@@ -3,6 +3,22 @@
   <h1 align="center">Use Vision Tools, Think with Images</h1>
 </div>
 
+
+## 👁️ Vision: "Thinking with Images"
+
+> *"The eye sees only what the mind is prepared to comprehend."* – Robertson Davies
+
+Humans don't just passively observe; we actively engage with visual information, sketching, highlighting, and manipulating it to understand. OpenThinkIMG aims to bring this interactive visual cognition to AI, enabling agents that can genuinely "think with images."
+
+
+<div align="center">
+  <img src="docs/v-toolrl.png" alt="Architecture Overview" width="800">
+  <br>
+  <em>Overview of the OpenThinkIMG framework and V-ToolRL training process.</em>
+</div>
+
+---
+
 ## 🤔 What is OpenThinkIMG?
 
 OpenThinkIMG is an end-to-end open-source framework that empowers Large Vision-Language Models (LVLMs) to think with images. It features:
@@ -49,18 +65,7 @@ We welcome contributions and feedback to help us achieve these goals!
 
 ---
 
-## 👁️ Vision: "Thinking with Images"
 
-> *"The eye sees only what the mind is prepared to comprehend."* – Robertson Davies
-
-Humans don't just passively observe; we actively engage with visual information, sketching, highlighting, and manipulating it to understand. OpenThinkIMG aims to bring this interactive visual cognition to AI, enabling agents that can genuinely "think with images."
-
-
-<div align="center">
-  <img src="docs/v-toolrl.png" alt="Architecture Overview" width="800">
-  <br>
-  <em>Overview of the OpenThinkIMG framework and V-ToolRL training process.</em>
-</div>
 
 ## 🔧 Vision Toolset
 
