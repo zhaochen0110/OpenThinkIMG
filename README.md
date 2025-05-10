@@ -193,21 +193,21 @@ For detailed information and config setting please refer to our [documentation](
 
 ## 🧠 Training
 
-Once the vision tools are properly deployed, we provide a flexible training pipeline to teach models **how to plan and invoke tools** effectively through **SFT** and **RL-based (GRPO)** methods.
+Once the vision tools are properly deployed, we provide a flexible training pipeline to teach models **how to plan and invoke tools** effectively through **SFT** and our proposed **V-ToolRL** methods.
 
 Our training pipeline builds on the solid foundation of [OpenR1](https://github.com/OpenR1), integrating visual tools as external reasoning capabilities.
 
 ### 📦 Install Additional Dependencies
 
-To run training code, make sure to install the additional required packages:
+To run the training code, make sure to install the additional required packages:
 
 ```
 pip install -r requirements_train.txt
 ```
 
-### 🔁 Reinforcement Learning with Vision Tools
+### 🔁 V-ToolRL: Reinforcement Learning with Vision Tools
 
-We provide a customized implementation of **GRPO** for training models to leverage vision tools dynamically in complex tasks.
+We provide a customized implementation of V-ToolRL for training models to leverage vision tools dynamically in complex tasks.
 
 ```
 torchrun --nproc_per_node=${nproc_per_node} \
