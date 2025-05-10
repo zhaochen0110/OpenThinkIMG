@@ -16,7 +16,7 @@ Our goal is to enable AI agents to interactively use visual tools to decompose, 
 
 ## 🐚 Why OpenThinkIMG?
 
-Current Large Vision-Language Models (LVLMs) excel at many tasks but often struggle when:
+Current LVLMs excel at many tasks but often struggle when:
 *   Deep, iterative visual reasoning is required, not just single-pass description.
 *   Precise interaction with visual content (e.g., reading specific chart values, identifying exact locations) is crucial.
 *   Generalizing learned tool-use to new scenarios dynamically.
@@ -27,8 +27,6 @@ OpenThinkIMG addresses these challenges by:
 *   **Standardizing a Fragmented Landscape**: The current ecosystem for vision tools lacks unification. OpenThinkIMG provides:
     *   **Unified Tool Interfaces**: A standardized way to define and interact with diverse visual tools.
     *   **Modular, Distributed Deployment**: Tools run as independent services, enhancing scalability, fault isolation, and resource management.
-*   **Overcoming Data Bottlenecks**: Generating high-quality training data for tool-augmented reasoning is expensive and complex. We offer:
-    *   **Scalable Trajectory Generation**: A three-stage pipeline leveraging LLM planning, automated tool execution, and rigorous filtering to create rich tool-use demonstrations.
 *   **Moving Beyond Static SFT Limitations**: Supervised Fine-Tuning (SFT) on fixed trajectories often leads to poor generalization and lacks adaptability. We introduce:
     *   **V-ToolRL for Adaptive Policies**: Our novel reinforcement learning framework allows agents to *autonomously discover optimal tool-usage strategies* by directly optimizing for task success through interaction and feedback. This leads to significantly better performance and adaptability compared to SFT-only approaches.
 *   **Driving Reproducible Research**: By open-sourcing the entire framework, we aim to provide a common platform for the community to build upon, experiment with, and advance the field of tool-augmented visual reasoning.
@@ -39,6 +37,17 @@ OpenThinkIMG addresses these challenges by:
 
 OpenThinkIMG is currently an **alpha release** but is actively being developed. The core end-to-end system, including tool integration, trajectory generation, SFT (Cold-Start), and V-ToolRL training, is functional and can be used to replicate the results in our paper.
 
+The project team is actively working on the following key milestones:
+
+*   **🥇 Release of Pre-trained Models**: Providing readily usable SFT-initialized and V-ToolRL-trained agent models (e.g., based on Qwen2-VL-2B).
+*   **🛠️ Expanding the Vision Toolset**: Integrating more diverse and powerful vision tools (e.g., advanced image editing, 3D analysis tools).
+*   **🤖 Broader LVLM Backbone Support**: Adding easy integration for more open-source LVLMs (e.g., LLaVA series, MiniGPT-4).
+*   **📊 More Benchmarks & Evaluation Suites**: Extending evaluation to a wider range of visual reasoning tasks beyond chart reasoning.
+*   **🌐 Community Building**: Fostering an active community through GitHub discussions, contributions, and collaborations.
+
+We welcome contributions and feedback to help us achieve these goals!
+
+---
 
 
  📚 [Documentation](docs/README.md)
