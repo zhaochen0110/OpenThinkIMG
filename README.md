@@ -57,7 +57,7 @@ Humans don't just passively observe; we actively engage with visual information,
 
 
 <div align="center">
-  <img src="docs/v-toolrl.pdf" alt="Architecture Overview" width="600">
+  <img src="docs/v-toolrl.png" alt="Architecture Overview" width="600">
   <h1 align="center">Architecture Overview</h1>
 </div>
 
