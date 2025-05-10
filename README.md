@@ -59,7 +59,7 @@ Humans don't just passively observe; we actively engage with visual information,
 <div align="center">
   <img src="docs/v-toolrl.png" alt="Architecture Overview" width="800">
   <br>
-  <em>Figure 1: Overview of the OpenThinkIMG framework and V-ToolRL training process.</em>
+  <em>Overview of the OpenThinkIMG framework and V-ToolRL training process.</em>
 </div>
 
 ## 🔧 Vision Toolset
