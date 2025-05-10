@@ -58,9 +58,9 @@ Humans don't just passively observe; we actively engage with visual information,
 
 <div align="center">
   <img src="docs/v-toolrl.png" alt="Architecture Overview" width="600">
-  <h1 align="center">Architecture Overview</h1>
+  <br>
+  <em>Figure 1: Overview of the OpenThinkIMG framework and V-ToolRL training process.</em>
 </div>
-
 
 ## 🔧 Vision Toolset
 
@@ -312,26 +312,8 @@ To contribute:
 
 ## 🙏 Acknowledgments
 
-We thank the Visual Sketchpad and TACO teams for inspiring our vision-driven reasoning paradigm.
-```
-@article{hu2024visual,
-  title={Visual Sketchpad: Sketching as a Visual Chain of Thought for Multimodal Language Models},
-  author={Hu, Yushi and Shi, Weijia and Fu, Xingyu and Roth, Dan and Ostendorf, Mari and Zettlemoyer, Luke and Smith, Noah A and Krishna, Ranjay},
-  journal={arXiv preprint arXiv:2406.09403},
-  year={2024}
-}
+We thank the [Visual Sketchpad](https://arxiv.org/abs/2406.09403) and [TACO](https://arxiv.org/abs/2402.05479) teams for inspiring our vision-driven reasoning paradigm.
 
-@misc{ma2024tacolearningmultimodalaction,
-  title={TACO: Learning Multi-modal Action Models with Synthetic Chains-of-Thought-and-Action},
-  author={Zixian Ma and Jianguo Zhang and Zhiwei Liu and Jieyu Zhang and Juntao Tan and Manli Shu and Juan Carlos Niebles and Shelby Heinecke and Huan Wang and Caiming Xiong and Ranjay Krishna and Silvio Savarese},
-  year={2024},
-  eprint={2412.05479},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2412.05479},
-}
-```
----
 
 ## 📖 Citation
 
