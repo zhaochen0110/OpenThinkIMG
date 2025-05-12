@@ -234,26 +234,34 @@ srun -p ${YOUR_PARTITION} pip install -e . # make sure in a GPU environment
 git clone https://github.com/IDEA-Research/Grounded-Segment-Anything.git
 cd Grounded-Segment-Anything/GroundingDINO
 
-# 如果发现有pyproject.toml,请删除
-rm pyproject.toml
-# 尝试安装
-srun -p MoE pip install -e .
-# 若提示缺少MPCXXX，请自行安装MPC并在PATH和LD_LIBRARY_PATH里面指定MPC路径
+# If a pyproject.toml file is found, please delete it.
+rm pyproject.toml
 
-# 安装成功后再次import
-python -c "import groundingdino._C"
+# Attempt installation
+srun -p MoE pip install -e .
+# If prompted about missing MPCXXX, please install MPC manually and specify the MPC path in your PATH and LD_LIBRARY_PATH environment variables.
+
+# After successful installation, try importing again
+python -c "import groundingdino._C"
+
+# (Example error output if the import fails)
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
 ImportError: libc10.so: cannot open shared object file: No such file or directory
 
-# 查找libc位置
+# Find the location of libc10.so
+# This command searches within your PyTorch installation directory
 find $(python -c "import torch; print(torch.__path__[0])") -name "libc10.so"
+
+# (Example output from the find command)
 /mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages/torch/lib/libc10.so
 
-# 把前面这一串加给LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages/torch/lib
+# Add the directory containing the library (the path found above, excluding the filename) to LD_LIBRARY_PATH
+# Use the actual path found by the 'find' command on your system
+export LD_LIBRARY_PATH=/mnt/petrelfs/haoyunzhuo/anaconda3/envs/tool-factory/lib/python3.10/site-packages/torch/lib:$LD_LIBRARY_PATH 
+# Note: It's generally better to prepend the path and include the existing LD_LIBRARY_PATH like shown above.
 
-# 再次import
+# Try importing again
 python -c "import groundingdino._C"
 ```
 
