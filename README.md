@@ -327,12 +327,14 @@ We thank the [Visual Sketchpad](https://arxiv.org/abs/2406.09403) and [TACO](htt
 Please cite the following if you find OpenThinkIMG helpful:
 
 ```
-@misc{OpenThinkIMG,
-  author       = {OpenThinkIMG Team},
-  title        = {OpenThinkIMG: Empowering vision-driven reasoning through modular tool orchestration},
-  year         = {2025},
-  organization = {GitHub},
-  url          = {https://github.com/OpenThinkIMG/OpenThinkIMG},
+@misc{su2025openthinkimglearningthinkimages,
+      title={OpenThinkIMG: Learning to Think with Images via Visual Tool Reinforcement Learning}, 
+      author={Zhaochen Su and Linjie Li and Mingyang Song and Yunzhuo Hao and Zhengyuan Yang and Jun Zhang and Guanjie Chen and Jiawei Gu and Juntao Li and Xiaoye Qu and Yu Cheng},
+      year={2025},
+      eprint={2505.08617},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2505.08617}, 
 }
 ```
 
