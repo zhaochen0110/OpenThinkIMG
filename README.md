@@ -1,7 +1,6 @@
 <div align="center">
   <img src="docs/logo.png" alt="Logo" width="300">
   <h1 align="center">Use Vision Tools, Think with Images</h1>
-</div>
 
   <a href="https://arxiv.org/pdf/2505.08617">
     <img src="https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white" alt="Paper">
@@ -16,6 +15,8 @@
     <img src="https://img.shields.io/badge/Twitter-%23000000.svg?style=for-the-badge&logo=twitter&logoColor=white" alt="Twitter">
   </a>
 </div>
+
+
 ## 👁️ Vision: "Thinking with Images"
 
 > *"The eye sees only what the mind is prepared to comprehend."* – Robertson Davies
