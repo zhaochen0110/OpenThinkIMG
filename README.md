@@ -327,14 +327,11 @@ We thank the [Visual Sketchpad](https://arxiv.org/abs/2406.09403) and [TACO](htt
 Please cite the following if you find OpenThinkIMG helpful:
 
 ```
-@misc{su2025openthinkimglearningthinkimages,
-      title={OpenThinkIMG: Learning to Think with Images via Visual Tool Reinforcement Learning}, 
-      author={Zhaochen Su and Linjie Li and Mingyang Song and Yunzhuo Hao and Zhengyuan Yang and Jun Zhang and Guanjie Chen and Jiawei Gu and Juntao Li and Xiaoye Qu and Yu Cheng},
-      year={2025},
-      eprint={2505.08617},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2505.08617}, 
+@article{su2025openthinkimg,
+  title={OpenThinkIMG: Learning to Think with Images via Visual Tool Reinforcement Learning},
+  author={Su, Zhaochen and Li, Linjie and Song, Mingyang and Hao, Yunzhuo and Yang, Zhengyuan and Zhang, Jun and Chen, Guanjie and Gu, Jiawei and Li, Juntao and Qu, Xiaoye and others},
+  journal={arXiv preprint arXiv:2505.08617},
+  year={2025}
 }
 ```
 
