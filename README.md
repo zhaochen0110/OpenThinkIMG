@@ -36,7 +36,7 @@ Humans don't just passively observe; we actively engage with visual information,
 - **[2025/05/14]** Our work is reported by both [Deep Learning and NLP (深度学习自然语言处理)](https://mp.weixin.qq.com/s/_GCvkg7bb5-NiId_4s5cMg) and [Machine Learning and NLP (机器学习算法与自然语言处理)](https://mp.weixin.qq.com/s/p2OJzSp4BKSfGVjv2KWEFg).
 - **[2025/05/13]** The models and datasets are released on [HuggingFace](https://huggingface.co/collections/Warrieryes/openthinkimg-68244a63e97a24d9b7ffcde9).
 - **[2025/05/13]** OpenThinkIMG codebase is released along with evaluation scripts. Try it out!
-- **[2025/045/13]** OpenThinkIMG paper available on [arXiv](https://arxiv.org/pdf/2505.08617).
+- **[2025/05/13]** OpenThinkIMG paper available on [arXiv](https://arxiv.org/pdf/2505.08617).
 
 ---
 
