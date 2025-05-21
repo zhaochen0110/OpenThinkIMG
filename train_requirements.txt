@@ -169,8 +169,6 @@ py-spy==0.4.0
 pyarrow==19.0.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
-pybind11 @ file:///croot/pybind11-split_1730386533478/work
-pybind11_global @ file:///croot/pybind11-split_1730386533478/work
 pycodestyle==2.12.1
 pycountry==24.6.1
 pydantic==2.10.6
@@ -234,7 +232,6 @@ torchaudio==2.5.1+cu121
 torchdata==0.11.0
 torchvision==0.20.1+cu121
 tqdm==4.67.1
-transformers @ git+https://github.com/huggingface/transformers.git@336dc69d63d56f232a183a3e7f52790429b871ef
 triton==3.1.0
 trl==0.14.0
 typepy==1.3.4

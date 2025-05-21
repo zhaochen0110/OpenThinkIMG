@@ -141,7 +141,7 @@ conda activate tool-server
 conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
 
 # Install remaining dependencies
-pip install -r requirements.txt
+pip install -r tool_server_requirements.txt
 pip install -e .
 ```
 > 💡 Note: The `requirements.txt` is tailored for inference & evaluation. For training, refer to the Training Section for additional dependencies.
